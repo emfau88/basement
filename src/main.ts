@@ -10,6 +10,7 @@ import { createRenderingContext } from './scene/renderer'
 import { buildStudioRoom } from './scene/room'
 import { resolveSceneDetailBudget } from './scene/assets/detailBudget'
 import type { AssetManager } from './scene/assets/assetManager'
+import type { GamesProofController } from './scene/photoreal/gamesProof'
 import { createLiveScreenSystem } from './screens/liveScreens'
 import { createProjectWall } from './screens/projectWall'
 import { createStudioStore, type StudioView } from './state/studioState'
@@ -44,6 +45,26 @@ try {
   const rendering = createRenderingContext(app)
   const detailBudget = resolveSceneDetailBudget(rendering.quality)
   let assetManager: AssetManager | null = null
+  let assetManagerPromise: Promise<AssetManager> | null = null
+  let gamesProof: GamesProofController | null = null
+  let gamesProofPromise: Promise<GamesProofController> | null = null
+  const getAssetManager = (): Promise<AssetManager> => {
+    if (assetManager) return Promise.resolve(assetManager)
+    if (!assetManagerPromise) {
+      assetManagerPromise = import('./scene/assets/assetManager').then(({ createAssetManager }) => {
+        assetManager = createAssetManager(rendering.renderer, {
+          onProgress: ({ ratio }) => {
+            rendering.renderer.domElement.dataset.assetProgress = ratio === null ? 'indeterminate' : ratio.toFixed(3)
+          },
+        })
+        return assetManager
+      }).catch((error) => {
+        assetManagerPromise = null
+        throw error
+      })
+    }
+    return assetManagerPromise
+  }
   loadbar.style.width = '36%'
   const cameraController = new CameraController(rendering.camera)
   const materials = createStudioMaterials()
@@ -64,6 +85,36 @@ try {
   const webglRecovery = createWebGLRecoveryUI()
   const hotspots = createHotspots(rendering.scene)
   let scheduler: ReturnType<typeof createRenderScheduler>
+  const ensureGamesProof = (): Promise<GamesProofController> => {
+    if (gamesProof) return Promise.resolve(gamesProof)
+    if (!gamesProofPromise) {
+      rendering.renderer.domElement.dataset.gamesProof = 'loading'
+      gamesProofPromise = Promise.all([
+        getAssetManager(),
+        import('./scene/photoreal/gamesProof'),
+      ]).then(([assets, module]) => module.createGamesPhotorealProof({
+        scene: rendering.scene,
+        renderer: rendering.renderer,
+        materials,
+        budget: detailBudget,
+        quality: rendering.quality,
+        assets,
+      })).then((proof) => {
+        gamesProof = proof
+        proof.setActive(store.get().view === 'games')
+        rendering.renderer.domElement.dataset.gamesProof = 'ready'
+        scheduler.requestRender()
+        return proof
+      }).catch((error) => {
+        console.warn('[games photoreal proof]', error)
+        rendering.renderer.domElement.dataset.gamesProof = 'fallback'
+        gamesProofPromise = null
+        scheduler.requestRender()
+        throw error
+      })
+    }
+    return gamesProofPromise
+  }
 
   const setInspectLabel = (active: boolean) => { meshes.gameLeftScreen.userData.detailLabel = active ? 'Select project' : 'Zoom into selector' }
   const navigate = (view: StudioView) => {
@@ -76,6 +127,15 @@ try {
     tooltip.classList.remove('show'); document.body.style.cursor = 'default'
     fade.style.opacity = '.13'; window.setTimeout(() => { fade.style.opacity = '0' }, 150)
     store.set({ view, inspectMode: null, mobileSheet: 'collapsed' })
+    if (view === 'games') {
+      void ensureGamesProof().then((proof) => {
+        if (store.get().view === 'games') {
+          proof.setActive(true)
+          scheduler.requestRender()
+        }
+      }).catch(() => undefined)
+    }
+    else gamesProof?.setActive(false)
     cameraController.moveToView(view, 'collapsed'); scheduler.startTransition()
   }
   const enterInspect = () => {
@@ -113,14 +173,9 @@ try {
   const assetSmoke = new URLSearchParams(location.search).get('assetSmoke')
   if (assetSmoke) {
     rendering.renderer.domElement.dataset.assetSmoke = 'loading'
-    void import('./scene/assets/assetManager').then(({ createAssetManager }) => {
-      assetManager = createAssetManager(rendering.renderer, {
-        onProgress: ({ ratio }) => {
-          rendering.renderer.domElement.dataset.assetProgress = ratio === null ? 'indeterminate' : ratio.toFixed(3)
-        },
-      })
+    void getAssetManager().then((assets) => {
       const smokePath = assetSmoke === 'missing' ? 'assets/runtime/fixtures/missing.glb' : 'assets/runtime/fixtures/smoke-box.glb'
-      void assetManager.loadModel(smokePath, {
+      void assets.loadModel(smokePath, {
         timeoutMs: 4_000,
         fallback: () => new THREE.Group(),
       }).then((model) => {
@@ -128,16 +183,17 @@ try {
         rendering.scene.add(model.root)
         rendering.renderer.domElement.dataset.assetSmoke = model.source
         if (assetSmoke === 'dispose') {
-          assetManager?.release(model.root)
-          assetManager?.dispose()
+          assets.release(model.root)
+          assets.dispose()
           assetManager = null
+          assetManagerPromise = null
           rendering.renderer.domElement.dataset.assetDisposed = 'true'
         }
       }).catch(() => {
         rendering.renderer.domElement.dataset.assetSmoke = 'error'
       })
       if (assetSmoke === 'environment') {
-        void assetManager.loadEnvironment('assets/runtime/fixtures/missing.hdr', 4_000).then((environment) => {
+        void assets.loadEnvironment('assets/runtime/fixtures/missing.hdr', 4_000).then((environment) => {
           rendering.renderer.domElement.dataset.assetEnvironment = environment.source
         })
       }
@@ -166,7 +222,7 @@ try {
     rendering.resize(); cameraController.resize(state.view, Boolean(state.inspectMode), state.mobileSheet); scheduler.requestRender()
   })
   window.addEventListener('pagehide', () => {
-    viewport.destroy(); mobileControls.destroy(); navigation.destroy(); unsubscribeCameraLayout(); scheduler.destroy(); assetManager?.dispose()
+    viewport.destroy(); mobileControls.destroy(); navigation.destroy(); unsubscribeCameraLayout(); scheduler.destroy(); gamesProof?.dispose(); assetManager?.dispose()
   }, { once: true })
 
   rendering.scene.traverse((object) => {

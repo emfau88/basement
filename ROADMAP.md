@@ -2,7 +2,7 @@
 
 Last updated: 2026-09-12  
 Current phase: Phase D — Photorealistic Games proof
-Current bulk: Bulk 16 — Games architectural shell and lighting proof
+Current bulk: Bulk 17 — Games hero assets and materials
 
 ## Status legend
 
@@ -202,17 +202,19 @@ Acceptance: one test asset loads, falls back and disposes correctly at the GitHu
 
 Verification: compressed GLB success/fallback/disposal, HDR fallback, KTX2 runtime delivery, typecheck, production build, Mobile regression suite, dependency audit and GitHub Pages `/basement/` subpath QA passed on 2026-09-12.
 
-### Bulk 16 — Games architectural shell and lighting proof — **IN PROGRESS**
+### Bulk 16 — Games architectural shell and lighting proof — COMPLETE
 
-- [ ] Rebuild only the Games shell at coherent real-world scale.
-- [ ] Establish the fixed hero camera before detail dressing.
-- [ ] Establish image-based lighting, exposure and tone mapping.
-- [ ] Use at most one important shadow-casting light; bake or fake secondary contact/AO where appropriate.
-- [ ] Preserve every existing Games selection, monitor and navigation interaction.
+- [x] Rebuild only the Games shell at coherent real-world scale.
+- [x] Establish the fixed hero camera before detail dressing.
+- [x] Establish image-based lighting, exposure and tone mapping.
+- [x] Use at most one important shadow-casting light; bake or fake secondary contact/AO where appropriate.
+- [x] Preserve every existing Games selection, monitor and navigation interaction.
 
 Acceptance: the empty architectural shell already reads as a believable photographed room, with stable exposure, grounded forms and no interaction regression.
 
-### Bulk 17 — Games hero assets and materials
+Verification: fixed Desktop/Mobile captures, TypeScript, production build, asset success/fallback/disposal suite, full Mobile interaction/responsive suite and GitHub Pages `/basement/` subpath QA passed on 2026-09-12. The focus-visible furniture and set dressing intentionally remain the Bulk 17 blockout.
+
+### Bulk 17 — Games hero assets and materials — **IN PROGRESS**
 
 - [ ] Replace focus-visible blockout objects with optimized authored assets.
 - [ ] Complete the desk, seating, displays, computer hardware and signature props.

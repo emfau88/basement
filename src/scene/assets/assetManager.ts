@@ -170,7 +170,13 @@ export function createAssetManager(renderer: THREE.WebGLRenderer, options: Asset
       const existing = textureCache.get(key)
       if (existing) return existing
       const request = fetchBinary(url, timeoutMs, options.onProgress)
-        .then((buffer) => new Promise<THREE.Texture>((resolve, reject) => ktx2Loader.parse(buffer, resolve, reject)))
+        .then((buffer) => {
+          if (/\.ktx2(?:$|\?)/i.test(url)) {
+            return new Promise<THREE.Texture>((resolve, reject) => ktx2Loader.parse(buffer, resolve, reject))
+          }
+          const mime = /\.png(?:$|\?)/i.test(url) ? 'image/png' : /\.webp(?:$|\?)/i.test(url) ? 'image/webp' : 'image/jpeg'
+          return createImageBitmap(new Blob([buffer], { type: mime })).then((bitmap) => new THREE.Texture(bitmap))
+        })
         .then((texture) => {
           const configured = configurePbrTexture(texture, role, anisotropy)
           sourceTextures.add(configured)
@@ -217,7 +223,11 @@ export function createAssetManager(renderer: THREE.WebGLRenderer, options: Asset
       disposed = true
       for (const root of sourceRoots) disposeTree(root)
       for (const target of pmremTargets) target.dispose()
-      for (const texture of sourceTextures) texture.dispose()
+      for (const texture of sourceTextures) {
+        const image = texture.image as { close?: () => void } | null
+        image?.close?.()
+        texture.dispose()
+      }
       sourceRoots.clear()
       pmremTargets.clear()
       modelCache.clear()

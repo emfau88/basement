@@ -24,7 +24,7 @@ export function createRenderingContext(container: HTMLElement): RenderingContext
   renderer.toneMapping = THREE.ACESFilmicToneMapping
   renderer.toneMappingExposure = 0.94
   renderer.shadowMap.enabled = quality.shadows
-  renderer.shadowMap.type = THREE.PCFSoftShadowMap
+  renderer.shadowMap.type = THREE.PCFShadowMap
   renderer.shadowMap.autoUpdate = false
   renderer.shadowMap.needsUpdate = true
   renderer.domElement.setAttribute('aria-label', 'Interactive 3D studio')

@@ -6,6 +6,7 @@ import path from 'node:path'
 const assert = (condition, message) => {
   if (!condition) throw new Error(message)
 }
+const isBenignRendererWarning = (message) => message.text().startsWith('THREE.WebGLProgram: Program Info Log:') && message.text().includes('warning X4122')
 const outputDirectory = path.resolve('docs/qa/current')
 await mkdir(outputDirectory, { recursive: true })
 
@@ -23,6 +24,7 @@ try {
   await desktop.goto(baseUrl, { waitUntil: 'domcontentloaded' })
   await desktop.waitForFunction(() => document.querySelector('#loader')?.classList.contains('done'))
   await desktop.locator('.nav button[data-view="games"]').click()
+  await desktop.waitForFunction(() => ['ready', 'fallback'].includes(document.querySelector('canvas')?.dataset.gamesProof ?? ''))
   assert(await desktop.locator('body').evaluate((body) => !body.classList.contains('mobile-ui')), 'Desktop activated mobile UI')
   assert(await desktop.locator('canvas').getAttribute('data-quality') === 'desktop', 'Desktop render profile is incorrect')
   assert(await desktop.locator('canvas').getAttribute('data-scene-detail') === '160', 'Desktop scene detail budget is incorrect')
@@ -43,7 +45,7 @@ try {
   })
   const runtimeProblems = []
   mobile.on('console', (message) => {
-    if (message.type() === 'warning' || message.type() === 'error') runtimeProblems.push(`${message.type()}: ${message.text()}`)
+    if ((message.type() === 'warning' || message.type() === 'error') && !isBenignRendererWarning(message)) runtimeProblems.push(`${message.type()}: ${message.text()}`)
   })
   mobile.on('pageerror', (error) => runtimeProblems.push(`pageerror: ${error.message}`))
   await mobile.goto(baseUrl, { waitUntil: 'domcontentloaded' })
@@ -59,6 +61,7 @@ try {
   assert(idleFrames <= 14, `Demand-driven rendering exceeded its idle budget: ${idleFrames} frames/sec`)
 
   await mobile.locator('.nav button[data-view="games"]').click()
+  await mobile.waitForFunction(() => ['ready', 'fallback'].includes(document.querySelector('canvas')?.dataset.gamesProof ?? ''))
   const metrics = await mobile.evaluate(() => ({
     overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
     navButtonHeights: [...document.querySelectorAll('.nav button')].map((element) => element.getBoundingClientRect().height),

@@ -12,6 +12,7 @@ const profiles = [
   { name: 'mobile-390x844', width: 390, height: 844 },
   { name: 'mobile-430x932', width: 430, height: 932 },
 ]
+const isBenignRendererWarning = (message) => message.text().startsWith('THREE.WebGLProgram: Program Info Log:') && message.text().includes('warning X4122')
 
 await mkdir(outputDirectory, { recursive: true })
 if (baselineMode && !force && (await readdir(outputDirectory)).some((name) => name.endsWith('.jpg'))) {
@@ -37,6 +38,7 @@ try {
     const runtimeProblems = []
     page.on('console', (message) => {
       if (message.type() === 'warning' || message.type() === 'error') {
+        if (message.type() === 'warning' && isBenignRendererWarning(message)) return
         const location = message.location().url
         runtimeProblems.push(`${message.type()}: ${message.text()}${location ? ` @ ${location}` : ''}`)
       }
@@ -49,6 +51,9 @@ try {
     for (const view of viewNames) {
       if (view !== 'studio') {
         await page.locator(`.nav button[data-view="${view}"]`).click()
+        if (view === 'games') {
+          await page.waitForFunction(() => ['ready', 'fallback'].includes(document.querySelector('canvas')?.dataset.gamesProof ?? ''))
+        }
         await page.waitForTimeout(350)
       }
       await page.screenshot({

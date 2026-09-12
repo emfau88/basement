@@ -47,14 +47,14 @@ export function ensureSecondaryUvs(root: THREE.Object3D): void {
 export function createPbrMaterial(preset: PbrMaterialPreset, maps: PbrMaterialMaps = {}): THREE.MeshStandardMaterial | THREE.MeshPhysicalMaterial {
   const parameters: THREE.MeshStandardMaterialParameters = {
     ...(preset === 'glass' ? {} : presets[preset]),
-    map: maps.baseColor,
-    emissiveMap: maps.emissive,
-    normalMap: maps.normal,
-    roughnessMap: maps.roughness,
-    metalnessMap: maps.metalness,
-    aoMap: maps.ao,
-    lightMap: maps.lightMap,
   }
+  if (maps.baseColor) parameters.map = maps.baseColor
+  if (maps.emissive) parameters.emissiveMap = maps.emissive
+  if (maps.normal) parameters.normalMap = maps.normal
+  if (maps.roughness) parameters.roughnessMap = maps.roughness
+  if (maps.metalness) parameters.metalnessMap = maps.metalness
+  if (maps.ao) parameters.aoMap = maps.ao
+  if (maps.lightMap) parameters.lightMap = maps.lightMap
   if (preset === 'glass') {
     return new THREE.MeshPhysicalMaterial({
       ...parameters,
