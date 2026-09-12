@@ -5,6 +5,7 @@ import type { SceneTools, Triple } from './primitives'
 import { buildGamesZone } from './zones/gamesZone'
 import type { SceneDetailBudget } from './assets/detailBudget'
 import { buildEntranceZone } from './zones/entranceZone'
+import { buildWebZone } from './zones/webZone'
 
 export interface StudioMeshes {
   gameMainScreen: THREE.Mesh
@@ -130,16 +131,7 @@ addBox(crt,[1.20,.78,.72],[0,1.03,0],M.white2,[0,0,0],.075);
 const archiveScreen=screen(crt,.78,.46,[0,1.12,.38],'ARCHIVE','retired builds','#c88462');
 addBox(crt,[1.30,.54,.80],[0,.42,0],M.oak,[0,0,0],.045);
 
-/* web station on right wall */
-const web=group('WebDesk',[5.72,0,-3.08],[0,-Math.PI/2,0]);
-addBox(web,[3.0,.16,1.15],[0,1.00,0],M.oakLight,[0,0,0],.05);
-for(const x of [-1.22,1.22])for(const z of [-.39,.39]) addBox(web,[.10,.97,.10],[x,.48,z],M.graphite,[0,0,0],.018);
-const webMainScreen=screen(web,1.76,.99,[-.52,1.90,.16],'WEB','client / systems','#78a8b9');
-const webSideScreen=screen(web,1.08,.63,[.98,1.72,.14],'UI','selected work','#78a8b9');
-addBox(web,[.08,.64,.07],[-.52,1.42,.09],M.graphite);
-addBox(web,[.67,.05,.29],[-.52,1.16,.12],M.graphite,[0,0,0],.02);
-addBox(web,[1.28,.05,.34],[.35,1.14,.43],M.black,[0,0,0],.025);
-addBox(web,[.64,.14,.43],[1.08,1.13,.28],M.graphite,[0,0,0],.035);
+const { webMainScreen, webSideScreen } = buildWebZone(M, tools, budget)
 
 /* Project zone: wall-mounted board with a continuous workbench directly below it.
    The whole zone is flush to the right wall, leaving the center circulation clear. */
