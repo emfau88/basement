@@ -43,6 +43,22 @@
     <h2 id="title"></h2>
     <p id="copy"></p>
     <div class="rows" id="rows"></div>
+  </div>
+</aside>
+
+<aside class="mobile-sheet" id="mobileSheet" aria-label="Current studio area">
+  <button class="mobile-sheet-toggle" id="mobileSheetToggle" type="button" aria-expanded="false" aria-controls="mobileSheetPanel">
+    <span class="mobile-sheet-index" id="mobileSheetIndex"></span>
+    <span class="mobile-sheet-summary">
+      <strong id="mobileSheetLabel"></strong>
+      <span id="mobileSheetCount"></span>
+    </span>
+    <span class="mobile-sheet-chevron" aria-hidden="true">⌃</span>
+  </button>
+  <div class="mobile-sheet-panel" id="mobileSheetPanel" aria-hidden="true" inert>
+    <div class="mobile-sheet-kicker" id="mobileSheetKicker"></div>
+    <h2 id="mobileSheetTitle"></h2>
+    <p id="mobileSheetCopy"></p>
     <div class="mobile-context-actions">
       <button type="button" id="mobileGameInspect">Select game</button>
       <div id="mobileWebSelector" aria-label="Select web project"></div>

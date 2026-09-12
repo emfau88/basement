@@ -107,6 +107,7 @@ body.focus .info{opacity:1;pointer-events:auto;transform:translateY(-50%) transl
 }
 .row b{font-size:8px;letter-spacing:.1em;text-transform:uppercase}.row span{font-size:9px;color:#7d837f}
 .mobile-context-actions{display:none}
+.mobile-sheet{display:none}
 .close{
   position:absolute;right:8px;top:8px;width:34px;height:34px;border:0;border-radius:50%;
   background:transparent;color:#7c837f;font-size:19px;cursor:pointer

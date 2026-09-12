@@ -75,5 +75,6 @@ export function createRaycaster(options: Options): void {
     }
     const hotspot = raycaster.intersectObjects(hotspots, false)[0]?.object as Hotspot | undefined
     if (hotspot) options.navigate(hotspot.userData.view)
+    else store.set({ mobileSheet: 'collapsed' })
   })
 }

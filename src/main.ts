@@ -61,11 +61,14 @@ try {
   const setInspectLabel = (active: boolean) => { meshes.gameLeftScreen.userData.detailLabel = active ? 'Select project' : 'Zoom into selector' }
   const navigate = (view: StudioView) => {
     const state = store.get()
-    if (state.view === view && !state.inspectMode) return
+    if (state.view === view && !state.inspectMode) {
+      if (state.mobileSheet === 'expanded') store.set({ mobileSheet: 'collapsed' })
+      return
+    }
     projectWall.setHover(null); setInspectLabel(false)
     tooltip.classList.remove('show'); document.body.style.cursor = 'default'
     fade.style.opacity = '.13'; window.setTimeout(() => { fade.style.opacity = '0' }, 150)
-    store.set({ view, inspectMode: null })
+    store.set({ view, inspectMode: null, mobileSheet: 'collapsed' })
     cameraController.moveToView(view); scheduler.startTransition()
   }
   const enterInspect = () => {
@@ -95,6 +98,7 @@ try {
     if (event.key !== 'Escape') return
     if (modal.isOpen()) modal.close()
     else if (store.get().inspectMode) exitInspect()
+    else if (store.get().mobileSheet === 'expanded') store.set({ mobileSheet: 'collapsed' })
     else navigate('studio')
   })
   const viewport = createViewportController(() => {

@@ -2,7 +2,7 @@
 
 Last updated: 2026-09-12  
 Current phase: Phase A — Mobile UX  
-Current bulk: Bulk 2 — Compact navigation and collapsed sheet
+Current bulk: Bulk 3 — Detail sheet and project carousel
 
 ## Status legend
 
@@ -48,17 +48,17 @@ Acceptance: the current experience is reproducible, recoverable and objectively 
 
 Acceptance: Mobile has an isolated layout foundation; Desktop remains unchanged.
 
-### Bulk 2 — Compact navigation and collapsed sheet — **IN PROGRESS**
+### Bulk 2 — Compact navigation and collapsed sheet — COMPLETE
 
-- [ ] Replace large mobile cards with a compact fixed navigation.
-- [ ] Add the collapsed contextual sheet above navigation.
-- [ ] Model explicit `collapsed` and `expanded` states.
-- [ ] Collapse when the user taps the free 3D scene.
-- [ ] Guarantee 44px minimum touch targets and safe-area clearance.
+- [x] Replace large mobile cards with a compact fixed navigation.
+- [x] Add the collapsed contextual sheet above navigation.
+- [x] Model explicit `collapsed` and `expanded` states.
+- [x] Collapse when the user taps the free 3D scene, presses Escape or reselects the active area.
+- [x] Guarantee 44px minimum touch targets and safe-area clearance.
 
 Acceptance: roughly 80–90% of the mobile viewport remains available to the 3D scene in Explore mode.
 
-### Bulk 3 — Detail sheet and project carousel
+### Bulk 3 — Detail sheet and project carousel — **IN PROGRESS**
 
 - [ ] Build the expanded sheet at a maximum of roughly 45% viewport height.
 - [ ] Add contextual content for Games, Web, Projects and Archive.

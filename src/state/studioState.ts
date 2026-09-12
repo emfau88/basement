@@ -2,10 +2,12 @@ import type { ProjectKey } from '../data/projects'
 
 export type StudioView = 'studio' | 'games' | 'web' | 'projects' | 'archive'
 export type InspectMode = 'gameSelector' | null
+export type MobileSheetState = 'collapsed' | 'expanded'
 
 export interface StudioState {
   view: StudioView
   inspectMode: InspectMode
+  mobileSheet: MobileSheetState
   selectedGameId: ProjectKey
   selectedWebId: ProjectKey
   openProjectId: ProjectKey | null
@@ -21,7 +23,7 @@ export interface StudioStore {
 
 export function createStudioStore(): StudioStore {
   let state: StudioState = {
-    view: 'studio', inspectMode: null, selectedGameId: 'territory_tide', selectedWebId: 'mirror', openProjectId: null,
+    view: 'studio', inspectMode: null, mobileSheet: 'collapsed', selectedGameId: 'territory_tide', selectedWebId: 'mirror', openProjectId: null,
   }
   const listeners = new Set<Listener>()
   return {
