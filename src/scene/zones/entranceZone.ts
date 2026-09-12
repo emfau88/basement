@@ -40,10 +40,6 @@ export function buildEntranceZone(materials: StudioMaterials, tools: SceneTools,
   addBox(leftSign, [1.86, .78, .055], [0, 3.68, 0], signMaterial(tools, 'archive', 'ARCHIVE  04', 'LOUNGE · RETIRED BUILDS  ←', '#b17757'), [0, 0, 0], .025)
   addBox(leftSign, [1.98, .9, .05], [0, 3.68, -.04], materials.concreteDark, [0, 0, 0], .035)
 
-  const rightSign = group('WorkWayfinding', [7.31, 0, -.15], [0, -Math.PI / 2, 0])
-  addBox(rightSign, [1.86, .78, .055], [0, 3.68, 0], signMaterial(tools, 'work', 'WEB 02 / WORK 03', 'APPS · ACTIVE PROJECTS  →', '#6f98a7'), [0, 0, 0], .025)
-  addBox(rightSign, [1.98, .9, .05], [0, 3.68, -.04], materials.concreteDark, [0, 0, 0], .035)
-
   // A compact entry beacon adds a human-scale welcome cue near the otherwise empty foreground.
   const beacon = group('EntranceBeacon', [-5.72, 0, 2.92], [0, .18, 0])
   addBox(beacon, [.72, 1.58, .42], [0, .79, 0], materials.concreteDark, [0, 0, 0], .055)
