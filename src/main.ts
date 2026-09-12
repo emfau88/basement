@@ -17,6 +17,7 @@ import { createNavigationUI } from './ui/navigation'
 import { createProjectModal } from './ui/projectModal'
 import { createViewportController } from './ui/viewport'
 import { isMobileViewport } from './config/responsive'
+import { createWebGLRecoveryUI } from './ui/webglRecovery'
 
 const app = requiredElement<HTMLElement>('app')
 const loader = requiredElement<HTMLElement>('loader')
@@ -56,6 +57,7 @@ try {
 
   const projectWall = createProjectWall(meshes.projectCardMeshes, meshes.projectCardFrames)
   const modal = createProjectModal(store)
+  const webglRecovery = createWebGLRecoveryUI()
   const hotspots = createHotspots(rendering.scene)
   let scheduler: ReturnType<typeof createRenderScheduler>
 
@@ -91,7 +93,11 @@ try {
     render: () => rendering.composer.render(),
     updateCamera: (now) => cameraController.update(now),
     updateScreens: (now) => screens.update(now),
+    screenIntervalMs: rendering.quality.screenIntervalMs,
   })
+  rendering.renderer.domElement.dataset.quality = rendering.quality.name
+  rendering.renderer.domElement.addEventListener('webglcontextlost', (event) => { event.preventDefault(); webglRecovery.show() })
+  rendering.renderer.domElement.addEventListener('webglcontextrestored', () => { webglRecovery.hide(); scheduler.requestRender() })
   const mobileControls = createMobileControls({
     store,
     enterGameInspect: enterInspect,

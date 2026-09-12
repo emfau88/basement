@@ -10,7 +10,8 @@
     "typecheck": "tsc --noEmit",
     "qa:capture-baseline": "node scripts/capture-baseline.mjs --baseline",
     "qa:capture-current": "node scripts/capture-baseline.mjs",
-    "qa:mobile": "node scripts/verify-mobile-ui.mjs"
+    "qa:mobile": "node scripts/verify-mobile-ui.mjs",
+    "qa:pages": "node scripts/verify-pages-build.mjs"
   },
   "dependencies": {
     "three": "0.186.0"

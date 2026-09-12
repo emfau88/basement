@@ -8,6 +8,7 @@ export function createRenderScheduler(options: {
   render(): void
   updateCamera(now: number): boolean
   updateScreens(now: number): boolean
+  screenIntervalMs?: number
 }): RenderScheduler {
   let frameId = 0
   let transitioning = false
@@ -23,7 +24,7 @@ export function createRenderScheduler(options: {
   const screenTimer = window.setInterval(() => {
     if (document.visibilityState === 'hidden') return
     if (options.updateScreens(performance.now())) requestRender()
-  }, 90)
+  }, options.screenIntervalMs ?? 90)
   const onVisibility = () => { if (document.visibilityState === 'visible') requestRender() }
   document.addEventListener('visibilitychange', onVisibility, { passive: true })
 

@@ -204,6 +204,12 @@ body.inspect-selector .inspect-back{opacity:1;transform:translateY(0);pointer-ev
 .webgl-fallback h1{margin:0 0 10px;font-size:clamp(28px,5vw,56px)}
 .webgl-fallback p{margin:0;color:#5f6864}
 .project-media[data-fallback]::after{content:attr(data-fallback);position:absolute;inset:0;display:grid;place-content:center;padding:24px;background:#4e5a54;color:#f1f1eb;font-weight:800;font-size:clamp(22px,4vw,42px);text-align:center}
+.webgl-recovery{
+  position:fixed;z-index:90;left:50%;top:22px;width:min(420px,calc(100vw - 24px));transform:translateX(-50%);
+  display:grid;gap:4px;padding:13px 15px;border:1px solid rgba(26,31,29,.14);border-radius:13px;
+  background:rgba(248,246,240,.96);box-shadow:0 16px 42px rgba(52,44,37,.16);text-align:center
+}
+.webgl-recovery[hidden]{display:none}.webgl-recovery strong{font-size:12px}.webgl-recovery span{font-size:9px;color:#68716d}
 
 /* project detail overlay */
 .project-backdrop{

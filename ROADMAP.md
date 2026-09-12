@@ -2,7 +2,7 @@
 
 Last updated: 2026-09-12  
 Current phase: Phase A — Mobile UX  
-Current bulk: Bulk 5 — Mobile production hardening
+Current bulk: Decision gate A — Real-device review
 
 ## Status legend
 
@@ -81,16 +81,19 @@ Acceptance: project selection is consistent between 2D UI and 3D scene, with no 
 
 Acceptance: the important physical display remains visible in every state without free-orbit controls.
 
-### Bulk 5 — Mobile production hardening — **IN PROGRESS**
+### Bulk 5 — Mobile production hardening — COMPLETE
 
-- [ ] Calibrate mobile pixel ratio, shadows and postprocessing.
-- [ ] Confirm demand-driven rendering remains effective.
-- [ ] Test image failures and WebGL fallback.
-- [ ] Test all profiles in the regression matrix.
-- [ ] Test the actual GitHub Pages subpath deployment.
-- [ ] Record Desktop regression comparison.
+- [x] Calibrate mobile pixel ratio, shadows and postprocessing.
+- [x] Confirm demand-driven rendering remains effective (maximum 14 idle animation frames per second in automated QA).
+- [x] Test image failures, initialization fallback and WebGL context recovery.
+- [x] Test Desktop, standard Mobile and constrained Mobile render profiles.
+- [x] Test all viewport profiles in the regression matrix.
+- [x] Test the production bundle at the GitHub Pages `/basement/` subpath.
+- [x] Record Desktop regression isolation and visual browser comparison.
 
 Acceptance: the scene-first mobile UX is deployable and stable on a real phone.
+
+Verification: typecheck, production build, dependency audit, mobile interaction suite, responsive matrix, Pages subpath suite and manual production-build review passed on 2026-09-12. The known Vite warning is limited to the existing Three.js application chunk exceeding 500 kB.
 
 ### Decision gate A
 
