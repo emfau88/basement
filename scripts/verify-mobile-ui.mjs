@@ -30,6 +30,22 @@ try {
   assert(await desktop.locator('canvas').getAttribute('data-scene-detail') === '160', 'Desktop scene detail budget is incorrect')
   assert(await desktop.locator('.info').evaluate((element) => getComputedStyle(element).display !== 'none'), 'Desktop information card disappeared')
   assert(await desktop.locator('#mobileSheet').evaluate((element) => getComputedStyle(element).display === 'none'), 'Desktop rendered the mobile sheet')
+  await desktop.locator('.nav button[data-view="projects"]').click()
+  await desktop.locator('canvas').click({ position: { x: 835, y: 535 } })
+  assert(await desktop.locator('#projectTitle').textContent() === 'Mirror', 'Desktop Mirror card did not open')
+  const desktopModal = await desktop.locator('#projectPanel').evaluate((panel) => {
+    const rect = panel.getBoundingClientRect()
+    const close = panel.querySelector('#projectClose')?.getBoundingClientRect()
+    return {
+      top: rect.top,
+      bottom: rect.bottom,
+      viewportHeight: window.innerHeight,
+      closeVisible: Boolean(close && close.top >= 0 && close.bottom <= window.innerHeight),
+    }
+  })
+  assert(desktopModal.top >= 0 && desktopModal.bottom <= desktopModal.viewportHeight, 'Desktop project modal exceeds the viewport')
+  assert(desktopModal.closeVisible, 'Desktop project modal close control is outside the viewport')
+  await desktop.locator('#projectClose').click()
   await desktop.close()
 
   const mobile = await browser.newPage({ viewport: { width: 390, height: 844 }, reducedMotion: 'reduce' })

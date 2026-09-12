@@ -225,19 +225,20 @@ body.inspect-selector .inspect-back{opacity:1;transform:translateY(0);pointer-ev
 }
 .project-panel{
   position:fixed;z-index:35;left:50%;top:50%;
-  width:min(900px,calc(100vw - 28px));opacity:0;pointer-events:none;
+  width:min(900px,calc(100vw - 28px));max-height:calc(100dvh - 40px);opacity:0;pointer-events:none;
   transform:translate(-50%,-50%) scale(.985);transition:opacity .22s ease,transform .22s ease
 }
 body.project-open .project-backdrop{opacity:1;pointer-events:auto}
 body.project-open .project-panel{opacity:1;pointer-events:auto;transform:translate(-50%,-50%) scale(1)}
 .project-shell{
   display:grid;grid-template-columns:minmax(280px,1.05fr) minmax(280px,.95fr);
+  height:min(620px,calc(100dvh - 40px));
   border:1px solid rgba(26,31,29,.14);border-radius:18px;overflow:hidden;
   background:rgba(247,244,236,.98);box-shadow:0 28px 85px rgba(68,56,45,.18), inset 0 1px rgba(255,255,255,.72)
 }
-.project-media{position:relative;min-height:320px;background:#ddd7cc}
+.project-media{position:relative;min-width:0;min-height:0;overflow:hidden;background:#ddd7cc}
 .project-media img{display:block;width:100%;height:100%;object-fit:cover}
-.project-copy{position:relative;padding:24px 24px 22px}
+.project-copy{position:relative;min-width:0;overflow-y:auto;padding:24px 24px 22px}
 .project-tag{font-size:8px;letter-spacing:.22em;text-transform:uppercase;color:#6d8371;margin-bottom:10px}
 .project-copy h3{margin:0;font-size:30px;line-height:.95;letter-spacing:-.055em;color:#151918}
 .project-copy p{margin:12px 0 15px;font-size:12px;line-height:1.58;color:#64706a}
@@ -255,8 +256,8 @@ body.project-open .project-panel{opacity:1;pointer-events:auto;transform:transla
   background:rgba(255,255,255,.45);color:#1a1f1d
 }
 .project-close{
-  position:absolute;right:10px;top:10px;width:36px;height:36px;border:0;border-radius:50%;
-  background:rgba(255,255,255,.56);color:#5d6661;font-size:22px;cursor:pointer;
-  box-shadow:0 8px 18px rgba(37,29,23,.08)
+  position:absolute;z-index:3;right:12px;top:12px;width:42px;height:42px;border:1px solid rgba(26,31,29,.13);border-radius:50%;
+  background:rgba(248,246,240,.92);color:#3e4743;font-size:24px;line-height:1;cursor:pointer;
+  box-shadow:0 8px 22px rgba(37,29,23,.14);backdrop-filter:blur(10px)
 }
 .project-close:hover{background:white;color:#131816}

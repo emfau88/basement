@@ -11,10 +11,12 @@
   body{overscroll-behavior:none}
   #app{inset:0 0 auto;height:var(--app-height,100dvh)}
   canvas,.nav button,.mobile-sheet-toggle,.mobile-sheet-actions button{touch-action:manipulation}
-  .project-shell{grid-template-columns:1fr}
-  .project-media{min-height:210px}
+  .project-panel{max-height:calc(var(--app-height,100dvh) - 24px)}
+  .project-shell{grid-template-columns:1fr;height:auto;max-height:calc(var(--app-height,100dvh) - 24px);overflow-y:auto}
+  .project-media{height:min(230px,30dvh);min-height:190px;flex:none}
   .project-copy{padding:18px 18px 17px}
   .project-copy h3{font-size:25px}
+  .project-close{position:fixed;right:20px;top:20px;width:44px;height:44px}
 }
 /* loader */
 .loader{

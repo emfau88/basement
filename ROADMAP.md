@@ -2,7 +2,7 @@
 
 Last updated: 2026-09-12  
 Current phase: Phase E — Photorealistic Desktop rollout
-Current bulk: Bulk 20 — Web workstation — complete
+Current bulk: Bulk 21 — Projects gallery — complete
 
 ## Status legend
 
@@ -279,15 +279,17 @@ Verification: fixed five-view Desktop captures, TypeScript, production build, co
 
 ### Bulk 21 — Projects gallery
 
-- [ ] Upgrade the gallery wall, frame construction, workbench and selection lighting with believable thickness and contact.
-- [ ] Keep all four project cards legible, interactive and visually dominant.
-- [ ] Add only a few scale-giving props; avoid turning the gallery into another crowded desk scene.
-- [ ] Verify hover/selection frames, modal opening and near/far readability.
-- [ ] Keep the information card clear of the interactive wall.
+- [x] Upgrade the gallery wall, frame construction, workbench and selection lighting with believable thickness and contact.
+- [x] Keep all four project cards legible, interactive and visually dominant.
+- [x] Add only a few scale-giving props; avoid turning the gallery into another crowded desk scene.
+- [x] Verify hover/selection frames, modal opening and near/far readability.
+- [x] Keep the information card clear of the interactive wall.
 
 Acceptance: Projects reads as a premium physical portfolio gallery, not a set of flat cards attached to a procedural panel.
 
 Commit boundary: Projects view, its fixed capture and interaction tests.
+
+Verification: fixed 1440 × 900 before/after captures, production build, complete responsive/interaction suite, explicit Desktop Mirror-modal viewport/close-control regression and GitHub Pages `/basement/` subpath QA passed on 2026-09-12.
 
 ### Bulk 22 — Archive and lounge
 
