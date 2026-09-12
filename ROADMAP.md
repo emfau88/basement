@@ -1,8 +1,8 @@
 # EMFAU Virtual Studio roadmap
 
 Last updated: 2026-09-12  
-Current phase: Phase A — Mobile UX  
-Current bulk: Decision gate A — Real-device review
+Current phase: Phase B — Games visual prototype
+Current bulk: Bulk 7 — Optimized visual asset pipeline
 
 ## Status legend
 
@@ -97,23 +97,23 @@ Verification: typecheck, production build, dependency audit, mobile interaction 
 
 ### Decision gate A
 
-- [ ] Review the new Mobile UX on the user's phone.
-- [ ] Compare it with the baseline and concept mockup.
-- [ ] Approve or revise before visual environment work starts.
+- [x] Review the new Mobile UX on the user's phone.
+- [x] Compare it with the baseline and concept mockup.
+- [x] Approve continuation into the visual environment work.
 
 ## Phase B — Games visual prototype
 
-### Bulk 6 — Games art-direction prototype
+### Bulk 6 — Games art-direction prototype — COMPLETE
 
-- [ ] Recompose only the Games area.
-- [ ] Improve counter, monitor hierarchy and spatial typography.
-- [ ] Introduce warmer concrete, wood and metal materials.
-- [ ] Add restrained architectural lighting and selected props.
-- [ ] Preserve all current Games interactions.
+- [x] Recompose only the Games area.
+- [x] Improve counter, monitor hierarchy and spatial typography.
+- [x] Introduce warmer concrete, wood and metal materials.
+- [x] Add restrained architectural lighting and selected props.
+- [x] Preserve all current Games interactions.
 
 Acceptance: Games is visibly more premium without committing the entire studio to the new direction.
 
-### Bulk 7 — Optimized visual asset pipeline
+### Bulk 7 — Optimized visual asset pipeline — **IN PROGRESS**
 
 - [ ] Establish reusable materials and texture budgets.
 - [ ] Add a GLB loading path only if the prototype needs it.

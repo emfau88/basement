@@ -85,6 +85,13 @@ try {
   await mobile.keyboard.press('Escape')
   assert(await mobile.locator('#mobileSheetToggle').getAttribute('aria-expanded') === 'false', 'Escape did not collapse the sheet')
   await mobile.locator('#mobileSheetToggle').click()
+  await mobile.locator('#mobileGameInspect').click()
+  assert(await mobile.locator('body').evaluate((body) => body.classList.contains('inspect-selector')), 'Games room selector did not open')
+  await mobile.keyboard.press('Escape')
+  assert(!(await mobile.locator('body').evaluate((body) => body.classList.contains('inspect-selector'))), 'Escape did not leave the Games room selector')
+  await mobile.keyboard.press('Escape')
+  assert(await mobile.locator('#mobileSheetToggle').getAttribute('aria-expanded') === 'false', 'Games sheet did not collapse after leaving the room selector')
+  await mobile.locator('#mobileSheetToggle').click()
   await mobile.locator('canvas').click({ position: { x: 380, y: 90 } })
   assert(await mobile.locator('#mobileSheetToggle').getAttribute('aria-expanded') === 'false', 'Tapping free 3D space did not collapse the sheet')
 

@@ -2,6 +2,7 @@ import * as THREE from 'three'
 import { RectAreaLightUniformsLib } from 'three/addons/lights/RectAreaLightUniformsLib.js'
 import type { StudioMaterials } from './materials'
 import type { SceneTools, Triple } from './primitives'
+import { buildGamesZone } from './zones/gamesZone'
 
 export interface StudioMeshes {
   gameMainScreen: THREE.Mesh
@@ -31,10 +32,6 @@ export function buildStudioRoom(scene: THREE.Scene, M: StudioMaterials, tools: S
   RectAreaLightUniformsLib.init()
   const { box, group, addBox, addCylinder, point, tube, screen } = tools
   const skyTexture = createSkyTexture
-  const led = (parent: THREE.Object3D, position: Triple, color=0x7fa089, size=.038) => {
-    const material=new THREE.MeshStandardMaterial({color,emissive:color,emissiveIntensity:1,roughness:.22})
-    return addBox(parent,[size,size,.018],position,material,[0,0,0],.009)
-  }
 function plant(pos: Triple,scale=1){
   const g=group('Plant',pos);
   addCylinder(g,.26*scale,.33*scale,.48*scale,[0,.24*scale,0],M.terracotta,[0,0,0],28);
@@ -108,50 +105,7 @@ for(let i=0;i<7;i++){
 /* rug */
 box('rug',[5.7,.035,3.35],[0,.02,-2.20],M.rug,[0,0,0],false,true,.06);
 
-/* central main desk — Games */
-const desk=group('MainDesk',[0,0,-3.45]);
-addBox(desk,[4.8,.18,1.60],[0,1.10,0],M.oakLight,[0,0,0],.055);
-for(const x of [-2.0,2.0])for(const z of [-.57,.57])addBox(desk,[.11,1.06,.11],[x,.53,z],M.graphite,[0,0,0],.018);
-
-/* desk shelf + properly composed triple-monitor setup
-   One dominant center screen, two smaller side screens angled inward. */
-addBox(desk,[3.95,.11,.27],[0,1.37,-.35],M.graphite,[0,0,0],.025);
-
-const mainMonitor=group('MainMonitor',[0,0,-3.45]);
-const gameMainScreen=screen(mainMonitor,1.88,1.05,[0,2.04,-.27],'EMFAU','game studio','#9bb37d');
-addBox(mainMonitor,[.075,.63,.075],[0,1.51,-.31],M.graphite);
-addBox(mainMonitor,[.72,.05,.30],[0,1.27,-.28],M.graphite,[0,0,0],.02);
-
-const leftMonitor=group('LeftMonitor',[-1.58,0,-3.34],[0,.20,0]);
-const gameLeftScreen=screen(leftMonitor,1.28,.76,[0,1.92,-.19],'PLAY','games / builds','#9bb37d');
-addBox(leftMonitor,[.065,.55,.065],[0,1.50,-.23],M.graphite);
-addBox(leftMonitor,[.55,.045,.26],[0,1.27,-.20],M.graphite,[0,0,0],.02);
-
-const rightMonitor=group('RightMonitor',[1.58,0,-3.34],[0,-.20,0]);
-const gameRightScreen=screen(rightMonitor,1.28,.76,[0,1.92,-.19],'SHIP','release / test','#9bb37d');
-addBox(rightMonitor,[.065,.55,.065],[0,1.50,-.23],M.graphite);
-addBox(rightMonitor,[.55,.045,.26],[0,1.27,-.20],M.graphite,[0,0,0],.02);
-/* keyboard/mouse/tablet */
-addBox(desk,[1.72,.055,.39],[-.35,1.23,.45],M.black,[0,0,0],.025);
-for(let i=0;i<10;i++) addBox(desk,[.105,.02,.09],[-1.02+i*.14,1.26,.44],M.graphite2,[0,0,0],.008);
-addBox(desk,[.25,.035,.34],[.77,1.24,.47],M.black,[0,0,0],.04);
-addBox(desk,[.62,.025,.43],[1.40,1.24,.42],M.graphite,[0,0,0],.03);
-/* PC tower */
-addBox(desk,[.60,1.08,.66],[1.90,.56,-.08],M.graphite,[0,0,0],.045);
-addBox(desk,[.46,.70,.02],[1.90,.60,.263],M.glass,[0,0,0],.02);
-for(let i=0;i<3;i++) led(desk,[1.77+i*.12,.98,.275],i===0?0x9bb37d:0x78a8b9,.032);
-
-/* speaker — only on the right; the left unit was removed so the selector stays visually clear */
-{
-  const x=1.92;
-  addBox(desk,[.34,.58,.32],[x,1.54,-.05],M.black,[0,0,0],.04);
-  addCylinder(desk,.11,.11,.025,[x,1.55,.12],M.graphite2,[Math.PI/2,0,0],24)
-}
-
-/* desk lamp — pushed behind/left of the selector so it never blocks the menu */
-const dl=group('DeskLamp',[-2.16,0,-3.78]);
-addCylinder(dl,.035,.05,.66,[0,1.50,0],M.graphite);
-addBox(dl,[.42,.07,.20],[.12,1.82,0],M.brass,[0,0,-.18],.025);
+const { gameMainScreen, gameLeftScreen, gameRightScreen } = buildGamesZone(M, tools)
 
 /* chair */
 const chair=group('Chair',[0,0,-1.55],[0,.02,0]);

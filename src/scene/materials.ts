@@ -4,10 +4,12 @@ export interface StudioMaterials {
   white: THREE.MeshStandardMaterial
   white2: THREE.MeshStandardMaterial
   plaster: THREE.MeshStandardMaterial
+  concreteDark: THREE.MeshStandardMaterial
   graphite: THREE.MeshStandardMaterial
   graphite2: THREE.MeshStandardMaterial
   oak: THREE.MeshStandardMaterial
   oakLight: THREE.MeshStandardMaterial
+  oakDark: THREE.MeshStandardMaterial
   floor: THREE.MeshPhysicalMaterial
   rug: THREE.MeshStandardMaterial
   sage: THREE.MeshStandardMaterial
@@ -25,10 +27,12 @@ export function createStudioMaterials(): StudioMaterials {
     white: new THREE.MeshStandardMaterial({ color: 0xe7e3da, roughness: 0.78, metalness: 0.02 }),
     white2: new THREE.MeshStandardMaterial({ color: 0xd9d6ce, roughness: 0.82, metalness: 0.02 }),
     plaster: new THREE.MeshStandardMaterial({ color: 0xcfcac0, roughness: 0.91, metalness: 0 }),
+    concreteDark: new THREE.MeshStandardMaterial({ color: 0x4a4943, roughness: 0.9, metalness: 0.04 }),
     graphite: new THREE.MeshStandardMaterial({ color: 0x2b302e, roughness: 0.48, metalness: 0.38 }),
     graphite2: new THREE.MeshStandardMaterial({ color: 0x414744, roughness: 0.42, metalness: 0.45 }),
     oak: new THREE.MeshStandardMaterial({ color: 0x9b7454, roughness: 0.62, metalness: 0.02 }),
     oakLight: new THREE.MeshStandardMaterial({ color: 0xb98d67, roughness: 0.67, metalness: 0.02 }),
+    oakDark: new THREE.MeshStandardMaterial({ color: 0x8d6242, roughness: 0.66, metalness: 0.03 }),
     floor: new THREE.MeshPhysicalMaterial({ color: 0xb89d7c, roughness: 0.62, metalness: 0.03, clearcoat: 0.08, clearcoatRoughness: 0.8 }),
     rug: new THREE.MeshStandardMaterial({ color: 0xb9b7ad, roughness: 0.96, metalness: 0 }),
     sage: new THREE.MeshStandardMaterial({ color: 0x849e87, roughness: 0.68, metalness: 0.01 }),
