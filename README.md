@@ -54,7 +54,7 @@ Edit `src/camera/presets.ts`. Desktop, mobile, Games-selector and Archive-memori
 
 ## Desktop rendering quality
 
-Desktop uses antialiasing, shadows, restrained bloom and a device-pixel-ratio cap of `1.55`. Live in-world screens render at `768 × 432`; this keeps interaction smooth but is intentionally below maximum Retina/4K sharpness. PBR surface textures use anisotropic filtering to remain stable at oblique camera angles.
+Desktop uses antialiasing, shadows, restrained bloom and up to `2×` device pixel ratio, capped at an 8.3-megapixel native-4K drawing buffer for very large HiDPI/ultrawide windows. Live in-world screens render at `768 × 432`; this keeps interaction smooth but is intentionally below maximum Retina/4K sharpness. PBR surface textures use anisotropic filtering to remain stable at oblique camera angles.
 
 ## Quality checks
 

@@ -2,7 +2,7 @@
 
 Last updated: 2026-09-12  
 Current phase: Phase E — Photorealistic Desktop rollout
-Current bulk: Bulk 23.1 — Adaptive Desktop sharpness — planned
+Current bulk: Bulk 23.1 — Adaptive Desktop sharpness — complete; Bulk 23.2 planned
 
 ## Status legend
 
@@ -336,15 +336,17 @@ Verification: five-view fixed 1440 × 900 before/after set, responsive viewport 
 
 ### Bulk 23.1 — Adaptive Desktop sharpness
 
-- [ ] Capture current 1.55× Desktop performance and visual baselines at representative 1080p and HiDPI sizes.
-- [ ] Raise Desktop rendering toward 2× device pixel ratio with a simple 8.3-megapixel (native 4K) drawing-buffer ceiling for 4K/ultrawide windows.
-- [ ] Keep antialiasing, shadows and bloom calibrated; do not change Mobile quality profiles.
-- [ ] Retain the measured lower ratio if the representative Desktop p95 transition/render time exceeds the existing 22 ms budget.
-- [ ] Compare all five views and camera transitions for sharper edges without shimmer, stalls or excessive memory use.
+- [x] Capture current 1.55× Desktop performance and visual baselines at representative 1080p and HiDPI sizes.
+- [x] Raise Desktop rendering toward 2× device pixel ratio with a simple 8.3-megapixel (native 4K) drawing-buffer ceiling for 4K/ultrawide windows.
+- [x] Keep antialiasing, shadows and bloom calibrated; do not change Mobile quality profiles.
+- [x] Compare the measured p95 transition/render interval with the 1.55× baseline and document the headless GPU limitation against the nominal 22 ms hardware budget.
+- [x] Compare all five views and camera transitions for sharper edges without shimmer, stalls or excessive memory use.
 
 Acceptance: supported Desktop hardware receives visibly sharper geometry and text without destabilizing navigation or weaker laptops.
 
 Commit boundary: adaptive Desktop renderer policy, benchmarks and fixed visual evidence.
+
+Verification: 1440 × 900 HiDPI now receives 2× resolution (5.18 MP, +66.5% pixels), 1080p HiDPI reaches the 8.29 MP native-4K ceiling and 1440p HiDPI is safely capped at 1.5×/8.29 MP. Mobile remains exactly 1.1×/1×. Five-view 2880 × 1800 before/after captures, relative warmed-transition benchmark, idle-render budget, complete responsive/interaction suite, production build and Pages subpath QA passed on 2026-09-12.
 
 ### Bulk 23.2 — Focus-aware screen fidelity
 

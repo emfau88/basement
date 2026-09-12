@@ -14,7 +14,7 @@ type DeviceNavigator = Navigator & { deviceMemory?: number }
 
 export function resolveRenderQuality(): RenderQualityProfile {
   if (!isMobileViewport()) {
-    return { name: 'desktop', antialias: true, bloom: true, bloomStrength: 0.15, pixelRatioCap: 1.55, screenIntervalMs: 90, shadows: true }
+    return { name: 'desktop', antialias: true, bloom: true, bloomStrength: 0.15, pixelRatioCap: 2, screenIntervalMs: 90, shadows: true }
   }
   const memory = (navigator as DeviceNavigator).deviceMemory
   const cores = navigator.hardwareConcurrency

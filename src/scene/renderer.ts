@@ -5,6 +5,15 @@ import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js'
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js'
 import { resolveRenderQuality, type RenderQualityProfile } from '../performance/deviceProfile'
 
+export const MAX_DESKTOP_BACKBUFFER_PIXELS = 3840 * 2160
+
+export function resolvePixelRatio(width: number, height: number, deviceRatio: number, quality: RenderQualityProfile): number {
+  const profileRatio = Math.min(deviceRatio, quality.pixelRatioCap)
+  if (quality.name !== 'desktop') return profileRatio
+  const backbufferRatio = Math.sqrt(MAX_DESKTOP_BACKBUFFER_PIXELS / Math.max(1, width * height))
+  return Math.min(profileRatio, backbufferRatio)
+}
+
 export interface RenderingContext {
   renderer: THREE.WebGLRenderer
   scene: THREE.Scene
@@ -17,7 +26,12 @@ export interface RenderingContext {
 export function createRenderingContext(container: HTMLElement): RenderingContext {
   const quality = resolveRenderQuality()
   const renderer = new THREE.WebGLRenderer({ antialias: quality.antialias, powerPreference: quality.name === 'mobile-low' ? 'low-power' : 'high-performance' })
-  const setPixelRatio = () => renderer.setPixelRatio(Math.min(devicePixelRatio, quality.pixelRatioCap))
+  const setPixelRatio = () => {
+    const ratio = resolvePixelRatio(innerWidth, innerHeight, devicePixelRatio, quality)
+    renderer.setPixelRatio(ratio)
+    renderer.domElement.dataset.pixelRatio = ratio.toFixed(3)
+    return ratio
+  }
   setPixelRatio()
   renderer.setSize(innerWidth, innerHeight)
   renderer.outputColorSpace = THREE.SRGBColorSpace
@@ -53,8 +67,9 @@ export function createRenderingContext(container: HTMLElement): RenderingContext
     resize: () => {
       camera.aspect = innerWidth / innerHeight
       camera.updateProjectionMatrix()
-      setPixelRatio()
+      const pixelRatio = setPixelRatio()
       renderer.setSize(innerWidth, innerHeight)
+      composer.setPixelRatio(pixelRatio)
       composer.setSize(innerWidth, innerHeight)
     },
   }
