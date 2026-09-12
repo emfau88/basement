@@ -1,0 +1,49 @@
+@media(max-width:760px){
+  .project-shell{grid-template-columns:1fr}
+  .project-media{min-height:210px}
+  .project-copy{padding:18px 18px 17px}
+  .project-copy h3{font-size:25px}
+}
+/* loader */
+.loader{
+  position:fixed;inset:0;z-index:100;background:#ece7db;display:grid;place-items:center;
+  transition:opacity .55s ease,visibility .55s ease
+}
+.loader.done{opacity:0;visibility:hidden}
+.loadinner{width:min(360px,74vw)}
+.loadtop{display:flex;justify-content:space-between;align-items:end;margin-bottom:13px}
+.loadmark{font-size:19px;font-weight:900;letter-spacing:-.07em}
+.loadlabel{font-size:8px;letter-spacing:.18em;text-transform:uppercase;color:#7b807d}
+.loadbar{height:1px;background:#cbc6bb;overflow:hidden}.loadbar i{display:block;width:0;height:100%;background:#212624;transition:width .35s ease}
+
+@media(max-width:760px){
+  .top{left:15px;right:15px}.manifesto,.live,.helper,.sound{display:none}
+  .intro{left:12px;top:58px;width:min(340px,86vw);padding:14px 16px 15px}.intro h1{font-size:42px}
+  .info{left:12px;right:12px;top:auto;bottom:82px;width:auto;transform:translateY(18px)}
+  body.focus .info{transform:translateY(0)}
+  .card{padding:16px}.card h2{font-size:24px}
+  .card p{font-size:11px;line-height:1.55}
+  .row{padding:11px 0}
+  .nav{left:10px;right:10px;bottom:12px;padding:8px}
+  .nav button{padding:11px 4px 10px}.nav .t{font-size:7px}
+  body.view-web .info{left:12px;right:12px;top:58px;width:auto;transform:translateY(-8px)}
+  body.focus.view-web .info{transform:translateY(0)}
+  body.view-web .rows{display:none}
+  body.view-projects .info{left:50%;right:auto;top:50%;bottom:auto;width:158px;transform:translate(-50%,-50%) scale(.965)}
+  body.focus.view-projects .info{transform:translate(-50%,-50%) scale(1)}
+  body.view-projects .rows{display:none}
+  .inspect-back{left:12px;top:58px;padding:10px 12px}
+  body.inspect-selector .navwrap{opacity:.42;transition:opacity .2s ease}
+}
+@media(prefers-reduced-motion:reduce){.intro,.info{transition:none!important}}
+
+@media(max-width:760px){
+  .mobile-context-actions{margin-top:10px}
+  .mobile-context-actions button{min-height:38px;border:1px solid rgba(26,31,29,.12);border-radius:9px;background:rgba(255,255,255,.5);color:#39423e;font-size:9px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+  body.view-games:not(.inspect-selector) .mobile-context-actions,
+  body.view-web .mobile-context-actions{display:block}
+  #mobileGameInspect,#mobileWebSelector{display:none}
+  body.view-games:not(.inspect-selector) #mobileGameInspect{display:block;width:100%}
+  body.view-web #mobileWebSelector{display:grid;grid-template-columns:repeat(2,1fr);gap:5px}
+  body.view-web #mobileWebSelector button.active{background:#1a1f1d;color:#f4f1e9}
+}
