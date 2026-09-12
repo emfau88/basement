@@ -57,7 +57,7 @@ try {
   screens.registerAppSelector(meshes.webSideScreen)
   screens.registerArchive(meshes.archiveScreen)
 
-  const projectWall = createProjectWall(meshes.projectCardMeshes, meshes.projectCardFrames)
+  const projectWall = createProjectWall(meshes.projectCardMeshes, meshes.projectCardFrames, detailBudget.textureAnisotropy)
   const modal = createProjectModal(store)
   const webglRecovery = createWebGLRecoveryUI()
   const hotspots = createHotspots(rendering.scene)

@@ -6,6 +6,7 @@ import { buildGamesZone } from './zones/gamesZone'
 import type { SceneDetailBudget } from './assets/detailBudget'
 import { buildEntranceZone } from './zones/entranceZone'
 import { buildWebZone } from './zones/webZone'
+import { buildProjectsZone } from './zones/projectsZone'
 
 export interface StudioMeshes {
   gameMainScreen: THREE.Mesh
@@ -133,39 +134,7 @@ addBox(crt,[1.30,.54,.80],[0,.42,0],M.oak,[0,0,0],.045);
 
 const { webMainScreen, webSideScreen } = buildWebZone(M, tools, budget)
 
-/* Project zone: wall-mounted board with a continuous workbench directly below it.
-   The whole zone is flush to the right wall, leaving the center circulation clear. */
-const proj=group('Projects',[6.82,0,.72],[0,-Math.PI/2,0]);
-addBox(proj,[2.75,.15,.86],[0,.88,0],M.oakLight,[0,0,0],.045);
-for(const x of [-1.16,1.16]) addBox(proj,[.085,.84,.085],[x,.42,-.28],M.graphite,[0,0,0],.016);
-addBox(proj,[.72,.22,.46],[-.72,1.08,-.03],M.sage,[0,0,0],.035);
-addBox(proj,[.58,.18,.40],[.05,1.06,-.03],M.terracotta,[0,0,0],.035);
-addBox(proj,[.52,.08,.34],[.78,1.02,-.03],M.graphite2,[0,0,0],.025);
-
-const board=group('ProjectBoard',[7.25,0,.72],[0,-Math.PI/2,0]);
-addBox(board,[2.95,2.72,.075],[0,2.40,0],M.white,[0,0,0],.04);
-const projectCardPositions=[
-  [-.82,2.98], [.82,2.98],
-  [-.82,2.02], [.82,2.02]
-] as const;
-
-/* Thin halo plates behind the images. They are invisible at rest and illuminate on hover. */
-const projectCardFrames=projectCardPositions.map(([x,y])=>{
-  const mat=new THREE.MeshBasicMaterial({
-    color:0xc8e4d1,transparent:true,opacity:0,
-    depthWrite:false,toneMapped:false
-  });
-  const frame=addBox(board,[1.105,.725,.018],[x,y,.036],mat,[0,0,0],.025);
-  frame.castShadow=false;frame.receiveShadow=false;
-  return frame
-});
-const projectCardMeshes=projectCardPositions.map(([x,y],i)=>{
-  const card=addBox(board,[1.02,.64,.03],[x,y,.055],M.white2,[0,0,0],.02);
-  card.userData.hoverFrame=projectCardFrames[i];
-  card.userData.baseScale=new THREE.Vector3(1,1,1);
-  return card
-});
-addBox(board,[2.12,.05,.026],[0,3.52,.060],M.graphite);
+const { projectCardFrames, projectCardMeshes } = buildProjectsZone(M, tools, budget)
 
 /* Lounge: deliberately placed against the left wall, clearly readable as a sofa.
    Separate base/frame, seat cushions, back cushions and armrests create a real furniture silhouette. */

@@ -127,20 +127,20 @@ body.view-web .card h2{font-size:23px;margin-bottom:8px}
 body.view-web .card p{margin-bottom:0;line-height:1.48}
 body.view-web .rows{display:none}
 
-/* Projects: a deliberately tiny gallery label in the EMPTY CENTER between the four cards. */
+/* Projects: keep the label off the interactive wall. */
 body.view-projects .info{
-  left:50%;right:auto;top:50%;width:176px;
-  transform:translate(-50%,-50%) scale(.965)
+  left:24px;right:auto;top:86px;width:min(270px,calc(100vw - 34px));
+  transform:translateY(-12px)
 }
-body.focus.view-projects .info{transform:translate(-50%,-50%) scale(1)}
+body.focus.view-projects .info{transform:translateY(0)}
 body.view-projects .card{
-  padding:11px 13px 12px;border-radius:12px;
+  padding:15px 17px 16px;border-radius:14px;
   background:rgba(247,245,239,.90);
   backdrop-filter:blur(12px) saturate(1.04);
   box-shadow:0 13px 34px rgba(64,53,44,.10),inset 0 1px rgba(255,255,255,.65)
 }
-body.view-projects .card .eyebrow{font-size:7px;margin-bottom:6px}
-body.view-projects .card h2{font-size:16px;line-height:1;margin:0;padding-right:20px}
+body.view-projects .card .eyebrow{font-size:7px;margin-bottom:7px}
+body.view-projects .card h2{font-size:23px;line-height:1;margin:0;padding-right:20px}
 body.view-projects .card p,
 body.view-projects .rows{display:none}
 body.view-projects .close{width:26px;height:26px;right:5px;top:5px;font-size:16px}

@@ -2,7 +2,7 @@
 
 Last updated: 2026-09-12  
 Current phase: Phase B — Games visual prototype
-Current bulk: Bulk 11 — Projects area
+Current bulk: Bulk 12 — Archive area
 
 ## Status legend
 
@@ -147,11 +147,11 @@ Acceptance: enough evidence exists to decide whether the visual direction should
 
 - [x] Upgrade the display hierarchy, selection space and area identity.
 
-### Bulk 11 — Projects area — **IN PROGRESS**
+### Bulk 11 — Projects area — COMPLETE
 
-- [ ] Upgrade the project wall and near/far readability.
+- [x] Upgrade the project wall and near/far readability.
 
-### Bulk 12 — Archive area
+### Bulk 12 — Archive area — **IN PROGRESS**
 
 - [ ] Upgrade the CRT/archive atmosphere while preserving overall cohesion.
 

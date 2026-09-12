@@ -7,7 +7,7 @@ export interface ProjectWall {
   setSelected(key: ProjectKey | null): boolean
 }
 
-export function createProjectWall(cards: THREE.Mesh[], frames: THREE.Mesh[]): ProjectWall {
+export function createProjectWall(cards: THREE.Mesh[], frames: THREE.Mesh[], textureAnisotropy = 4): ProjectWall {
   cards.forEach((card, index) => {
     const key = featuredProjectKeys[index]
     const frame = frames[index]
@@ -17,7 +17,7 @@ export function createProjectWall(cards: THREE.Mesh[], frames: THREE.Mesh[]): Pr
     card.userData.section = 'projects'
     card.userData.detailLabel = 'Open project'
     const project = projects[key]
-    const live = createLiveCanvas(); attachLiveTexture(card, live, 0.015)
+    const live = createLiveCanvas(textureAnisotropy); attachLiveTexture(card, live, 0.015)
     void loadRemoteImage(project.image).then((image) => {
       const { context, texture } = live; screenBase(context, '#d8d3c7')
       calibratedCoverCrop(context, { key, name: project.title, image }, 0, 0, 768, 432, 1.05, 0.5, 0.48)
