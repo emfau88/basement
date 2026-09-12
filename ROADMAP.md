@@ -2,7 +2,7 @@
 
 Last updated: 2026-09-12  
 Current phase: Phase E — Photorealistic Desktop rollout
-Current bulk: Bulk 23 — Desktop integration and approval — complete; Decision gate E awaiting visual approval
+Current bulk: Bulk 23.1 — Adaptive Desktop sharpness — planned
 
 ## Status legend
 
@@ -333,6 +333,31 @@ Verification: fixed 1440 × 900 overview and frontal-inspect captures, hover-to-
 Acceptance: all five Desktop views meet the Games baseline, feel like one designed environment and are explicitly approved before Mobile work resumes.
 
 Verification: five-view fixed 1440 × 900 before/after set, responsive viewport matrix through 1920 × 1080, complete interaction suite, typecheck, production build and GitHub Pages `/basement/` subpath QA passed on 2026-09-12. Final visual approval remains Decision gate E.
+
+### Bulk 23.1 — Adaptive Desktop sharpness
+
+- [ ] Capture current 1.55× Desktop performance and visual baselines at representative 1080p and HiDPI sizes.
+- [ ] Raise Desktop rendering toward 2× device pixel ratio with a simple 8.3-megapixel (native 4K) drawing-buffer ceiling for 4K/ultrawide windows.
+- [ ] Keep antialiasing, shadows and bloom calibrated; do not change Mobile quality profiles.
+- [ ] Retain the measured lower ratio if the representative Desktop p95 transition/render time exceeds the existing 22 ms budget.
+- [ ] Compare all five views and camera transitions for sharper edges without shimmer, stalls or excessive memory use.
+
+Acceptance: supported Desktop hardware receives visibly sharper geometry and text without destabilizing navigation or weaker laptops.
+
+Commit boundary: adaptive Desktop renderer policy, benchmarks and fixed visual evidence.
+
+### Bulk 23.2 — Focus-aware screen fidelity
+
+- [ ] Make live-screen resolution configurable instead of globally fixed at 768 × 432.
+- [ ] Render screens in the active Desktop zone (and inspected screen) at 1536 × 864 while distant zones retain the efficient base resolution and redraw cadence.
+- [ ] Audit project-image source dimensions and replace only visibly insufficient originals; never upscale low-resolution sources and call them improved.
+- [ ] Use 2K PBR textures only on large close-up surfaces where the current assets visibly limit quality.
+- [ ] Verify hover, selection, project opening, asset fallbacks and Archive/Games inspect views at both screen resolutions.
+- [ ] Repeat the complete Desktop visual set, responsive tests, production build and Pages subpath QA.
+
+Acceptance: close-up displays and major surfaces reach a perceived 9/10 Desktop sharpness while background work remains performance-conscious.
+
+Commit boundary: focus-aware screen resolution, selective asset upgrades and final sharpness/performance evidence.
 
 ### Decision gate E — Complete Desktop approval
 
