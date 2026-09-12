@@ -25,6 +25,7 @@ try {
   await desktop.locator('.nav button[data-view="games"]').click()
   assert(await desktop.locator('body').evaluate((body) => !body.classList.contains('mobile-ui')), 'Desktop activated mobile UI')
   assert(await desktop.locator('canvas').getAttribute('data-quality') === 'desktop', 'Desktop render profile is incorrect')
+  assert(await desktop.locator('canvas').getAttribute('data-scene-detail') === '160', 'Desktop scene detail budget is incorrect')
   assert(await desktop.locator('.info').evaluate((element) => getComputedStyle(element).display !== 'none'), 'Desktop information card disappeared')
   assert(await desktop.locator('#mobileSheet').evaluate((element) => getComputedStyle(element).display === 'none'), 'Desktop rendered the mobile sheet')
   await desktop.close()
@@ -49,6 +50,7 @@ try {
   await mobile.waitForFunction(() => document.querySelector('#loader')?.classList.contains('done'))
   assert(await mobile.locator('body').evaluate((body) => body.classList.contains('mobile-ui')), 'Mobile UI class is missing')
   assert(await mobile.locator('canvas').getAttribute('data-quality') === 'mobile-standard', 'Standard mobile render profile is incorrect')
+  assert(await mobile.locator('canvas').getAttribute('data-scene-detail') === '96', 'Standard mobile scene detail budget is incorrect')
   assert(await mobile.locator('#mobileSheet').evaluate((element) => element.inert), 'Studio sheet must be inert')
   await mobile.waitForTimeout(500)
   const startFrames = await mobile.evaluate(() => window.__qaAnimationFrames)
@@ -123,6 +125,7 @@ try {
   await constrainedMobile.goto(baseUrl, { waitUntil: 'domcontentloaded' })
   await constrainedMobile.waitForFunction(() => document.querySelector('#loader')?.classList.contains('done'))
   assert(await constrainedMobile.locator('canvas').getAttribute('data-quality') === 'mobile-low', 'Constrained mobile render profile is incorrect')
+  assert(await constrainedMobile.locator('canvas').getAttribute('data-scene-detail') === '48', 'Constrained mobile scene detail budget is incorrect')
   await constrainedMobile.close()
 
   const landscape = await browser.newPage({ viewport: { width: 740, height: 430 }, reducedMotion: 'reduce' })

@@ -1,6 +1,7 @@
 import * as THREE from 'three'
 import type { StudioMaterials } from '../materials'
 import type { SceneTools } from '../primitives'
+import type { SceneDetailBudget } from '../assets/detailBudget'
 
 export interface GamesZoneMeshes {
   gameMainScreen: THREE.Mesh
@@ -8,27 +9,19 @@ export interface GamesZoneMeshes {
   gameRightScreen: THREE.Mesh
 }
 
-function createGameLabSignMaterial(): THREE.MeshStandardMaterial {
-  const canvas = document.createElement('canvas')
-  canvas.width = 1024
-  canvas.height = 256
-  const context = canvas.getContext('2d')
-  if (!context) throw new Error('Canvas 2D is unavailable')
-
-  context.fillStyle = '#171a18'
-  context.fillRect(0, 0, canvas.width, canvas.height)
-  context.fillStyle = '#d7b768'
-  context.fillRect(42, 36, 126, 8)
-  context.fillStyle = '#f1eee4'
-  context.font = '900 92px Arial'
-  context.fillText('GAME LAB', 40, 148)
-  context.fillStyle = '#aeb7ad'
-  context.font = '700 25px monospace'
-  context.fillText('01  /  PLAY · TEST · SHIP', 44, 205)
-
-  const texture = new THREE.CanvasTexture(canvas)
-  texture.colorSpace = THREE.SRGBColorSpace
-  texture.anisotropy = 4
+function createGameLabSignMaterial(tools: SceneTools): THREE.MeshStandardMaterial {
+  const texture = tools.canvasTexture('games:game-lab-sign', 1024, 256, (context, canvas) => {
+    context.fillStyle = '#171a18'
+    context.fillRect(0, 0, canvas.width, canvas.height)
+    context.fillStyle = '#d7b768'
+    context.fillRect(42, 36, 126, 8)
+    context.fillStyle = '#f1eee4'
+    context.font = '900 92px Arial'
+    context.fillText('GAME LAB', 40, 148)
+    context.fillStyle = '#aeb7ad'
+    context.font = '700 25px monospace'
+    context.fillText('01  /  PLAY · TEST · SHIP', 44, 205)
+  })
   return new THREE.MeshStandardMaterial({
     map: texture,
     emissiveMap: texture,
@@ -39,8 +32,8 @@ function createGameLabSignMaterial(): THREE.MeshStandardMaterial {
   })
 }
 
-export function buildGamesZone(materials: StudioMaterials, tools: SceneTools): GamesZoneMeshes {
-  const { addBox, addCylinder, group, point, screen } = tools
+export function buildGamesZone(materials: StudioMaterials, tools: SceneTools, budget: SceneDetailBudget): GamesZoneMeshes {
+  const { addBox, addCylinder, addInstances, group, point, screen } = tools
   const glowMaterial = new THREE.MeshStandardMaterial({
     color: 0xd8b66b,
     emissive: 0xd8a957,
@@ -61,11 +54,11 @@ export function buildGamesZone(materials: StudioMaterials, tools: SceneTools): G
   addBox(portal, [6.56, .24, .26], [0, 4.48, 0], materials.concreteDark, [0, 0, 0], .035)
   for (const x of [-3.16, 3.16]) {
     addBox(portal, [.24, 3.46, .24], [x, 2.75, 0], materials.concreteDark, [0, 0, 0], .035)
-    for (let index = 0; index < 5; index += 1) {
-      addBox(portal, [.38, .065, .12], [x, 1.32 + index * .63, .16], materials.oakDark, [0, 0, 0], .018)
-    }
   }
-  addBox(portal, [3.74, .47, .08], [0, 4.77, .12], createGameLabSignMaterial(), [0, 0, 0], .025)
+  addInstances(portal, 'GamesPortalRibs', [.38, .065, .12], [-3.16, 3.16].flatMap((x) =>
+    Array.from({ length: 5 }, (_, index) => ({ position: [x, 1.32 + index * .63, .16] as const })),
+  ), materials.oakDark, .018)
+  addBox(portal, [3.74, .47, .08], [0, 4.77, .12], createGameLabSignMaterial(tools), [0, 0, 0], .025)
 
   // Warm layered counter: oak worktop, dark structural frame and a fine light reveal.
   const desk = group('MainDesk', [0, 0, -3.45])
@@ -98,9 +91,9 @@ export function buildGamesZone(materials: StudioMaterials, tools: SceneTools): G
 
   // Input devices and tactile props keep the station readable at close range.
   addBox(desk, [1.72, .055, .39], [-.34, 1.23, .44], materials.black, [0, 0, 0], .025)
-  for (let index = 0; index < 10; index += 1) {
-    addBox(desk, [.105, .02, .09], [-1.01 + index * .14, 1.265, .44], materials.graphite2, [0, 0, 0], .008)
-  }
+  addInstances(desk, 'KeyboardKeys', [.105, .02, .09], Array.from({ length: 10 }, (_, index) => ({
+    position: [-1.01 + index * .14, 1.265, .44] as const,
+  })), materials.graphite2, .008)
   addBox(desk, [.25, .035, .34], [.76, 1.24, .47], materials.black, [0, 0, 0], .04)
   const controller = group('GameController', [1.28, 1.22, -2.98], [.02, 0, 0])
   addBox(controller, [.58, .11, .3], [0, 0, 0], materials.graphite, [0, 0, 0], .08)
@@ -119,8 +112,10 @@ export function buildGamesZone(materials: StudioMaterials, tools: SceneTools): G
   addCylinder(lamp, .035, .05, .67, [0, 1.5, 0], materials.graphite)
   addBox(lamp, [.44, .075, .21], [.12, 1.83, 0], materials.brass, [0, 0, -.18], .025)
 
-  point(0xe3b66d, 1.05, 3.2, [-2.48, 1.98, -4.42])
-  point(0xe3b66d, .78, 3.1, [2.5, 1.84, -4.35])
+  if (budget.decorativeLights) {
+    point(0xe3b66d, 1.05, 3.2, [-2.48, 1.98, -4.42])
+    point(0xe3b66d, .78, 3.1, [2.5, 1.84, -4.35])
+  }
 
   return { gameMainScreen, gameLeftScreen, gameRightScreen }
 }

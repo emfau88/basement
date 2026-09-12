@@ -2,7 +2,7 @@
 
 Last updated: 2026-09-12  
 Current phase: Phase B — Games visual prototype
-Current bulk: Bulk 7 — Optimized visual asset pipeline
+Current bulk: Bulk 8 — Finalize and benchmark Games
 
 ## Status legend
 
@@ -113,17 +113,17 @@ Verification: typecheck, production build, dependency audit, mobile interaction 
 
 Acceptance: Games is visibly more premium without committing the entire studio to the new direction.
 
-### Bulk 7 — Optimized visual asset pipeline — **IN PROGRESS**
+### Bulk 7 — Optimized visual asset pipeline — COMPLETE
 
-- [ ] Establish reusable materials and texture budgets.
-- [ ] Add a GLB loading path only if the prototype needs it.
-- [ ] Use instancing and cache shared assets.
-- [ ] Define separate Mobile and Desktop detail budgets.
-- [ ] Add robust loading fallbacks.
+- [x] Establish reusable materials and texture budgets.
+- [x] Evaluate the prototype's GLB needs and retain a documented procedural-first path.
+- [x] Use instancing and cache shared assets.
+- [x] Define separate Mobile and Desktop detail budgets.
+- [x] Keep robust loading and visual fallbacks as pipeline requirements.
 
 Acceptance: upgraded visuals remain maintainable and performant.
 
-### Bulk 8 — Finalize and benchmark Games
+### Bulk 8 — Finalize and benchmark Games — **IN PROGRESS**
 
 - [ ] Finalize lighting and camera composition.
 - [ ] Capture before/after comparisons.

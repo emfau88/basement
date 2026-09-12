@@ -8,6 +8,7 @@ import { createStudioMaterials } from './scene/materials'
 import { createSceneTools } from './scene/primitives'
 import { createRenderingContext } from './scene/renderer'
 import { buildStudioRoom } from './scene/room'
+import { resolveSceneDetailBudget } from './scene/assets/detailBudget'
 import { createLiveScreenSystem } from './screens/liveScreens'
 import { createProjectWall } from './screens/projectWall'
 import { createStudioStore, type StudioView } from './state/studioState'
@@ -40,11 +41,12 @@ try {
   loadbar.style.width = '18%'
   const store = createStudioStore()
   const rendering = createRenderingContext(app)
+  const detailBudget = resolveSceneDetailBudget(rendering.quality)
   loadbar.style.width = '36%'
   const cameraController = new CameraController(rendering.camera)
   const materials = createStudioMaterials()
-  const tools = createSceneTools(rendering.scene, materials)
-  const meshes = buildStudioRoom(rendering.scene, materials, tools)
+  const tools = createSceneTools(rendering.scene, materials, detailBudget)
+  const meshes = buildStudioRoom(rendering.scene, materials, tools, detailBudget)
   const screens = createLiveScreenSystem(store)
 
   // Register every physical monitor exactly once. v11 accidentally registered this set twice.
@@ -96,6 +98,7 @@ try {
     screenIntervalMs: rendering.quality.screenIntervalMs,
   })
   rendering.renderer.domElement.dataset.quality = rendering.quality.name
+  rendering.renderer.domElement.dataset.sceneDetail = String(detailBudget.dustParticles)
   rendering.renderer.domElement.addEventListener('webglcontextlost', (event) => { event.preventDefault(); webglRecovery.show() })
   rendering.renderer.domElement.addEventListener('webglcontextrestored', () => { webglRecovery.hide(); scheduler.requestRender() })
   const mobileControls = createMobileControls({
