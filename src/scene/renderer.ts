@@ -3,6 +3,7 @@ import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js'
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js'
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js'
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js'
+import { isMobileViewport } from '../config/responsive'
 
 export interface RenderingContext {
   renderer: THREE.WebGLRenderer
@@ -14,7 +15,7 @@ export interface RenderingContext {
 
 export function createRenderingContext(container: HTMLElement): RenderingContext {
   const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' })
-  const setPixelRatio = () => renderer.setPixelRatio(Math.min(devicePixelRatio, innerWidth < 760 ? 1.05 : 1.55))
+  const setPixelRatio = () => renderer.setPixelRatio(Math.min(devicePixelRatio, isMobileViewport() ? 1.05 : 1.55))
   setPixelRatio()
   renderer.setSize(innerWidth, innerHeight)
   renderer.outputColorSpace = THREE.SRGBColorSpace

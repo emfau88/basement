@@ -1,4 +1,5 @@
 import type { StudioView } from '../state/studioState'
+import { isMobileViewport } from '../config/responsive'
 
 export type VectorTuple = readonly [number, number, number]
 
@@ -30,8 +31,6 @@ export const inspectCameraPresets = {
     mobile: { position: [-0.72, 2.03, 0.18], target: [-1.58, 1.92, -3.27], fov: 43 },
   },
 } as const
-
-export const isMobileViewport = () => window.innerWidth < 760
 
 export function getViewPreset(view: StudioView): CameraPreset {
   return (isMobileViewport() ? mobileCameraPresets : desktopCameraPresets)[view]
