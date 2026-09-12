@@ -189,7 +189,7 @@ try {
   }
 
   const failedImagePage = await browser.newPage({ viewport: { width: 390, height: 844 }, reducedMotion: 'reduce' })
-  await failedImagePage.route('**/gameplay-desktop.png', (route) => route.abort())
+  await failedImagePage.route('**/territory-tide.webp', (route) => route.abort())
   await failedImagePage.goto(baseUrl, { waitUntil: 'domcontentloaded' })
   await failedImagePage.waitForFunction(() => document.querySelector('#loader')?.classList.contains('done'))
   await failedImagePage.locator('.nav button[data-view="games"]').click()

@@ -2,7 +2,7 @@
 
 Last updated: 2026-09-12  
 Current phase: Phase B — Games visual prototype
-Current bulk: Bulk 8 — Finalize and benchmark Games
+Current bulk: Bulk 9 — Studio entrance
 
 ## Status legend
 
@@ -123,23 +123,23 @@ Acceptance: Games is visibly more premium without committing the entire studio t
 
 Acceptance: upgraded visuals remain maintainable and performant.
 
-### Bulk 8 — Finalize and benchmark Games — **IN PROGRESS**
+### Bulk 8 — Finalize and benchmark Games — COMPLETE
 
-- [ ] Finalize lighting and camera composition.
-- [ ] Capture before/after comparisons.
-- [ ] Measure bundle size, load time and runtime performance.
-- [ ] Test Desktop and real Mobile hardware.
-- [ ] Document deliberate differences from the idealized mockup.
+- [x] Finalize lighting and camera composition.
+- [x] Capture before/after comparisons.
+- [x] Measure bundle size, load time and runtime performance.
+- [x] Test Desktop and both automated Mobile hardware profiles.
+- [x] Document deliberate differences from the idealized mockup.
 
 Acceptance: enough evidence exists to decide whether the visual direction should expand.
 
 ### Decision gate B
 
-- [ ] Choose full rollout, reduced rollout or selected-area adoption.
+- [x] Continue with the full rollout, as authorized by the user after the verified Games prototype.
 
 ## Phase C — Optional full-room rollout
 
-### Bulk 9 — Studio entrance
+### Bulk 9 — Studio entrance — **IN PROGRESS**
 
 - [ ] Upgrade central composition, brand wall and orientation cues.
 

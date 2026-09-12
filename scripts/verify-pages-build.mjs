@@ -1,29 +1,8 @@
 import { chromium } from '@playwright/test'
-import { createServer } from 'node:http'
-import { readFile, stat } from 'node:fs/promises'
-import path from 'node:path'
+import { startStaticBuildServer } from './lib/static-build-server.mjs'
 
-const root = path.resolve('dist')
 const prefix = '/basement/'
-const mimeTypes = { '.css': 'text/css', '.html': 'text/html', '.js': 'text/javascript', '.svg': 'image/svg+xml' }
-
-const server = createServer(async (request, response) => {
-  try {
-    const pathname = decodeURIComponent(new URL(request.url ?? '/', 'http://localhost').pathname)
-    if (!pathname.startsWith(prefix)) { response.writeHead(404).end('Not found'); return }
-    const relative = pathname.slice(prefix.length) || 'index.html'
-    const target = path.resolve(root, relative)
-    if (!target.startsWith(`${root}${path.sep}`) || !(await stat(target)).isFile()) { response.writeHead(404).end('Not found'); return }
-    const extension = path.extname(target)
-    response.writeHead(200, { 'Content-Type': mimeTypes[extension] ?? 'application/octet-stream' })
-    response.end(await readFile(target))
-  } catch {
-    response.writeHead(404).end('Not found')
-  }
-})
-await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve))
-const address = server.address()
-if (!address || typeof address === 'string') throw new Error('Unable to resolve Pages QA server port')
+const server = await startStaticBuildServer({ prefix })
 
 let browser
 try {
@@ -34,7 +13,7 @@ try {
     if (message.type() === 'warning' || message.type() === 'error') problems.push(`${message.type()}: ${message.text()}`)
   })
   page.on('pageerror', (error) => problems.push(`pageerror: ${error.message}`))
-  await page.goto(`http://127.0.0.1:${address.port}${prefix}`, { waitUntil: 'domcontentloaded' })
+  await page.goto(server.url, { waitUntil: 'domcontentloaded' })
   await page.waitForFunction(() => document.querySelector('#loader')?.classList.contains('done'))
   const result = await page.evaluate(() => ({
     canvasCount: document.querySelectorAll('canvas').length,
@@ -45,11 +24,21 @@ try {
   if (![...result.scriptSources, ...result.styleSources].every((url) => new URL(url).pathname.startsWith('/basement/'))) {
     throw new Error(`An asset escaped the Pages subpath: ${JSON.stringify(result)}`)
   }
+  await page.locator('.nav button[data-view="games"]').click()
+  await page.locator('#mobileSheetToggle').click()
+  await page.waitForFunction(() => [...document.querySelectorAll('.mobile-project-card img')].every((image) => image.complete && image.naturalWidth > 0))
+  const projectImages = await page.locator('.mobile-project-card img').evaluateAll((images) => images.map((image) => ({
+    path: new URL(image.src).pathname,
+    width: image.naturalWidth,
+  })))
+  if (!projectImages.every((image) => image.path.startsWith('/basement/assets/projects/') && image.width > 0)) {
+    throw new Error(`A project image escaped the Pages build or failed to load: ${JSON.stringify(projectImages)}`)
+  }
   if (problems.length > 0) throw new Error(`Pages build console problems:\n${problems.join('\n')}`)
   await page.close()
 } finally {
   await browser?.close()
-  await new Promise((resolve, reject) => server.close((error) => error ? reject(error) : resolve()))
+  await server.close()
 }
 
 console.log('GitHub Pages subpath QA passed')

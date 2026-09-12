@@ -47,7 +47,7 @@ try {
   const materials = createStudioMaterials()
   const tools = createSceneTools(rendering.scene, materials, detailBudget)
   const meshes = buildStudioRoom(rendering.scene, materials, tools, detailBudget)
-  const screens = createLiveScreenSystem(store)
+  const screens = createLiveScreenSystem(store, detailBudget.textureAnisotropy)
 
   // Register every physical monitor exactly once. v11 accidentally registered this set twice.
   screens.registerGameSlideshow(meshes.gameMainScreen)

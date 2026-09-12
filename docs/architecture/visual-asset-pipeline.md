@@ -10,6 +10,7 @@ The studio remains procedural-first. Geometry, live screens and branded surfaces
 - Canvas textures are cached by stable semantic keys and use the active detail budget's anisotropy limit.
 - Repeated Game Lab ribs and keyboard keys use `THREE.InstancedMesh` rather than one draw object per part.
 - Existing live-screen canvases remain independent because each carries changing project content.
+- All twelve project previews are self-hosted as normalized WebP files (maximum 1280px), removing runtime dependence on external image hosts.
 
 ## Device detail budgets
 
@@ -28,3 +29,4 @@ The selected scene budget follows the same startup profile as pixel ratio, antia
 3. A GLB must use compressed geometry/textures, define a visible loading fallback and stay within the target area rather than blocking the room.
 4. Reuse materials and textures by semantic key; do not create identical resources inside loops.
 5. Any new decorative layer must define Desktop, Mobile standard and Mobile low behavior before merge.
+6. Project previews ship locally under the Vite base path and are verified at the GitHub Pages `/basement/` subpath.

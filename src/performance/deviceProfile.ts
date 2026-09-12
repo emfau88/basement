@@ -21,5 +21,5 @@ export function resolveRenderQuality(): RenderQualityProfile {
   const constrained = (memory !== undefined && memory <= 4) || (cores !== undefined && cores <= 4)
   return constrained
     ? { name: 'mobile-low', antialias: false, bloom: false, bloomStrength: 0, pixelRatioCap: 1, screenIntervalMs: 140, shadows: false }
-    : { name: 'mobile-standard', antialias: true, bloom: true, bloomStrength: 0.1, pixelRatioCap: 1.1, screenIntervalMs: 110, shadows: true }
+    : { name: 'mobile-standard', antialias: false, bloom: false, bloomStrength: 0, pixelRatioCap: 1.1, screenIntervalMs: 110, shadows: false }
 }

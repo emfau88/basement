@@ -27,11 +27,11 @@ export interface LiveScreenSystem {
   update(now: number): boolean
 }
 
-export function createLiveScreenSystem(store: StudioStore): LiveScreenSystem {
+export function createLiveScreenSystem(store: StudioStore, textureAnisotropy = 4): LiveScreenSystem {
   const screens: LiveScreen[] = []
 
   const registerImageScreen = (mesh: THREE.Mesh, type: ScreenType, keys: readonly ProjectKey[], emissive: number) => {
-    const live = createLiveCanvas(); attachLiveTexture(mesh, live, emissive)
+    const live = createLiveCanvas(textureAnisotropy); attachLiveTexture(mesh, live, emissive)
     const screen: LiveScreen = { type, live, items: [], last: 0 }
     void loadProjectImages(keys).then((items) => { screen.items = items; screen.last = 0 })
     screens.push(screen)
@@ -153,9 +153,9 @@ export function createLiveScreenSystem(store: StudioStore): LiveScreenSystem {
   return {
     registerGameSlideshow: (mesh) => registerImageScreen(mesh, 'games', gameProjectKeys, 0.5),
     registerGamePan: (mesh) => registerImageScreen(mesh, 'gamepan', ['territory_tide', 'pocket_pier', 'core_arena'], 0.46),
-    registerGameSelector: (mesh) => { const live = createLiveCanvas(); attachLiveTexture(mesh, live, 0.38); screens.push({ type: 'terminal', live, items: [], last: 0 }) },
+    registerGameSelector: (mesh) => { const live = createLiveCanvas(textureAnisotropy); attachLiveTexture(mesh, live, 0.38); screens.push({ type: 'terminal', live, items: [], last: 0 }) },
     registerApps: (mesh) => registerImageScreen(mesh, 'apps', ['between', 'zerohero', 'mirror', 'chargegeist'], 0.24),
-    registerAppSelector: (mesh) => { const live = createLiveCanvas(); attachLiveTexture(mesh, live, 0.36); screens.push({ type: 'appticker', live, items: [], last: 0, apps: ['MIRROR', 'ZEROHERO', 'BETWEEN', 'CHARGEGEIST', 'MEWTRACK', 'MARSCHLEGENDEN'] }) },
+    registerAppSelector: (mesh) => { const live = createLiveCanvas(textureAnisotropy); attachLiveTexture(mesh, live, 0.36); screens.push({ type: 'appticker', live, items: [], last: 0, apps: ['MIRROR', 'ZEROHERO', 'BETWEEN', 'CHARGEGEIST', 'MEWTRACK', 'MARSCHLEGENDEN'] }) },
     registerArchive: (mesh) => registerImageScreen(mesh, 'archive', archiveProjectKeys, 0.38),
     selectGameFromHit: (hit) => { const y = (1 - (hit.uv?.y ?? -1)) * 432; if (y < 86 || y > 86 + gameProjectKeys.length * 58) return; const key = gameProjectKeys[Math.floor((y - 86) / 58)]; if (key) store.set({ selectedGameId: key }) },
     selectWebFromHit: (hit) => { const y = (1 - (hit.uv?.y ?? -1)) * 432; if (y < 92 || y > 92 + webProjectKeys.length * 56) return; const key = webProjectKeys[Math.floor((y - 92) / 56)]; if (key) store.set({ selectedWebId: key }) },
