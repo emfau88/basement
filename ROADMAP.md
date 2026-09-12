@@ -2,7 +2,7 @@
 
 Last updated: 2026-09-12  
 Current phase: Phase B — Games visual prototype
-Current bulk: Bulk 9 — Studio entrance
+Current bulk: Bulk 10 — Web area
 
 ## Status legend
 
@@ -139,11 +139,11 @@ Acceptance: enough evidence exists to decide whether the visual direction should
 
 ## Phase C — Optional full-room rollout
 
-### Bulk 9 — Studio entrance — **IN PROGRESS**
+### Bulk 9 — Studio entrance — COMPLETE
 
-- [ ] Upgrade central composition, brand wall and orientation cues.
+- [x] Upgrade central composition, brand wall and orientation cues.
 
-### Bulk 10 — Web area
+### Bulk 10 — Web area — **IN PROGRESS**
 
 - [ ] Upgrade the display hierarchy, selection space and area identity.
 

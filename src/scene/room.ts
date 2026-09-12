@@ -4,6 +4,7 @@ import type { StudioMaterials } from './materials'
 import type { SceneTools, Triple } from './primitives'
 import { buildGamesZone } from './zones/gamesZone'
 import type { SceneDetailBudget } from './assets/detailBudget'
+import { buildEntranceZone } from './zones/entranceZone'
 
 export interface StudioMeshes {
   gameMainScreen: THREE.Mesh
@@ -105,6 +106,7 @@ for(let i=0;i<7;i++){
 box('rug',[5.7,.035,3.35],[0,.02,-2.20],M.rug,[0,0,0],false,true,.06);
 
 const { gameMainScreen, gameLeftScreen, gameRightScreen } = buildGamesZone(M, tools, budget)
+buildEntranceZone(M, tools, budget)
 
 /* chair */
 const chair=group('Chair',[0,0,-1.55],[0,.02,0]);
