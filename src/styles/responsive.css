@@ -1,5 +1,13 @@
 /* Canonical mobile breakpoint: keep in sync with src/config/responsive.ts. */
 @media(max-width:760px){
+  :root{
+    --mobile-nav-height:60px;
+    --mobile-ui-gap:10px;
+    --mobile-safe-top:max(12px,env(safe-area-inset-top));
+    --mobile-safe-bottom:max(12px,env(safe-area-inset-bottom));
+  }
+  html,body{height:var(--app-height,100dvh);min-height:var(--app-height,100dvh)}
+  #app{inset:0 0 auto;height:var(--app-height,100dvh)}
   .project-shell{grid-template-columns:1fr}
   .project-media{min-height:210px}
   .project-copy{padding:18px 18px 17px}

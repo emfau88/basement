@@ -3,7 +3,8 @@ import { createServer } from 'vite'
 import { mkdir, readdir } from 'node:fs/promises'
 import path from 'node:path'
 
-const outputDirectory = path.resolve('docs/qa/baseline')
+const baselineMode = process.argv.includes('--baseline')
+const outputDirectory = path.resolve(baselineMode ? 'docs/qa/baseline' : 'docs/qa/current')
 const force = process.argv.includes('--force')
 const viewNames = ['studio', 'games', 'web', 'projects', 'archive']
 const profiles = [
@@ -13,7 +14,7 @@ const profiles = [
 ]
 
 await mkdir(outputDirectory, { recursive: true })
-if (!force && (await readdir(outputDirectory)).some((name) => name.endsWith('.jpg'))) {
+if (baselineMode && !force && (await readdir(outputDirectory)).some((name) => name.endsWith('.jpg'))) {
   throw new Error('Baseline images already exist. Pass --force only after an intentional baseline approval.')
 }
 
@@ -67,4 +68,4 @@ try {
   await server.close()
 }
 
-console.log(`Captured ${profiles.length * viewNames.length} baseline images in ${outputDirectory}`)
+console.log(`Captured ${profiles.length * viewNames.length} ${baselineMode ? 'baseline' : 'current'} images in ${outputDirectory}`)

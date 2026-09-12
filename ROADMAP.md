@@ -2,7 +2,7 @@
 
 Last updated: 2026-09-12  
 Current phase: Phase A — Mobile UX  
-Current bulk: Bulk 1 — Ready for implementation
+Current bulk: Bulk 2 — Compact navigation and collapsed sheet
 
 ## Status legend
 
@@ -38,17 +38,17 @@ Current bulk: Bulk 1 — Ready for implementation
 
 Acceptance: the current experience is reproducible, recoverable and objectively comparable before visual changes begin.
 
-### Bulk 1 — Isolated mobile layout foundation
+### Bulk 1 — Isolated mobile layout foundation — COMPLETE
 
-- [ ] Introduce mobile viewport and safe-area layout variables.
-- [ ] Use dynamic viewport units without changing Desktop.
-- [ ] Isolate the mobile UI component lifecycle.
-- [ ] Stabilize resize and orientation changes.
-- [ ] Confirm zero Desktop screenshot regressions.
+- [x] Introduce mobile viewport and safe-area layout variables.
+- [x] Use dynamic viewport units without changing Desktop.
+- [x] Isolate the mobile UI component lifecycle.
+- [x] Stabilize resize and orientation changes.
+- [x] Confirm zero Desktop screenshot regressions (`0.001–0.007%` capture variance).
 
 Acceptance: Mobile has an isolated layout foundation; Desktop remains unchanged.
 
-### Bulk 2 — Compact navigation and collapsed sheet
+### Bulk 2 — Compact navigation and collapsed sheet — **IN PROGRESS**
 
 - [ ] Replace large mobile cards with a compact fixed navigation.
 - [ ] Add the collapsed contextual sheet above navigation.

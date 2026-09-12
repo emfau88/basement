@@ -54,6 +54,8 @@ Regenerate only after an explicitly accepted visual baseline change:
 npm run qa:capture-baseline -- --force
 ```
 
+Capture an ignored working comparison after any bulk with `npm run qa:capture-current`.
+
 ## Regression matrix
 
 | Profile | Views | Required checks |

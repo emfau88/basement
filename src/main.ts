@@ -15,6 +15,7 @@ import { requiredElement } from './ui/dom'
 import { createMobileControls } from './ui/mobileControls'
 import { createNavigationUI } from './ui/navigation'
 import { createProjectModal } from './ui/projectModal'
+import { createViewportController } from './ui/viewport'
 
 const app = requiredElement<HTMLElement>('app')
 const loader = requiredElement<HTMLElement>('loader')
@@ -78,7 +79,7 @@ try {
     cameraController.exitInspect(state.view); scheduler.startTransition()
   }
 
-  createNavigationUI(store, navigate)
+  const navigation = createNavigationUI(store, navigate)
   inspectBack.addEventListener('click', exitInspect)
   createAmbientAudio()
 
@@ -87,7 +88,7 @@ try {
     updateCamera: (now) => cameraController.update(now),
     updateScreens: (now) => screens.update(now),
   })
-  createMobileControls(store, enterInspect, scheduler.requestRender)
+  const mobileControls = createMobileControls(store, enterInspect, scheduler.requestRender)
   createRaycaster({ canvas: rendering.renderer.domElement, camera: rendering.camera, meshes, hotspots, screens, projectWall, store, modal, tooltip, navigate, enterInspect, requestRender: scheduler.requestRender })
 
   window.addEventListener('keydown', (event) => {
@@ -96,9 +97,12 @@ try {
     else if (store.get().inspectMode) exitInspect()
     else navigate('studio')
   })
-  window.addEventListener('resize', () => {
+  const viewport = createViewportController(() => {
     rendering.resize(); cameraController.resize(store.get().view, Boolean(store.get().inspectMode)); scheduler.requestRender()
-  }, { passive: true })
+  })
+  window.addEventListener('pagehide', () => {
+    viewport.destroy(); mobileControls.destroy(); navigation.destroy(); scheduler.destroy()
+  }, { once: true })
 
   rendering.scene.traverse((object) => {
     if (object instanceof THREE.Mesh && Array.isArray(object.material)) object.material = object.material[0] ?? materials.white
