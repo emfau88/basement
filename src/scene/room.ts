@@ -51,11 +51,19 @@ function plant(pos: Triple,scale=1){
   return g
 }
 
-/* architecture */
+/* shared architectural shell */
 box('floor',[15.2,.20,10.8],[0,-.10,-1.2],M.floor);
-box('leftWall',[.24,5.4,10.8],[-7.48,2.6,-1.2],M.white2);
-box('rightWall',[.24,5.4,10.8],[7.48,2.6,-1.2],M.white2);
-box('ceiling',[15.2,.16,10.8],[0,5.16,-1.2],M.white);
+box('leftWall',[.24,5.4,10.8],[-7.48,2.6,-1.2],M.plaster);
+box('rightWall',[.24,5.4,10.8],[7.48,2.6,-1.2],M.plaster);
+box('ceiling',[15.2,.16,10.8],[0,5.16,-1.2],M.white2);
+
+/* continuous skirting and structural piers give the room believable construction depth */
+box('leftSkirting',[.11,.20,10.45],[-7.32,.10,-1.2],M.graphite,[0,0,0],false,true,.025);
+box('rightSkirting',[.11,.20,10.45],[7.32,.10,-1.2],M.graphite,[0,0,0],false,true,.025);
+for(const z of [-5.78,-1.18,3.42]){
+  box('leftPier',[.20,4.82,.42],[-7.27,2.48,z],M.concreteDark,[0,0,0],true,true,.035);
+  box('rightPier',[.20,4.82,.42],[7.27,2.48,z],M.concreteDark,[0,0,0],true,true,.035)
+}
 
 /* back wall structure around window */
 box('backLow',[15.2,1.10,.24],[0,.55,-6.48],M.plaster);
@@ -90,18 +98,22 @@ for(let i=0;i<budget.cityBuildings;i++){
 /* oak slat accent wall left-back */
 for(let i=0;i<12;i++) box('slat',[.07,3.25,.16],[-7.30,2.65,-5.55+i*.34],M.oakLight,[0,0,0],false,true,.01);
 
-/* acoustic ceiling baffles */
-for(let i=0;i<7;i++){
-  box('baffle',[1.35,.11,.40],[-4.6+i*1.53,4.93,-1.2],i%2?M.sage:M.white2,[0,0,.02*(i%2?1:-1)],false,false,.05)
+/* a recessed acoustic raft replaces the former floating ceiling bars */
+box('ceilingRaft',[10.4,.16,3.18],[0,5.02,-1.88],M.graphite,[0,0,0],false,false,.055);
+for(let i=0;i<19;i++){
+  box('ceilingSlat',[.20,.055,2.82],[-4.5+i*.50,4.915,-1.88],M.oakDark,[0,0,0],false,false,.025)
 }
+const coveMaterial=new THREE.MeshBasicMaterial({color:0xffd69e,toneMapped:false,transparent:true,opacity:.42});
+box('leftCove',[.055,.035,3.0],[-5.03,4.90,-1.88],coveMaterial,[0,0,0],false,false,.01);
+box('rightCove',[.055,.035,3.0],[5.03,4.90,-1.88],coveMaterial,[0,0,0],false,false,.01);
 
 /* track lights */
 const track=group('TrackLights',[0,0,0]);
-addBox(track,[9.5,.055,.07],[0,4.84,-2.1],M.graphite);
+addBox(track,[9.45,.055,.07],[0,4.82,-2.08],M.black);
 for(let i=0;i<7;i++){
   const x=-4.4+i*1.45;
-  addCylinder(track,.07,.07,.24,[x,4.68,-2.1],M.graphite,[0,0,0],20);
-  addCylinder(track,.11,.08,.20,[x,4.53,-2.1],M.black,[0,0,0],20);
+  addCylinder(track,.06,.06,.20,[x,4.68,-2.08],M.graphite,[0,0,0],20);
+  addCylinder(track,.105,.075,.22,[x,4.53,-2.08],M.black,[0,0,0],20);
 }
 
 /* rug */

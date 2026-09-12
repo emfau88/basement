@@ -2,7 +2,7 @@
 
 Last updated: 2026-09-12  
 Current phase: Phase E — Photorealistic Desktop rollout
-Current bulk: Bulk 19 — Shared studio shell and overview
+Current bulk: Bulk 19 — Shared studio shell and overview — complete
 
 ## Status legend
 
@@ -247,18 +247,20 @@ Acceptance: Games is approved by the user as the Desktop quality baseline for ex
 
 Desktop is completed and approved before Mobile framing, LOD and device tuning resume. Games remains the visual benchmark and interaction-safe fallback pattern for every following zone.
 
-### Bulk 19 — Shared studio shell and overview — **IN PROGRESS**
+### Bulk 19 — Shared studio shell and overview — COMPLETE
 
-- [ ] Audit the Studio overview at the fixed 1440 × 900 camera and define the intentional hero hierarchy.
-- [ ] Extend the Games wall, floor, ceiling, window and structural material language across the complete room.
-- [ ] Resolve visible seams, disconnected wall panels, scale conflicts and placeholder-looking global geometry.
-- [ ] Establish coherent shared ambient light, exposure and restrained contact grounding without flattening zone identities.
-- [ ] Upgrade entrance/wayfinding elements only where they remain prominent in the Studio overview.
-- [ ] Preserve all current navigation targets and zone camera behavior.
+- [x] Audit the Studio overview at the fixed 1440 × 900 camera and define the intentional hero hierarchy.
+- [x] Extend the Games wall, floor, ceiling, window and structural material language across the complete room.
+- [x] Resolve visible seams, disconnected wall panels, scale conflicts and placeholder-looking global geometry.
+- [x] Establish coherent shared ambient light, exposure and restrained contact grounding without flattening zone identities.
+- [x] Upgrade entrance/wayfinding elements only where they remain prominent in the Studio overview.
+- [x] Preserve all current navigation targets and zone camera behavior.
 
 Acceptance: the Studio overview reads as one credible interior rather than one finished Games set surrounded by older blockouts.
 
 Commit boundary: shared shell, Studio capture and regression proof only; no detailed Web, Projects or Archive dressing.
+
+Verification: the fixed five-view Desktop capture, TypeScript, production build, complete responsive/interaction suite and GitHub Pages `/basement/` subpath QA passed on 2026-09-12. Mobile continues to load the Games proof only inside Games; the persistent all-room proof is Desktop-only until Bulk 24.
 
 ### Bulk 20 — Web workstation
 

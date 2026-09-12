@@ -101,7 +101,7 @@ try {
         assets,
       })).then((proof) => {
         gamesProof = proof
-        proof.setActive(store.get().view === 'games')
+        proof.setActive(rendering.quality.name === 'desktop' || store.get().view === 'games')
         rendering.renderer.domElement.dataset.gamesProof = 'ready'
         scheduler.requestRender()
         return proof
@@ -116,6 +116,8 @@ try {
     return gamesProofPromise
   }
 
+  const usesGamesProof = (view: StudioView): boolean => rendering.quality.name === 'desktop' || view === 'games'
+
   const setInspectLabel = (active: boolean) => { meshes.gameLeftScreen.userData.detailLabel = active ? 'Select project' : 'Zoom into selector' }
   const navigate = (view: StudioView) => {
     const state = store.get()
@@ -127,9 +129,9 @@ try {
     tooltip.classList.remove('show'); document.body.style.cursor = 'default'
     fade.style.opacity = '.13'; window.setTimeout(() => { fade.style.opacity = '0' }, 150)
     store.set({ view, inspectMode: null, mobileSheet: 'collapsed' })
-    if (view === 'games') {
+    if (usesGamesProof(view)) {
       void ensureGamesProof().then((proof) => {
-        if (store.get().view === 'games') {
+        if (usesGamesProof(store.get().view)) {
           proof.setActive(true)
           scheduler.requestRender()
         }
@@ -229,6 +231,15 @@ try {
     if (object instanceof THREE.Mesh && Array.isArray(object.material)) object.material = object.material[0] ?? materials.white
   })
   screens.update(performance.now()); scheduler.requestRender()
+  if (usesGamesProof(store.get().view)) {
+    window.setTimeout(() => {
+      void ensureGamesProof().then((proof) => {
+        if (!usesGamesProof(store.get().view)) return
+        proof.setActive(true)
+        scheduler.requestRender()
+      }).catch(() => undefined)
+    }, 820)
+  }
   loadbar.style.width = '74%'
   window.setTimeout(() => { loadbar.style.width = '100%'; loadlabel.textContent = 'studio ready' }, 280)
   window.setTimeout(() => loader.classList.add('done'), 760)
