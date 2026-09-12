@@ -174,6 +174,7 @@ The completed Bulks 6–11 are retained as a functional composition/blockout and
 - [x] Keep the existing WebGL renderer for the proof instead of combining the art-direction change with a renderer migration.
 - [x] Make Games the only visible proof area before another full-room rollout.
 - [x] Identify the current fixed Games capture at `docs/qa/current/desktop-1440x900-games.jpg`.
+- [x] Generate and preserve three photorealistic reference candidates from the current Games composition.
 - [ ] Store the approved concept mockup as the canonical repository reference.
 - [ ] Produce a fixed-camera gap audit from the canonical mockup to the current Games capture.
 - [ ] Select and register every external Games asset before it enters the production bundle.
