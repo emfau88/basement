@@ -1,8 +1,8 @@
 # Photorealism production plan
 
-Status: planning and reference audit
+Status: Games Desktop baseline approved; full Desktop rollout authorized
 
-Scope: Games proof first; no other zone is authorized until Decision Gate D
+Scope: complete all Desktop zones against the approved Games baseline; resume Mobile optimization after Decision Gate E
 
 Renderer: current Three.js WebGL renderer for the proof
 
@@ -20,7 +20,7 @@ The proof must demonstrate all of the following:
 - the existing project selection, screen content, navigation and mobile sheet behavior without regression;
 - fixed-reference Desktop similarity and intentional Mobile reframing, not a separate mobile site.
 
-Until the reference gate passes, the existing procedural scene is the supported production scene and acts as blockout/fallback. It is not labelled as the final photorealistic result.
+The Games reference gate and Desktop art-direction gate have passed. Existing procedural zones remain supported blockout/fallback geometry until their individual rollout bulks are accepted; they are not labelled as final photorealistic results.
 
 ## Canonical visual reference
 
@@ -108,7 +108,9 @@ Additional requirements:
 5. Hero pass: focus-visible authored assets and final material families.
 6. Optimization pass: explicit Desktop/Mobile variants, compression, instancing, LOD and measured budgets.
 7. Approval gate: side-by-side Desktop proof, real-phone Mobile proof and an explicit expand/stop decision.
-8. Rollout: entrance, Web, Projects and Archive only after Games is approved.
+8. Desktop rollout: shared studio shell, Web, Projects and Archive after Games approval.
+9. Desktop integration gate: approve all five views as one coherent set.
+10. Mobile and release: implement measured LOD/framing tiers and perform physical-device validation only after Desktop approval.
 
 ## Verification matrix
 

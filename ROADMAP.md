@@ -1,8 +1,8 @@
 # EMFAU Virtual Studio roadmap
 
 Last updated: 2026-09-12  
-Current phase: Phase D — Photorealistic Games proof
-Current bulk: Bulk 18 — Games final light, mobile LOD and proof
+Current phase: Phase E — Photorealistic Desktop rollout
+Current bulk: Bulk 19 — Shared studio shell and overview
 
 ## Status legend
 
@@ -224,49 +224,115 @@ Verification: fixed Desktop/Mobile captures, TypeScript, production build, asset
 
 Acceptance: at the approved fixed Desktop camera, the Games area reaches the reference's material richness, depth and object credibility rather than merely sharing its colors.
 
-Verification: fixed Desktop/Mobile captures, optimized/validated Meshopt plant GLB, production-size WebP materials, generated waterfront backplate, TypeScript and interaction-preserving render checks passed on 2026-09-12. Final AO/light polish, explicit LOD measurement and physical-phone approval remain intentionally assigned to Bulk 18.
+Verification: fixed Desktop/Mobile captures, optimized/validated Meshopt plant GLB, production-size WebP materials, generated waterfront backplate, TypeScript and interaction-preserving render checks passed on 2026-09-12. Cross-zone light harmonization remains in Bulk 23; explicit LOD measurement and physical-phone approval are intentionally deferred to Bulk 24.
 
-### Bulk 18 — Games final light, mobile LOD and proof — **IN PROGRESS**
+### Bulk 18 — Games Desktop approval baseline — COMPLETE
 
-- [ ] Bake/finalize AO or lightmaps and tune restrained postprocessing.
+- [x] Finalize the visible Games architecture, furniture, props and restrained lighting.
+- [x] Improve the window integration and remove obsolete construction ribs.
+- [x] Add the approved poster, realistic plants, readable book spines and branded mug.
+- [x] Reposition the contextual information card so the hero desk remains visible.
+- [x] Capture and review the fixed-camera Desktop result.
+- [x] Preserve Mobile standard/low optimization and physical-phone validation for the post-Desktop production pass.
+
+Acceptance: Games is approved by the user as the Desktop quality baseline for expanding the visual language to the rest of the studio.
+
+### Decision gate D — Desktop art-direction approval — COMPLETE
+
+- [x] Approve the fixed-camera Games Desktop proof as an acceptable rollout baseline.
+- [x] Authorize expansion of the art direction to the remaining room.
+- [x] Explicitly defer Mobile visual refinement until the complete Desktop studio is approved.
+
+## Phase E — Photorealistic Desktop rollout
+
+Desktop is completed and approved before Mobile framing, LOD and device tuning resume. Games remains the visual benchmark and interaction-safe fallback pattern for every following zone.
+
+### Bulk 19 — Shared studio shell and overview — **IN PROGRESS**
+
+- [ ] Audit the Studio overview at the fixed 1440 × 900 camera and define the intentional hero hierarchy.
+- [ ] Extend the Games wall, floor, ceiling, window and structural material language across the complete room.
+- [ ] Resolve visible seams, disconnected wall panels, scale conflicts and placeholder-looking global geometry.
+- [ ] Establish coherent shared ambient light, exposure and restrained contact grounding without flattening zone identities.
+- [ ] Upgrade entrance/wayfinding elements only where they remain prominent in the Studio overview.
+- [ ] Preserve all current navigation targets and zone camera behavior.
+
+Acceptance: the Studio overview reads as one credible interior rather than one finished Games set surrounded by older blockouts.
+
+Commit boundary: shared shell, Studio capture and regression proof only; no detailed Web, Projects or Archive dressing.
+
+### Bulk 20 — Web workstation
+
+- [ ] Replace the focus-visible desk, monitor stands, phone, input devices and small props with the approved authored/PBR language.
+- [ ] Improve the backdrop, cable/edge/contact details and a restrained cool Web-area identity.
+- [ ] Keep the main preview and selector screen content crisp and synchronized.
+- [ ] Position the Desktop information card so neither display nor hero objects are obscured.
+- [ ] Reuse verified materials and assets where plausible instead of introducing near-duplicates.
+
+Acceptance: Web reaches Games-level material credibility and composition while all screen selection and detail actions remain unchanged.
+
+Commit boundary: Web view, its fixed capture and interaction tests.
+
+### Bulk 21 — Projects gallery
+
+- [ ] Upgrade the gallery wall, frame construction, workbench and selection lighting with believable thickness and contact.
+- [ ] Keep all four project cards legible, interactive and visually dominant.
+- [ ] Add only a few scale-giving props; avoid turning the gallery into another crowded desk scene.
+- [ ] Verify hover/selection frames, modal opening and near/far readability.
+- [ ] Keep the information card clear of the interactive wall.
+
+Acceptance: Projects reads as a premium physical portfolio gallery, not a set of flat cards attached to a procedural panel.
+
+Commit boundary: Projects view, its fixed capture and interaction tests.
+
+### Bulk 22 — Archive and lounge
+
+- [ ] Rebuild the shelving, storage boxes, CRT cabinet and lounge furniture with believable silhouettes, bevels and materials.
+- [ ] Create a warmer, moodier Archive identity using practical/emissive light without breaking shared exposure.
+- [ ] Ground the sofa, coffee table and secondary props and remove obvious primitive repetition.
+- [ ] Preserve archive selection, CRT content and project-detail opening.
+- [ ] Keep the scene readable rather than filling every shelf with expensive unique geometry.
+
+Acceptance: Archive feels intentionally aged and tactile while remaining part of the same studio and preserving every interaction.
+
+Commit boundary: Archive/Lounge view, its fixed capture and interaction tests.
+
+### Bulk 23 — Desktop integration and approval
+
+- [ ] Harmonize zone borders, material scale, exposure, shadows, color temperature and prop density across all five Desktop views.
+- [ ] Revisit all Desktop camera presets and contextual-card positions only where the upgraded geometry requires it.
+- [ ] Remove view-specific visibility leaks and confirm transitions never expose unfinished backsides or loading artifacts.
+- [ ] Capture Studio, Games, Web, Projects and Archive at 1440 × 900 and compare them as one visual set.
+- [ ] Run typecheck, production build, interaction tests, GitHub Pages subpath checks and Desktop visual regression QA.
+- [ ] Record deferred cosmetic ideas separately so the approved rollout does not become an endless polish loop.
+
+Acceptance: all five Desktop views meet the Games baseline, feel like one designed environment and are explicitly approved before Mobile work resumes.
+
+### Decision gate E — Complete Desktop approval
+
+- [ ] Approve the five-view Desktop set.
+- [ ] Freeze Desktop composition except for verified Mobile-compatible fixes.
+- [ ] Authorize the final Mobile and production-hardening phase.
+
+## Phase F — Mobile adaptation and production release
+
+### Bulk 24 — Mobile composition, LOD and real-device pass
+
+- [ ] Reframe every completed zone for portrait, landscape, collapsed sheet and expanded sheet states.
 - [ ] Create explicit Desktop, Mobile standard and Mobile low asset/texture tiers.
-- [ ] Validate loading, memory, draw calls, triangles and transition frame time against the documented budgets.
-- [ ] Capture fixed-camera Desktop and both Mobile comparisons.
-- [ ] Validate portrait and landscape usability on a physical phone.
-- [ ] Document every deliberate difference from the canonical mockup.
+- [ ] Validate scene visibility, information density, tap targets and project selection on a physical phone.
+- [ ] Measure deferred transfer, triangles, draw calls, memory and p95 transition/render frame time against the documented budgets.
+- [ ] Verify asset failure, slow loading, WebGL recovery and reduced-motion behavior.
 
-Acceptance: Games is both visually approved as photorealistic and proven production-safe before the style expands.
+Acceptance: Mobile presents the same finished studio with deliberate framing and production-safe detail levels, not a separate or visually reduced website.
 
-### Decision gate D — Photorealism approval
+### Bulk 25 — Release candidate, deployment and documentation
 
-- [ ] Approve the fixed-camera Desktop proof against the canonical mockup.
-- [ ] Approve the real-phone Mobile standard/low results.
-- [ ] Approve or reject expansion of the art direction to the remaining room.
+- [ ] Run the complete Desktop/Mobile/browser regression matrix and dependency audit.
+- [ ] Verify the production bundle under the GitHub Pages `/basement/` subpath.
+- [ ] Update asset provenance, architecture notes, captures and final roadmap status.
+- [ ] Deploy the approved commit and perform a live Pages smoke test.
 
-## Phase E — Photorealistic room rollout
-
-### Bulk 19 — Studio entrance
-
-- [ ] Replace the central blockout with the approved asset, material and lighting language.
-
-### Bulk 20 — Web area
-
-- [ ] Replace the Web blockout while preserving all synchronized screen and carousel behavior.
-
-### Bulk 21 — Projects area
-
-- [ ] Replace the Projects blockout while preserving wall selection and near/far readability.
-
-### Bulk 22 — Archive area
-
-- [ ] Produce the photorealistic CRT/archive atmosphere in the approved room language.
-
-### Bulk 23 — Final integration and release
-
-- [ ] Harmonize seams, transitions, lighting, exposure and materials across all areas.
-- [ ] Complete accessibility, fallback, performance and regression acceptance.
-- [ ] Complete physical-device and Desktop visual QA.
-- [ ] Deploy, verify GitHub Pages and update project documentation.
+Acceptance: the approved visual redesign is reproducible, documented, deployed and recoverable.
 
 ## Working agreement
 
