@@ -234,13 +234,13 @@ function buildShell(materials: MaterialSet, budget: SceneDetailBudget): THREE.Gr
 function collectLegacyWindowLayers(scene: THREE.Scene): Map<THREE.Object3D, boolean> {
   const originals = new Map<THREE.Object3D, boolean>()
   scene.traverse((object) => {
-    if (['sky', 'City', 'mullion', 'windowTop', 'windowBottom'].includes(object.name)) {
+    if (['sky', 'City', 'mullion', 'windowTop', 'windowBottom', 'GamesPortalRibs'].includes(object.name)) {
       originals.set(object, object.visible)
     }
   })
 
-  // Keep the GAME LAB sign and timber accents, but suppress the three old
-  // structural portal slabs now replaced by the continuous PBR wall reveal.
+  // Keep the GAME LAB sign, but suppress the three old structural portal slabs
+  // now replaced by the continuous PBR wall reveal.
   const legacyPortal = scene.getObjectByName('GamesPortal')
   for (const child of legacyPortal?.children.slice(0, 3) ?? []) originals.set(child, child.visible)
   return originals
