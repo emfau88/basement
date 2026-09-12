@@ -1,8 +1,8 @@
 # EMFAU Virtual Studio roadmap
 
 Last updated: 2026-09-12  
-Current phase: Phase B — Games visual prototype
-Current bulk: Bulk 12 — Archive area
+Current phase: Phase D — Photorealistic Games proof
+Current bulk: Bulk 14 — Visual target and asset audit
 
 ## Status legend
 
@@ -151,16 +151,115 @@ Acceptance: enough evidence exists to decide whether the visual direction should
 
 - [x] Upgrade the project wall and near/far readability.
 
-### Bulk 12 — Archive area — **IN PROGRESS**
+### Bulk 12 — Archive area — PAUSED
 
 - [ ] Upgrade the CRT/archive atmosphere while preserving overall cohesion.
+- [x] Stop before implementation so the stylized rollout does not drift farther from the agreed photorealistic target.
 
-### Bulk 13 — Final integration and release
+### Bulk 13 — Final integration and release — PAUSED
 
 - [ ] Harmonize transitions, lighting and materials.
 - [ ] Complete accessibility and performance acceptance.
 - [ ] Complete real-device and Desktop regression QA.
 - [ ] Deploy and update project documentation.
+
+The completed Bulks 6–11 are retained as a functional composition/blockout and a safe fallback. Their procedural materials and props are not considered the final photorealistic art pass.
+
+## Phase D — Photorealistic Games proof
+
+### Bulk 14 — Visual target and asset audit — **IN PROGRESS**
+
+- [x] Define what “photorealistic” means in measurable visual, technical and performance terms.
+- [x] Define a hybrid GLB/PBR pipeline, device budgets and a traceable license register.
+- [x] Keep the existing WebGL renderer for the proof instead of combining the art-direction change with a renderer migration.
+- [x] Make Games the only visible proof area before another full-room rollout.
+- [x] Identify the current fixed Games capture at `docs/qa/current/desktop-1440x900-games.jpg`.
+- [ ] Store the approved concept mockup as the canonical repository reference.
+- [ ] Produce a fixed-camera gap audit from the canonical mockup to the current Games capture.
+- [ ] Select and register every external Games asset before it enters the production bundle.
+
+Acceptance: the target, legal provenance, asset shortlist, fixed comparison cameras and performance ceilings are unambiguous before visible scene work begins.
+
+### Decision gate C — Reference approval
+
+- [ ] Review the canonical Games reference and the current fixed-camera capture side by side.
+- [ ] Approve the Games asset shortlist and any deliberate deviations from the concept.
+- [ ] Authorize visible implementation of the photorealistic proof.
+
+No visible 3D replacement begins before Decision Gate C.
+
+### Bulk 15 — Production asset foundation
+
+- [ ] Add a resilient GLTF loading layer with progress, timeout/error fallback, caching and disposal.
+- [ ] Integrate KTX2/Basis texture transcoding and Meshopt or Draco only where inspection proves a benefit.
+- [ ] Add a validated asset-build step using glTF Transform inspect/validate/optimize.
+- [ ] Add HDR environment loading with PMREM and a lightweight offline fallback.
+- [ ] Establish shared PBR material presets, correct color spaces and second-UV handling for AO/lightmaps.
+- [ ] Keep all new assets lazy and area-scoped so initial navigation remains usable.
+
+Acceptance: one test asset loads, falls back and disposes correctly at the GitHub Pages subpath on every supported profile without changing the visible production scene.
+
+### Bulk 16 — Games architectural shell and lighting proof
+
+- [ ] Rebuild only the Games shell at coherent real-world scale.
+- [ ] Establish the fixed hero camera before detail dressing.
+- [ ] Establish image-based lighting, exposure and tone mapping.
+- [ ] Use at most one important shadow-casting light; bake or fake secondary contact/AO where appropriate.
+- [ ] Preserve every existing Games selection, monitor and navigation interaction.
+
+Acceptance: the empty architectural shell already reads as a believable photographed room, with stable exposure, grounded forms and no interaction regression.
+
+### Bulk 17 — Games hero assets and materials
+
+- [ ] Replace focus-visible blockout objects with optimized authored assets.
+- [ ] Complete the desk, seating, displays, computer hardware and signature props.
+- [ ] Apply physically plausible concrete, painted metal, wood, glass and emissive display materials.
+- [ ] Remove floating objects, scale inconsistencies, texture repetition and visibly sharp CG edges.
+- [ ] Keep branded and screen content local, crisp and accessible.
+
+Acceptance: at the approved fixed Desktop camera, the Games area reaches the reference's material richness, depth and object credibility rather than merely sharing its colors.
+
+### Bulk 18 — Games final light, mobile LOD and proof
+
+- [ ] Bake/finalize AO or lightmaps and tune restrained postprocessing.
+- [ ] Create explicit Desktop, Mobile standard and Mobile low asset/texture tiers.
+- [ ] Validate loading, memory, draw calls, triangles and transition frame time against the documented budgets.
+- [ ] Capture fixed-camera Desktop and both Mobile comparisons.
+- [ ] Validate portrait and landscape usability on a physical phone.
+- [ ] Document every deliberate difference from the canonical mockup.
+
+Acceptance: Games is both visually approved as photorealistic and proven production-safe before the style expands.
+
+### Decision gate D — Photorealism approval
+
+- [ ] Approve the fixed-camera Desktop proof against the canonical mockup.
+- [ ] Approve the real-phone Mobile standard/low results.
+- [ ] Approve or reject expansion of the art direction to the remaining room.
+
+## Phase E — Photorealistic room rollout
+
+### Bulk 19 — Studio entrance
+
+- [ ] Replace the central blockout with the approved asset, material and lighting language.
+
+### Bulk 20 — Web area
+
+- [ ] Replace the Web blockout while preserving all synchronized screen and carousel behavior.
+
+### Bulk 21 — Projects area
+
+- [ ] Replace the Projects blockout while preserving wall selection and near/far readability.
+
+### Bulk 22 — Archive area
+
+- [ ] Produce the photorealistic CRT/archive atmosphere in the approved room language.
+
+### Bulk 23 — Final integration and release
+
+- [ ] Harmonize seams, transitions, lighting, exposure and materials across all areas.
+- [ ] Complete accessibility, fallback, performance and regression acceptance.
+- [ ] Complete physical-device and Desktop visual QA.
+- [ ] Deploy, verify GitHub Pages and update project documentation.
 
 ## Working agreement
 
@@ -172,4 +271,4 @@ At the end of every bulk:
 4. Commit the bulk as one coherent checkpoint.
 5. Push the working branch only after validation succeeds.
 
-The visual Games prototype must not begin before Decision Gate A. The remaining studio must not be redesigned before Decision Gate B.
+The original Games prototype did not begin before Decision Gate A, and the original rollout did not begin before Decision Gate B. From this revision onward, visible photorealistic Games work must not begin before Decision Gate C, and no other zone may receive that treatment before Decision Gate D.
