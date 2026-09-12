@@ -18,47 +18,83 @@ function webLabMaterial(tools: SceneTools): THREE.MeshStandardMaterial {
   return new THREE.MeshStandardMaterial({ map: texture, roughness: .7, metalness: .03 })
 }
 
+function webCredenzaMaterial(tools: SceneTools): THREE.MeshStandardMaterial {
+  const texture = tools.canvasTexture('web:credenza-walnut', 1024, 512, (context, canvas) => {
+    const gradient = context.createLinearGradient(0, 0, 0, canvas.height)
+    gradient.addColorStop(0, '#6b4935')
+    gradient.addColorStop(.52, '#563624')
+    gradient.addColorStop(1, '#42291c')
+    context.fillStyle = gradient
+    context.fillRect(0, 0, canvas.width, canvas.height)
+    let seed = 83
+    for (let index = 0; index < 92; index += 1) {
+      seed = (seed * 9301 + 49297) % 233280
+      const y = (seed / 233280) * canvas.height
+      const amplitude = 2 + (index % 5)
+      context.strokeStyle = index % 3 === 0 ? 'rgba(25,13,8,.18)' : 'rgba(224,177,132,.10)'
+      context.lineWidth = index % 7 === 0 ? 2 : 1
+      context.beginPath()
+      context.moveTo(0, y)
+      for (let x = 0; x <= canvas.width; x += 32) context.lineTo(x, y + Math.sin(x * .021 + index) * amplitude)
+      context.stroke()
+    }
+  })
+  texture.wrapS = THREE.RepeatWrapping
+  texture.wrapT = THREE.RepeatWrapping
+  texture.repeat.set(2.4, 1.1)
+  return new THREE.MeshStandardMaterial({ map: texture, color: 0xffffff, roughness: .62, metalness: .02 })
+}
+
+function webStatusMaterial(tools: SceneTools): THREE.MeshStandardMaterial {
+  const texture = tools.canvasTexture('web:status', 768, 128, (context, canvas) => {
+    context.fillStyle = '#101817'; context.fillRect(0, 0, canvas.width, canvas.height)
+    context.fillStyle = '#8fb9c3'; context.fillRect(22, 22, 10, 84)
+    context.fillStyle = '#dbe6e3'; context.font = '800 30px Arial'; context.fillText('LIVE PRODUCTS', 58, 58)
+    context.fillStyle = '#75909a'; context.font = '700 17px monospace'; context.fillText('04 SYSTEMS / ONLINE', 60, 88)
+    context.fillStyle = '#8fb9c3'; context.beginPath(); context.arc(716, 64, 9, 0, Math.PI * 2); context.fill()
+  })
+  return new THREE.MeshStandardMaterial({ map: texture, emissiveMap: texture, emissive: 0x8fb9c3, emissiveIntensity: .18, roughness: .42, metalness: .08 })
+}
+
 export function buildWebZone(materials: StudioMaterials, tools: SceneTools, budget: SceneDetailBudget): WebZoneMeshes {
-  const { addBox, addCylinder, box, group, point, screen } = tools
+  const { addBox, box, group, point, screen } = tools
   const blueGlow = new THREE.MeshStandardMaterial({
     color: 0x79a9b7,
     emissive: 0x6d9dab,
-    emissiveIntensity: 1.05,
+    emissiveIntensity: 0.68,
     roughness: .32,
     metalness: .12,
   })
+  const credenzaWalnut = webCredenzaMaterial(tools)
 
-  box('WebRug', [3.55, .025, 2.4], [5.62, .018, -3.05], materials.rug, [0, 0, 0], false, true, .08)
+  box('WebRug', [2.55, .025, 4.72], [5.62, .018, -3.05], materials.rug, [0, 0, 0], false, true, .08)
 
-  const architecture = group('WebArchitecture', [7.22, 0, -3.08], [0, -Math.PI / 2, 0])
-  addBox(architecture, [3.72, 3.42, .09], [0, 2.48, 0], materials.concreteDark, [0, 0, 0], .045)
-  addBox(architecture, [3.38, 2.68, .055], [0, 2.35, .075], materials.white2, [0, 0, 0], .035)
-  addBox(architecture, [2.45, .43, .035], [-.28, 3.86, .12], webLabMaterial(tools), [0, 0, 0], .025)
-  addBox(architecture, [.035, 2.5, .025], [-1.56, 2.34, .13], blueGlow, [0, 0, 0], .01)
-  addBox(architecture, [.035, 2.5, .025], [1.56, 2.34, .13], blueGlow, [0, 0, 0], .01)
+  // One wall-integrated product console replaces the former cross-room desk.
+  // The screens remain separate meshes so preview and selector interactions do not change.
+  const web = group('WebInstallation', [7.20, 0, -3.08], [0, -Math.PI / 2, 0])
+  addBox(web, [4.86, 3.82, .18], [0, 2.61, 0], materials.concreteDark, [0, 0, 0], .065)
+  addBox(web, [4.55, 3.47, .07], [0, 2.55, .13], materials.graphite, [0, 0, 0], .045)
+  addBox(web, [4.25, 2.16, .055], [0, 2.64, .205], materials.graphite2, [0, 0, 0], .035)
 
-  const web = group('WebDesk', [5.72, 0, -3.08], [0, -Math.PI / 2, 0])
-  addBox(web, [3.38, .18, 1.2], [0, 1.02, 0], materials.oakDark, [0, 0, 0], .06)
-  addBox(web, [3.15, .08, 1.04], [0, .9, 0], materials.graphite, [0, 0, 0], .03)
-  addBox(web, [2.88, .02, .03], [0, .96, .62], blueGlow, [0, 0, 0], .008)
-  for (const x of [-1.38, 1.38]) for (const z of [-.42, .42]) {
-    addBox(web, [.11, .97, .11], [x, .48, z], materials.graphite, [0, 0, x < 0 ? -.04 : .04], .02)
-  }
+  addBox(web, [2.66, .43, .04], [-.76, 4.16, .22], webLabMaterial(tools), [0, 0, 0], .025)
+  addBox(web, [1.34, .22, .035], [1.44, 4.12, .225], webStatusMaterial(tools), [0, 0, 0], .025)
+  addBox(web, [4.28, .028, .025], [0, 3.69, .25], blueGlow, [0, 0, 0], .008)
 
-  const webMainScreen = screen(web, 1.98, 1.12, [-.48, 2.02, .16], 'WEB', 'client / systems', '#78a8b9')
-  const webSideScreen = screen(web, 1.02, .66, [1.08, 1.76, .14], 'UI', 'selected work', '#78a8b9')
-  addBox(web, [.085, .7, .075], [-.48, 1.46, .09], materials.graphite)
-  addBox(web, [.72, .055, .3], [-.48, 1.18, .12], materials.graphite, [0, 0, 0], .025)
-  addBox(web, [1.35, .05, .36], [.28, 1.17, .43], materials.black, [0, 0, 0], .025)
-  addBox(web, [.68, .14, .43], [1.17, 1.16, .28], materials.graphite, [0, 0, 0], .035)
+  const webMainScreen = screen(web, 2.66, 1.50, [-.80, 2.70, .27], 'WEB', 'selected product', '#78a8b9')
+  const webSideScreen = screen(web, 1.48, .84, [1.48, 2.82, .285], 'INDEX', 'choose product', '#78a8b9')
 
-  // A phone-sized preview and pen tray make the station read as a product workspace.
-  addBox(web, [.36, .62, .055], [-1.34, 1.4, .28], materials.black, [-.28, 0, 0], .045)
-  addBox(web, [.29, .5, .02], [-1.34, 1.4, .325], blueGlow, [-.28, 0, 0], .025)
-  addBox(web, [.58, .04, .18], [.72, 1.14, .5], materials.concreteDark, [0, 0, 0], .025)
-  addCylinder(web, .025, .025, .5, [.72, 1.2, .51], materials.brass, [0, 0, Math.PI / 2], 16)
+  // The floating credenza grounds the installation and hides its service route.
+  addBox(web, [4.18, .30, .64], [0, 1.18, .43], credenzaWalnut, [0, 0, 0], .065)
+  addBox(web, [3.92, .065, .52], [0, 1.00, .42], materials.graphite, [0, 0, 0], .025)
+  addBox(web, [1.12, .075, .30], [-1.32, 1.38, .49], materials.black, [0, .03, 0], .025)
+  addBox(web, [.62, .055, .26], [.15, 1.37, .51], materials.concreteDark, [0, -.05, 0], .022)
+  addBox(web, [.28, .055, .24], [1.42, 1.37, .51], blueGlow, [0, .08, 0], .022)
 
-  if (budget.decorativeLights) point(0x76a9b8, .82, 3.2, [5.8, 2.35, -3.05])
+  // Slim shadow gaps make the surround read as installed joinery, not a flat panel.
+  addBox(web, [.035, 3.08, .035], [-2.18, 2.55, .22], materials.black, [0, 0, 0], .01)
+  addBox(web, [.035, 3.08, .035], [2.18, 2.55, .22], materials.black, [0, 0, 0], .01)
+
+  if (budget.decorativeLights) point(0x76a9b8, .58, 3.4, [6.35, 2.65, -3.05])
 
   return { webMainScreen, webSideScreen }
 }

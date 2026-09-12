@@ -2,7 +2,7 @@
 
 Last updated: 2026-09-12  
 Current phase: Phase E — Photorealistic Desktop rollout
-Current bulk: Bulk 19 — Shared studio shell and overview — complete
+Current bulk: Bulk 20 — Web workstation — complete
 
 ## Status legend
 
@@ -262,17 +262,20 @@ Commit boundary: shared shell, Studio capture and regression proof only; no deta
 
 Verification: the fixed five-view Desktop capture, TypeScript, production build, complete responsive/interaction suite and GitHub Pages `/basement/` subpath QA passed on 2026-09-12. Mobile continues to load the Games proof only inside Games; the persistent all-room proof is Desktop-only until Bulk 24.
 
-### Bulk 20 — Web workstation
+### Bulk 20 — Web workstation — COMPLETE
 
-- [ ] Replace the focus-visible desk, monitor stands, phone, input devices and small props with the approved authored/PBR language.
-- [ ] Improve the backdrop, cable/edge/contact details and a restrained cool Web-area identity.
-- [ ] Keep the main preview and selector screen content crisp and synchronized.
-- [ ] Position the Desktop information card so neither display nor hero objects are obscured.
-- [ ] Reuse verified materials and assets where plausible instead of introducing near-duplicates.
+- [x] Replace the cross-room desk and exposed cable with a wall-integrated product console and floating walnut credenza.
+- [x] Improve the architectural surround, edge/contact details and restrained cool Web-area identity.
+- [x] Keep the main preview and selector screen content crisp, synchronized and independently clickable.
+- [x] Establish a fixed frontal Desktop camera that shows the complete installation without information-card obstruction.
+- [x] Physically separate the Web and Projects bays and recenter both focus cameras so their content no longer overlaps.
+- [x] Reuse verified materials and assets where plausible instead of introducing near-duplicates.
 
 Acceptance: Web reaches Games-level material credibility and composition while all screen selection and detail actions remain unchanged.
 
 Commit boundary: Web view, its fixed capture and interaction tests.
+
+Verification: fixed five-view Desktop captures, TypeScript, production build, complete responsive/interaction suite and GitHub Pages `/basement/` subpath QA passed on 2026-09-12. The Projects geometry moved only to establish bay separation; its dedicated material/detail pass remains Bulk 21.
 
 ### Bulk 21 — Projects gallery
 

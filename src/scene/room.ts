@@ -183,7 +183,6 @@ for(let i=0;i<3;i++){
 
 /* realistic cable drops */
 tube([[-.55,1.35,-4.05],[-.58,.90,-4.10],[-.35,.32,-4.18],[-.10,.08,-4.12]],.018,M.black);
-tube([[5.07,1.20,-3.0],[5.14,.72,-3.05],[5.00,.18,-3.08]],.016,M.black);
 
 
 /* lighting */
@@ -230,7 +229,7 @@ const marker = (position: Triple, color: number) => {
 };
 marker([0,.03,-2.25],0x90a886);
 marker([4.55,.03,-2.25],0x78a8b9);
-marker([5.75,.03,.72],0xc88462);
+marker([5.75,.03,1.65],0xc88462);
 marker([-5,.03,-3.55],0xa58357);
 
   return { gameMainScreen, gameLeftScreen, gameRightScreen, webMainScreen, webSideScreen, archiveScreen, projectCardFrames, projectCardMeshes }

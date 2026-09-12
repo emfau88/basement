@@ -20,6 +20,7 @@ function projectWallMaterial(tools: SceneTools): THREE.MeshStandardMaterial {
 
 export function buildProjectsZone(materials: StudioMaterials, tools: SceneTools, budget: SceneDetailBudget): ProjectsZoneMeshes {
   const { addBox, group, point } = tools
+  const zoneZ = 1.65
   const accent = new THREE.MeshStandardMaterial({
     color: 0xc48363,
     emissive: 0xa65f45,
@@ -28,7 +29,7 @@ export function buildProjectsZone(materials: StudioMaterials, tools: SceneTools,
     metalness: .14,
   })
 
-  const bench = group('Projects', [6.82, 0, .72], [0, -Math.PI / 2, 0])
+  const bench = group('Projects', [6.82, 0, zoneZ], [0, -Math.PI / 2, 0])
   addBox(bench, [3.35, .16, .92], [0, .9, 0], materials.oakDark, [0, 0, 0], .055)
   addBox(bench, [3.12, .09, .76], [0, .79, 0], materials.graphite, [0, 0, 0], .03)
   for (const x of [-1.42, 1.42]) addBox(bench, [.1, .85, .1], [x, .42, -.29], materials.graphite, [0, 0, x < 0 ? -.035 : .035], .018)
@@ -37,7 +38,7 @@ export function buildProjectsZone(materials: StudioMaterials, tools: SceneTools,
   addBox(bench, [.62, .09, .4], [.88, 1.03, -.03], materials.concreteDark, [0, 0, 0], .025)
   addBox(bench, [2.9, .022, .032], [0, .86, .49], accent, [0, 0, 0], .008)
 
-  const board = group('ProjectBoard', [7.25, 0, .72], [0, -Math.PI / 2, 0])
+  const board = group('ProjectBoard', [7.25, 0, zoneZ], [0, -Math.PI / 2, 0])
   addBox(board, [3.72, 3.38, .09], [0, 2.58, 0], materials.concreteDark, [0, 0, 0], .05)
   addBox(board, [3.45, 3.08, .065], [0, 2.48, .08], materials.white, [0, 0, 0], .04)
   addBox(board, [2.72, .4, .045], [0, 4.04, .125], projectWallMaterial(tools), [0, 0, 0], .025)
@@ -61,6 +62,6 @@ export function buildProjectsZone(materials: StudioMaterials, tools: SceneTools,
     return card
   })
 
-  if (budget.decorativeLights) point(0xd5926f, .72, 3, [6.84, 2.8, .72])
+  if (budget.decorativeLights) point(0xd5926f, .72, 3, [6.84, 2.8, zoneZ])
   return { projectCardFrames, projectCardMeshes }
 }

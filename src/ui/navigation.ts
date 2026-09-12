@@ -16,7 +16,7 @@ const projectRows = (keys: readonly ProjectKey[]): ReadonlyArray<readonly [strin
 
 export const viewContent: Record<Exclude<StudioView, 'studio'>, ViewContent> = {
   games: { eyebrow: '01 / Games', title: 'Playable ideas.', copy: 'The main desk is the game-dev station: builds, testing and released projects.', rows: projectRows(gameProjectKeys) },
-  web: { eyebrow: '02 / Web', title: 'Selected web work.', copy: 'Use the small screen to browse; open the large preview for details.', rows: [['Apps', 'Manual browser'], ['Preview', 'Large screen'], ['Tap', 'Open details']] },
+  web: { eyebrow: '02 / Web', title: 'Selected web work.', copy: 'Use the product index to browse; open the large preview for details.', rows: [['Apps', 'Manual browser'], ['Preview', 'Large screen'], ['Tap', 'Open details']] },
   projects: { eyebrow: '03 / Projects', title: 'Currently building.', copy: 'Four selected projects. Tap a wall card to open it.', rows: [['Gallery', '4 featured cards'], ['Tap', 'Open project'], ['View', 'Frontal focus']] },
   archive: { eyebrow: '04 / Archive', title: 'Not everything survives.', copy: 'The archive shelves and retro terminal keep retired projects visible instead of hiding them.', rows: projectRows(archiveProjectKeys) },
 }
