@@ -2,7 +2,7 @@
 
 Last updated: 2026-09-12  
 Current phase: Phase D — Photorealistic Games proof
-Current bulk: Bulk 14 — Visual target and asset audit
+Current bulk: Bulk 15 — Production asset foundation
 
 ## Status legend
 
@@ -167,7 +167,7 @@ The completed Bulks 6–11 are retained as a functional composition/blockout and
 
 ## Phase D — Photorealistic Games proof
 
-### Bulk 14 — Visual target and asset audit — **IN PROGRESS**
+### Bulk 14 — Visual target and asset audit — COMPLETE
 
 - [x] Define what “photorealistic” means in measurable visual, technical and performance terms.
 - [x] Define a hybrid GLB/PBR pipeline, device budgets and a traceable license register.
@@ -175,21 +175,21 @@ The completed Bulks 6–11 are retained as a functional composition/blockout and
 - [x] Make Games the only visible proof area before another full-room rollout.
 - [x] Identify the current fixed Games capture at `docs/qa/current/desktop-1440x900-games.jpg`.
 - [x] Generate and preserve three photorealistic reference candidates from the current Games composition.
-- [ ] Store the approved concept mockup as the canonical repository reference.
-- [ ] Produce a fixed-camera gap audit from the canonical mockup to the current Games capture.
-- [ ] Select and register every external Games asset before it enters the production bundle.
+- [x] Store the approved A/B concept mix as the canonical repository reference.
+- [x] Produce a fixed-camera gap audit from the canonical mockup to the current Games capture.
+- [x] Select and register the initial external Games sources before they enter the production bundle.
 
 Acceptance: the target, legal provenance, asset shortlist, fixed comparison cameras and performance ceilings are unambiguous before visible scene work begins.
 
 ### Decision gate C — Reference approval
 
-- [ ] Review the canonical Games reference and the current fixed-camera capture side by side.
-- [ ] Approve the Games asset shortlist and any deliberate deviations from the concept.
-- [ ] Authorize visible implementation of the photorealistic proof.
+- [x] Review and approve the recommended A/B direction as the canonical Games target.
+- [x] Approve the initial asset strategy and documented deliberate deviations from the concept.
+- [x] Authorize implementation of the photorealistic proof.
 
 No visible 3D replacement begins before Decision Gate C.
 
-### Bulk 15 — Production asset foundation
+### Bulk 15 — Production asset foundation — **IN PROGRESS**
 
 - [ ] Add a resilient GLTF loading layer with progress, timeout/error fallback, caching and disposal.
 - [ ] Integrate KTX2/Basis texture transcoding and Meshopt or Draco only where inspection proves a benefit.

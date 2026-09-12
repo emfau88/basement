@@ -26,3 +26,7 @@ Transform the scene into a refined underground game lab using graphite acoustic 
 ## Candidate C — Brutalist gallery
 
 Transform the scene into a bright editorial creative studio using finely textured pale concrete, light smoked glass, natural white oak, satin aluminum, a black premium chair and curated working objects. Use broad soft morning daylight, gentle warm bounce and nuanced shadows. Keep it authentic and lived-in; avoid an empty showroom, luxury marble and blown highlights.
+
+## Canonical A/B mix
+
+Use Candidate A as approximately 75% of the result and Candidate B as approximately 25%. Preserve A's warm concrete, walnut, black steel, plants, daylight and accessible premium character. Add B's deeper spatial layering, controlled graphite framing, readable dark values and restrained warm practical lights. Keep the exact scene-first composition and compact website UI; avoid turning the room into a dark cyberpunk environment.
