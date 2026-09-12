@@ -46,6 +46,11 @@ try {
   assert(desktopModal.top >= 0 && desktopModal.bottom <= desktopModal.viewportHeight, 'Desktop project modal exceeds the viewport')
   assert(desktopModal.closeVisible, 'Desktop project modal close control is outside the viewport')
   await desktop.locator('#projectClose').click()
+  await desktop.locator('.nav button[data-view="archive"]').click()
+  await desktop.locator('canvas').click({ position: { x: 720, y: 450 } })
+  assert(await desktop.locator('body').evaluate((body) => body.classList.contains('project-open')), 'Desktop Archive memorial terminal did not open a project')
+  assert((await desktop.locator('#projectTitle').textContent())?.length > 0, 'Desktop Archive terminal opened without project details')
+  await desktop.locator('#projectClose').click()
   await desktop.close()
 
   const mobile = await browser.newPage({ viewport: { width: 390, height: 844 }, reducedMotion: 'reduce' })

@@ -2,7 +2,7 @@
 
 Last updated: 2026-09-12  
 Current phase: Phase E — Photorealistic Desktop rollout
-Current bulk: Bulk 21 — Projects gallery — complete
+Current bulk: Bulk 22 — Archive and lounge — complete
 
 ## Status legend
 
@@ -293,15 +293,17 @@ Verification: fixed 1440 × 900 before/after captures, production build, complet
 
 ### Bulk 22 — Archive and lounge
 
-- [ ] Rebuild the shelving, storage boxes, CRT cabinet and lounge furniture with believable silhouettes, bevels and materials.
-- [ ] Create a warmer, moodier Archive identity using practical/emissive light without breaking shared exposure.
-- [ ] Ground the sofa, coffee table and secondary props and remove obvious primitive repetition.
-- [ ] Preserve archive selection, CRT content and project-detail opening.
-- [ ] Keep the scene readable rather than filling every shelf with expensive unique geometry.
+- [x] Rebuild the shelving, storage boxes, CRT cabinet and lounge furniture with believable silhouettes, bevels and materials.
+- [x] Create a warmer, moodier Archive identity using practical/emissive light without breaking shared exposure.
+- [x] Ground the sofa, coffee table and secondary props and remove obvious primitive repetition.
+- [x] Preserve archive selection, CRT content and project-detail opening.
+- [x] Keep the scene readable rather than filling every shelf with expensive unique geometry.
 
 Acceptance: Archive feels intentionally aged and tactile while remaining part of the same studio and preserving every interaction.
 
 Commit boundary: Archive/Lounge view, its fixed capture and interaction tests.
+
+Verification: fixed 1440 × 900 before/after captures, production build, complete responsive/interaction suite, direct Desktop memorial-terminal click regression and GitHub Pages `/basement/` subpath QA passed on 2026-09-12.
 
 ### Bulk 23 — Desktop integration and approval
 

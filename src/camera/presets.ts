@@ -14,7 +14,7 @@ export const desktopCameraPresets: Record<StudioView, CameraPreset> = {
   games: { position: [-0.12, 3, 4.05], target: [-0.05, 1.82, -3.5], fov: 42 },
   web: { position: [2.15, 2.72, -3.88], target: [7.02, 2.52, -3.88], fov: 50 },
   projects: { position: [2.18, 2.72, 2.05], target: [7.02, 2.55, 2.05], fov: 41 },
-  archive: { position: [-2.65, 2.48, 2.12], target: [-5.45, 1.58, -4.03], fov: 40 },
+  archive: { position: [-2.28, 2.7, 3.38], target: [-6.42, 1.48, -1.18], fov: 50 },
 }
 
 export const mobilePortraitCameraPresets: Record<StudioView, CameraPreset> = {

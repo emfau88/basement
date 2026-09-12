@@ -139,15 +139,46 @@ export function createLiveScreenSystem(store: StudioStore, textureAnisotropy = 4
   }
 
   const drawArchive = (screen: LiveScreen, ms: number) => {
-    const { context, texture } = screen.live; screenBase(context, '#10100d'); if (!screen.items.length) { texture.needsUpdate = true; return }
+    const { context, texture } = screen.live; screenBase(context, '#11130f'); if (!screen.items.length) { texture.needsUpdate = true; return }
     const interval = 7200; const state = store.get(); const automaticItem = screen.items[Math.floor(ms / interval) % screen.items.length]!
     const item = state.view === 'archive' && isMobileViewport()
       ? screen.items.find((candidate) => candidate.key === state.selectedArchiveId) ?? automaticItem
       : automaticItem
-    screen.currentKey = item.key; const phase = (ms % interval) / interval
-    coverCrop(context, item.image, 0, 0, 768, 432, 1.08, 0.5, 0.38 + phase * 0.22); context.fillStyle = 'rgba(52,31,25,.22)'; context.fillRect(0, 0, 768, 432)
-    const roll = (ms * 0.035) % 432; context.fillStyle = 'rgba(255,230,205,.055)'; context.fillRect(0, roll, 768, 18); for (let y = 0; y < 432; y += 5) { context.fillStyle = 'rgba(20,8,5,.12)'; context.fillRect(0, y, 768, 1) }
-    context.fillStyle = 'rgba(14,9,7,.75)'; context.fillRect(20, 337, 360, 62); context.fillStyle = '#e8d3c4'; context.font = '800 25px Arial'; context.fillText(item.name, 34, 372); context.fillStyle = 'rgba(232,211,196,.62)'; context.font = '600 13px monospace'; context.fillText('ARCHIVED // READ ONLY', 35, 392); texture.needsUpdate = true
+    screen.currentKey = item.key
+
+    const sky = context.createLinearGradient(0, 0, 0, 432)
+    sky.addColorStop(0, '#1a211d'); sky.addColorStop(.58, '#293028'); sky.addColorStop(1, '#11130f')
+    context.fillStyle = sky; context.fillRect(0, 0, 768, 432)
+    context.fillStyle = 'rgba(225,199,151,.72)'; context.beginPath(); context.arc(654, 73, 31, 0, Math.PI * 2); context.fill()
+    context.fillStyle = 'rgba(20,24,20,.9)'; context.beginPath(); context.moveTo(0, 292); context.quadraticCurveTo(176, 235, 352, 288); context.quadraticCurveTo(548, 338, 768, 260); context.lineTo(768, 432); context.lineTo(0, 432); context.closePath(); context.fill()
+    context.fillStyle = '#c88462'; context.fillRect(25, 23, 76, 5)
+    context.fillStyle = '#eee9dc'; context.font = '900 27px Arial'; context.fillText('PROJECT CEMETERY', 25, 61)
+    context.fillStyle = 'rgba(222,218,205,.62)'; context.font = '700 12px monospace'; context.fillText('04 / RETIRED BUILDS · LIVE LESSONS', 27, 82)
+
+    screen.items.forEach((candidate, index) => {
+      const active = candidate.key === item.key
+      const x = 24 + index * 184; const width = 164; const y = active ? 120 : 145; const height = active ? 232 : 207
+      context.save()
+      if (active) { context.shadowColor = 'rgba(216,137,94,.72)'; context.shadowBlur = 20 }
+      context.beginPath(); context.moveTo(x, y + height); context.lineTo(x, y + 43); context.quadraticCurveTo(x + width / 2, y - 20, x + width, y + 43); context.lineTo(x + width, y + height); context.closePath()
+      context.fillStyle = active ? '#5a5549' : '#383c35'; context.fill()
+      context.shadowBlur = 0; context.strokeStyle = active ? '#d58a62' : 'rgba(215,210,192,.24)'; context.lineWidth = active ? 5 : 2; context.stroke()
+      context.beginPath(); context.rect(x + 12, y + 55, width - 24, 78); context.clip()
+      context.filter = active ? 'brightness(.88) saturate(.82)' : 'brightness(.48) saturate(.55)'
+      coverCrop(context, candidate.image, x + 12, y + 55, width - 24, 78, 1.04, .5, .45)
+      context.restore()
+
+      context.fillStyle = active ? '#f0e7d8' : 'rgba(226,221,204,.68)'; context.font = active ? '800 16px Arial' : '700 14px Arial'
+      const title = projects[candidate.key].title.toUpperCase(); context.fillText(title.length > 17 ? `${title.slice(0, 16)}…` : title, x + 12, y + 158)
+      context.fillStyle = active ? '#d9946f' : 'rgba(221,211,191,.42)'; context.font = '700 11px monospace'; context.fillText(`RIP / 0${index + 1}`, x + 12, y + 180)
+      context.fillStyle = 'rgba(235,229,213,.18)'; context.fillRect(x + 12, y + 192, width - 24, 2)
+    })
+
+    context.fillStyle = 'rgba(8,10,8,.74)'; context.fillRect(0, 397, 768, 35)
+    context.fillStyle = '#e3c4aa'; context.font = '700 12px monospace'; context.fillText('CLICK THE LIT GRAVE FOR DETAILS', 24, 419)
+    const roll = (ms * .02) % 432; context.fillStyle = 'rgba(255,230,205,.035)'; context.fillRect(0, roll, 768, 10)
+    for (let y = 0; y < 432; y += 6) { context.fillStyle = 'rgba(12,8,5,.08)'; context.fillRect(0, y, 768, 1) }
+    texture.needsUpdate = true
   }
 
   return {
@@ -156,7 +187,7 @@ export function createLiveScreenSystem(store: StudioStore, textureAnisotropy = 4
     registerGameSelector: (mesh) => { const live = createLiveCanvas(textureAnisotropy); attachLiveTexture(mesh, live, 0.38); screens.push({ type: 'terminal', live, items: [], last: 0 }) },
     registerApps: (mesh) => registerImageScreen(mesh, 'apps', ['between', 'zerohero', 'mirror', 'chargegeist'], 0.24),
     registerAppSelector: (mesh) => { const live = createLiveCanvas(textureAnisotropy); attachLiveTexture(mesh, live, 0.36); screens.push({ type: 'appticker', live, items: [], last: 0, apps: ['MIRROR', 'ZEROHERO', 'BETWEEN', 'CHARGEGEIST', 'MEWTRACK', 'MARSCHLEGENDEN'] }) },
-    registerArchive: (mesh) => registerImageScreen(mesh, 'archive', archiveProjectKeys, 0.38),
+    registerArchive: (mesh) => registerImageScreen(mesh, 'archive', archiveProjectKeys, 0.52),
     selectGameFromHit: (hit) => { const y = (1 - (hit.uv?.y ?? -1)) * 432; if (y < 86 || y > 86 + gameProjectKeys.length * 58) return; const key = gameProjectKeys[Math.floor((y - 86) / 58)]; if (key) store.set({ selectedGameId: key }) },
     selectWebFromHit: (hit) => { const y = (1 - (hit.uv?.y ?? -1)) * 432; if (y < 92 || y > 92 + webProjectKeys.length * 56) return; const key = webProjectKeys[Math.floor((y - 92) / 56)]; if (key) store.set({ selectedWebId: key }) },
     getArchiveProject: () => screens.find((screen) => screen.type === 'archive')?.currentKey,

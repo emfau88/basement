@@ -152,6 +152,19 @@ body.view-projects .card p,
 body.view-projects .rows{display:none}
 body.view-projects .close{width:26px;height:26px;right:5px;top:5px;font-size:16px}
 
+/* Archive: a compact label leaves the memorial terminal and lounge visible. */
+body.view-archive .info{
+  right:24px;top:86px;width:min(290px,calc(100vw - 34px));
+  transform:translateY(-12px) translateX(26px)
+}
+body.focus.view-archive .info{transform:translateY(0) translateX(0)}
+body.view-archive .card{padding:15px 17px 16px;border-radius:14px}
+body.view-archive .card .eyebrow{font-size:7px;margin-bottom:7px}
+body.view-archive .card h2{font-size:23px;line-height:1;margin:0 0 8px;padding-right:20px}
+body.view-archive .card p{margin:0;line-height:1.48}
+body.view-archive .rows{display:none}
+body.view-archive .close{width:26px;height:26px;right:5px;top:5px;font-size:16px}
+
 body.inspect-selector .info{opacity:0!important;pointer-events:none!important}
 .inspect-back{
   position:fixed;z-index:28;left:24px;top:78px;

@@ -7,6 +7,7 @@ import type { SceneDetailBudget } from './assets/detailBudget'
 import { buildEntranceZone } from './zones/entranceZone'
 import { buildWebZone } from './zones/webZone'
 import { buildProjectsZone } from './zones/projectsZone'
+import { buildArchiveZone } from './zones/archiveZone'
 
 export interface StudioMeshes {
   gameMainScreen: THREE.Mesh
@@ -32,7 +33,7 @@ function createSkyTexture(tools: SceneTools): THREE.CanvasTexture {
 
 export function buildStudioRoom(scene: THREE.Scene, M: StudioMaterials, tools: SceneTools, budget: SceneDetailBudget): StudioMeshes {
   RectAreaLightUniformsLib.init()
-  const { box, group, addBox, addCylinder, point, tube, screen } = tools
+  const { box, group, addBox, addCylinder, point, tube } = tools
   const skyTexture = createSkyTexture(tools)
 function plant(pos: Triple,scale=1){
   const g=group('Plant',pos);
@@ -129,57 +130,15 @@ addBox(chair,[1.00,1.16,.15],[0,1.43,.39],M.graphite,[.06,0,0],.11);
 addCylinder(chair,.05,.05,.67,[0,.37,0],M.graphite2);
 for(const [x,z] of [[.44,.36],[-.44,.36],[.44,-.36],[-.44,-.36]] as const) addBox(chair,[.50,.045,.07],[x*.52,.15,z*.52],M.graphite2,[0,Math.atan2(x,z),0],.02);
 
-/* left archive wall */
-const archive=group('Archive',[-6.55,0,-4.10],[0,.04,0]);
-for(let y=.45;y<=3.55;y+=.77) addBox(archive,[1.18,.065,2.45],[0,y,0],M.oak,[0,0,0],.02);
-addBox(archive,[.08,3.75,2.45],[-.50,1.88,0],M.graphite);
-addBox(archive,[.08,3.75,2.45],[.50,1.88,0],M.graphite);
-for(let i=0;i<12;i++){
-  const z=-.80+(i%3)*.80,y=.60+Math.floor(i/3)*.77;
-  addBox(archive,[.66,.35,.54],[0,y,z],i%4===0?M.terracotta:(i%3===0?M.sage:M.graphite2),[0,0,0],.04)
-}
-/* retro CRT on side cabinet */
-const crt=group('ArchiveCRT',[-5.05,0,-4.52],[0,.07,0]);
-addBox(crt,[1.20,.78,.72],[0,1.03,0],M.white2,[0,0,0],.075);
-const archiveScreen=screen(crt,.78,.46,[0,1.12,.38],'ARCHIVE','retired builds','#c88462');
-addBox(crt,[1.30,.54,.80],[0,.42,0],M.oak,[0,0,0],.045);
+const { archiveScreen } = buildArchiveZone(M, tools, budget)
 
 const { webMainScreen, webSideScreen } = buildWebZone(M, tools, budget)
 
 const { projectCardFrames, projectCardMeshes } = buildProjectsZone(M, tools, budget)
 
-/* Lounge: deliberately placed against the left wall, clearly readable as a sofa.
-   Separate base/frame, seat cushions, back cushions and armrests create a real furniture silhouette. */
-box('loungeRug',[3.45,.028,2.55],[-5.25,.018,.82],M.rug,[0,0,0],false,true,.07);
-
-const sofa=group('Lounge',[-6.58,0,.75],[0,-Math.PI/2,0]);
-addBox(sofa,[2.55,.30,.92],[0,.31,0],M.graphite,[0,0,0],.13);            // base
-addBox(sofa,[2.30,.26,.77],[0,.58,-.03],M.sage,[0,0,0],.12);             // seat cushion
-addBox(sofa,[1.08,.23,.69],[-.58,.72,-.03],M.sage,[0,0,0],.11);          // left seat pad
-addBox(sofa,[1.08,.23,.69],[.58,.72,-.03],M.sage,[0,0,0],.11);           // right seat pad
-addBox(sofa,[1.05,.72,.20],[-.58,1.15,.31],M.sage,[.07,0,0],.11);        // back cushion
-addBox(sofa,[1.05,.72,.20],[.58,1.15,.31],M.sage,[.07,0,0],.11);         // back cushion
-addBox(sofa,[.20,.70,.92],[-1.20,.73,0],M.graphite,[0,0,0],.10);         // arms
-addBox(sofa,[.20,.70,.92],[1.20,.73,0],M.graphite,[0,0,0],.10);
-addBox(sofa,[.58,.20,.50],[-.47,.93,-.24],M.white,[0,0,.06],.09);        // pillow
-addBox(sofa,[.55,.20,.48],[.49,.92,-.22],M.terracotta,[0,0,-.05],.09);
-
-const coffee=group('Coffee',[-4.75,0,.78]);
-addBox(coffee,[1.35,.09,.72],[0,.43,0],M.oakLight,[0,0,0],.07);
-for(const x of [-.50,.50])for(const z of [-.25,.25]) addBox(coffee,[.05,.39,.05],[x,.20,z],M.graphite,[0,0,0],.014);
-addBox(coffee,[.38,.028,.24],[-.20,.49,.02],M.white2,[0,.10,0],.014);
-addCylinder(coffee,.085,.105,.15,[.30,.51,.01],M.white,[0,0,0],20);
-
 /* Plants now frame the main desk/window composition instead of floating around the room. */
 plant([-2.92,0,-4.92],.90);
 plant([2.92,0,-4.92],.90);
-
-/* wall art left/front */
-for(let i=0;i<3;i++){
-  const a=group('Art'+i,[-7.32,0,1.95+i*.92],[0,Math.PI/2,0]);
-  addBox(a,[.70,.84,.06],[0,2.75,0],M.white,[0,0,0],.02);
-  addBox(a,[.54,.68,.022],[0,2.75,.045],[M.terracotta,M.blue,M.sage][i],[0,0,0],.012)
-}
 
 /* realistic cable drops */
 tube([[-.55,1.35,-4.05],[-.58,.90,-4.10],[-.35,.32,-4.18],[-.10,.08,-4.12]],.018,M.black);
