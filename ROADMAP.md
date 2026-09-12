@@ -2,7 +2,7 @@
 
 Last updated: 2026-09-12  
 Current phase: Phase A — Mobile UX  
-Current bulk: Bulk 3 — Detail sheet and project carousel
+Current bulk: Bulk 4 — Context-aware mobile camera choreography
 
 ## Status legend
 
@@ -58,18 +58,18 @@ Acceptance: Mobile has an isolated layout foundation; Desktop remains unchanged.
 
 Acceptance: roughly 80–90% of the mobile viewport remains available to the 3D scene in Explore mode.
 
-### Bulk 3 — Detail sheet and project carousel — **IN PROGRESS**
+### Bulk 3 — Detail sheet and project carousel — COMPLETE
 
-- [ ] Build the expanded sheet at a maximum of roughly 45% viewport height.
-- [ ] Add contextual content for Games, Web, Projects and Archive.
-- [ ] Add a horizontal project carousel with a visible next-card cue.
-- [ ] Synchronize carousel selection with the physical 3D screens.
-- [ ] Integrate project details and external actions.
-- [ ] Complete keyboard, focus and screen-reader behavior.
+- [x] Build the expanded sheet at a maximum of roughly 45% viewport height.
+- [x] Add contextual content for Games, Web, Projects and Archive.
+- [x] Add a horizontal snap carousel with a visible next-card cue.
+- [x] Synchronize carousel selection with Games/Web screens, Projects wall and Archive CRT.
+- [x] Integrate project details and external actions through the existing modal.
+- [x] Complete keyboard, focus, drag gesture and screen-reader behavior.
 
 Acceptance: project selection is consistent between 2D UI and 3D scene, with no inaccessible touch-only actions.
 
-### Bulk 4 — Context-aware mobile camera choreography
+### Bulk 4 — Context-aware mobile camera choreography — **IN PROGRESS**
 
 - [ ] Calibrate Portrait presets for every studio area.
 - [ ] Calibrate Landscape presets for every studio area.

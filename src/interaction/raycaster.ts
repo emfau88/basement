@@ -44,6 +44,7 @@ export function createRaycaster(options: Options): void {
   }
 
   window.addEventListener('pointermove', (event) => {
+    if (event.pointerType === 'touch') return
     updatePointer(event); raycaster.setFromCamera(pointer, camera)
     const hit = detailHit()
     if (hit) {

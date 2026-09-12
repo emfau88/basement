@@ -1,9 +1,13 @@
 import { chromium } from '@playwright/test'
 import { createServer } from 'vite'
+import { mkdir } from 'node:fs/promises'
+import path from 'node:path'
 
 const assert = (condition, message) => {
   if (!condition) throw new Error(message)
 }
+const outputDirectory = path.resolve('docs/qa/current')
+await mkdir(outputDirectory, { recursive: true })
 
 const server = await createServer({ server: { host: '127.0.0.1', port: 0 } })
 await server.listen()
@@ -51,11 +55,32 @@ try {
   await mobile.locator('#mobileSheetToggle').click()
   assert(await mobile.locator('body').evaluate((body) => body.classList.contains('mobile-sheet-expanded')), 'Sheet did not expand')
   assert(!(await mobile.locator('#mobileSheetPanel').evaluate((element) => element.inert)), 'Expanded sheet remained inert')
+  assert(await mobile.locator('.mobile-project-card').count() === 4, 'Games carousel does not contain four projects')
+  await mobile.locator('.mobile-project-card[data-project="core_arena"]').click()
+  assert(await mobile.locator('.mobile-project-card[data-project="core_arena"]').getAttribute('aria-selected') === 'true', 'Game selection did not update')
+  await mobile.screenshot({ path: path.join(outputDirectory, 'mobile-390x844-games-expanded.jpg'), type: 'jpeg', quality: 84 })
+  await mobile.locator('#mobileOpenProject').click()
+  assert(await mobile.locator('#projectTitle').textContent() === 'Core Arena', 'Open project did not use the selected game')
+  await mobile.keyboard.press('Escape')
+  assert(!(await mobile.locator('body').evaluate((body) => body.classList.contains('project-open'))), 'Escape did not close project details')
   await mobile.keyboard.press('Escape')
   assert(await mobile.locator('#mobileSheetToggle').getAttribute('aria-expanded') === 'false', 'Escape did not collapse the sheet')
   await mobile.locator('#mobileSheetToggle').click()
-  await mobile.locator('canvas').click({ position: { x: 4, y: 500 } })
+  await mobile.locator('canvas').click({ position: { x: 380, y: 90 } })
   assert(await mobile.locator('#mobileSheetToggle').getAttribute('aria-expanded') === 'false', 'Tapping free 3D space did not collapse the sheet')
+
+  for (const [view, project] of [['web', 'zerohero'], ['projects', 'pocket_pier'], ['archive', 'cloudtop_run']]) {
+    await mobile.locator(`.nav button[data-view="${view}"]`).click()
+    await mobile.locator('#mobileSheetToggle').click()
+    assert(await mobile.locator('.mobile-project-card').count() === 4, `${view} carousel does not contain four projects`)
+    await mobile.locator(`.mobile-project-card[data-project="${project}"]`).click()
+    assert(await mobile.locator(`.mobile-project-card[data-project="${project}"]`).getAttribute('aria-selected') === 'true', `${view} selection did not update`)
+    await mobile.screenshot({ path: path.join(outputDirectory, `mobile-390x844-${view}-expanded.jpg`), type: 'jpeg', quality: 84 })
+    await mobile.locator('#mobileOpenProject').click()
+    assert((await mobile.locator('#projectTitle').textContent())?.length > 0, `${view} selected project did not open`)
+    await mobile.keyboard.press('Escape')
+    await mobile.keyboard.press('Escape')
+  }
   assert(runtimeProblems.length === 0, `Browser console problems:\n${runtimeProblems.join('\n')}`)
   await mobile.close()
 } finally {

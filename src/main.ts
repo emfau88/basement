@@ -91,7 +91,13 @@ try {
     updateCamera: (now) => cameraController.update(now),
     updateScreens: (now) => screens.update(now),
   })
-  const mobileControls = createMobileControls(store, enterInspect, scheduler.requestRender)
+  const mobileControls = createMobileControls({
+    store,
+    enterGameInspect: enterInspect,
+    openProject: modal.open,
+    setFeaturedSelection: (key) => { if (projectWall.setSelected(key)) scheduler.requestRender() },
+    requestRender: scheduler.requestRender,
+  })
   createRaycaster({ canvas: rendering.renderer.domElement, camera: rendering.camera, meshes, hotspots, screens, projectWall, store, modal, tooltip, navigate, enterInspect, requestRender: scheduler.requestRender })
 
   window.addEventListener('keydown', (event) => {

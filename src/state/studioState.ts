@@ -10,6 +10,8 @@ export interface StudioState {
   mobileSheet: MobileSheetState
   selectedGameId: ProjectKey
   selectedWebId: ProjectKey
+  selectedFeaturedId: ProjectKey
+  selectedArchiveId: ProjectKey
   openProjectId: ProjectKey | null
 }
 
@@ -23,7 +25,8 @@ export interface StudioStore {
 
 export function createStudioStore(): StudioStore {
   let state: StudioState = {
-    view: 'studio', inspectMode: null, mobileSheet: 'collapsed', selectedGameId: 'territory_tide', selectedWebId: 'mirror', openProjectId: null,
+    view: 'studio', inspectMode: null, mobileSheet: 'collapsed', selectedGameId: 'territory_tide', selectedWebId: 'mirror',
+    selectedFeaturedId: 'territory_tide', selectedArchiveId: 'cozy_bunker', openProjectId: null,
   }
   const listeners = new Set<Listener>()
   return {

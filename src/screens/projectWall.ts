@@ -4,6 +4,7 @@ import { attachLiveTexture, calibratedCoverCrop, createLiveCanvas, loadRemoteIma
 
 export interface ProjectWall {
   setHover(card: THREE.Mesh | null): boolean
+  setSelected(key: ProjectKey | null): boolean
 }
 
 export function createProjectWall(cards: THREE.Mesh[], frames: THREE.Mesh[]): ProjectWall {
@@ -31,20 +32,28 @@ export function createProjectWall(cards: THREE.Mesh[], frames: THREE.Mesh[]): Pr
   })
 
   let hovered: THREE.Mesh | null = null
+  let selectedKey: ProjectKey | null = null
+  const updateCard = (card: THREE.Mesh) => {
+    const frame = card.userData.hoverFrame as THREE.Mesh | undefined
+    const hoveredCard = hovered === card
+    const selectedCard = selectedKey === card.userData.projectKey
+    if (frame?.material instanceof THREE.Material) frame.material.opacity = hoveredCard ? 0.82 : selectedCard ? 0.48 : 0
+    const scale = hoveredCard ? 1.025 : selectedCard ? 1.014 : 1
+    card.scale.set(scale, scale, scale)
+  }
   return {
     setHover: (card) => {
       if (hovered === card) return false
-      if (hovered) {
-        const frame = hovered.userData.hoverFrame as THREE.Mesh | undefined
-        if (frame?.material instanceof THREE.Material) frame.material.opacity = 0
-        hovered.scale.set(1, 1, 1)
-      }
+      const previous = hovered
       hovered = card
-      if (hovered) {
-        const frame = hovered.userData.hoverFrame as THREE.Mesh | undefined
-        if (frame?.material instanceof THREE.Material) frame.material.opacity = 0.82
-        hovered.scale.set(1.025, 1.025, 1.025)
-      }
+      if (previous) updateCard(previous)
+      if (hovered) updateCard(hovered)
+      return true
+    },
+    setSelected: (key) => {
+      if (selectedKey === key) return false
+      selectedKey = key
+      cards.forEach(updateCard)
       return true
     },
   }

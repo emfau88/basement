@@ -1,6 +1,7 @@
 import * as THREE from 'three'
 import { archiveProjectKeys, gameProjectKeys, projects, webProjectKeys, type ProjectKey } from '../data/projects'
 import type { StudioStore } from '../state/studioState'
+import { isMobileViewport } from '../config/responsive'
 import { attachLiveTexture, calibratedCoverCrop, coverCrop, createLiveCanvas, loadProjectImages, roundRect, screenBase, topChrome, type LiveCanvas, type LoadedProjectImage } from './canvasUtils'
 
 type ScreenType = 'games' | 'gamepan' | 'terminal' | 'apps' | 'appticker' | 'archive'
@@ -139,7 +140,11 @@ export function createLiveScreenSystem(store: StudioStore): LiveScreenSystem {
 
   const drawArchive = (screen: LiveScreen, ms: number) => {
     const { context, texture } = screen.live; screenBase(context, '#10100d'); if (!screen.items.length) { texture.needsUpdate = true; return }
-    const interval = 7200; const item = screen.items[Math.floor(ms / interval) % screen.items.length]!; screen.currentKey = item.key; const phase = (ms % interval) / interval
+    const interval = 7200; const state = store.get(); const automaticItem = screen.items[Math.floor(ms / interval) % screen.items.length]!
+    const item = state.view === 'archive' && isMobileViewport()
+      ? screen.items.find((candidate) => candidate.key === state.selectedArchiveId) ?? automaticItem
+      : automaticItem
+    screen.currentKey = item.key; const phase = (ms % interval) / interval
     coverCrop(context, item.image, 0, 0, 768, 432, 1.08, 0.5, 0.38 + phase * 0.22); context.fillStyle = 'rgba(52,31,25,.22)'; context.fillRect(0, 0, 768, 432)
     const roll = (ms * 0.035) % 432; context.fillStyle = 'rgba(255,230,205,.055)'; context.fillRect(0, roll, 768, 18); for (let y = 0; y < 432; y += 5) { context.fillStyle = 'rgba(20,8,5,.12)'; context.fillRect(0, y, 768, 1) }
     context.fillStyle = 'rgba(14,9,7,.75)'; context.fillRect(20, 337, 360, 62); context.fillStyle = '#e8d3c4'; context.font = '800 25px Arial'; context.fillText(item.name, 34, 372); context.fillStyle = 'rgba(232,211,196,.62)'; context.font = '600 13px monospace'; context.fillText('ARCHIVED // READ ONLY', 35, 392); texture.needsUpdate = true

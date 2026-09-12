@@ -28,7 +28,7 @@
 
 @media(max-width:760px){
   .top{top:var(--mobile-safe-top);left:var(--mobile-edge);right:var(--mobile-edge)}
-  .manifesto,.live,.helper,.sound,.info{display:none}
+  .manifesto,.live,.helper,.sound,.info,.tooltip{display:none}
   .intro{
     left:var(--mobile-edge);top:calc(var(--mobile-safe-top) + 46px);width:190px;padding:10px 12px 11px;
     border-radius:11px;background:rgba(247,244,236,.84);backdrop-filter:blur(12px)
@@ -72,23 +72,38 @@
   .mobile-sheet-chevron{justify-self:end;font-size:15px;transition:transform .28s var(--ease)}
   body.mobile-sheet-expanded .mobile-sheet-chevron{transform:rotate(180deg)}
   .mobile-sheet-panel{max-height:0;overflow:hidden;padding:0 16px;opacity:0;transition:max-height .42s var(--ease),padding .3s ease,opacity .2s ease}
-  body.mobile-sheet-expanded .mobile-sheet-panel{max-height:min(38dvh,340px);overflow-y:auto;padding:4px 16px 16px;opacity:1}
+  body.mobile-sheet-expanded .mobile-sheet-panel{max-height:min(46dvh,420px);overflow-y:auto;padding:4px 0 14px;opacity:1}
   .mobile-sheet-kicker{font-size:7px;letter-spacing:.2em;text-transform:uppercase;color:#6d8371;margin-bottom:8px}
-  .mobile-sheet-panel h2{margin:0;font-size:25px;line-height:.96;letter-spacing:-.05em}
-  .mobile-sheet-panel>p{margin:10px 0 0;color:#65706b;font-size:11px;line-height:1.5}
+  .mobile-sheet-kicker,.mobile-sheet-panel h2,.mobile-sheet-panel>p{margin-left:16px;margin-right:16px}
+  .mobile-sheet-panel h2{margin-top:0;margin-bottom:0;font-size:25px;line-height:.96;letter-spacing:-.05em}
+  .mobile-sheet-panel>p{margin-top:10px;margin-bottom:0;color:#65706b;font-size:11px;line-height:1.5}
+  .mobile-project-track{
+    display:flex;gap:9px;margin-top:14px;padding:0 16px 6px;overflow-x:auto;overscroll-behavior-x:contain;
+    scroll-snap-type:x mandatory;scroll-padding-inline:16px;touch-action:pan-x;-webkit-overflow-scrolling:touch;scrollbar-width:none
+  }
+  .mobile-project-track::-webkit-scrollbar{display:none}
+  .mobile-project-card{
+    position:relative;flex:0 0 86%;height:132px;overflow:hidden;scroll-snap-align:center;
+    border:1px solid rgba(24,29,27,.14);border-radius:13px;background:#38413d;color:#f5f3ed;
+    padding:0;text-align:left;box-shadow:0 9px 24px rgba(39,33,28,.11);cursor:pointer
+  }
+  .mobile-project-card img{display:block;width:100%;height:100%;object-fit:cover;filter:brightness(.74) saturate(.92)}
+  .mobile-project-card::after{content:"";position:absolute;inset:35% 0 0;background:linear-gradient(transparent,rgba(9,12,11,.88))}
+  .mobile-project-card.image-fallback img{display:none}
+  .mobile-project-card-copy{position:absolute;z-index:1;left:13px;right:13px;bottom:12px;display:grid;gap:4px}
+  .mobile-project-card-copy small{font-size:7px;letter-spacing:.15em;text-transform:uppercase;color:rgba(245,243,237,.72)}
+  .mobile-project-card-copy strong{font-size:17px;line-height:1;letter-spacing:-.025em}
+  .mobile-project-card.active{border-color:#f2ce32;box-shadow:0 0 0 1px #f2ce32,0 9px 24px rgba(39,33,28,.14)}
+  .mobile-sheet-actions{display:grid;grid-template-columns:1fr auto;gap:7px;padding:7px 16px 0}
+  .mobile-sheet-actions button{
+    min-height:44px;border:1px solid rgba(26,31,29,.14);border-radius:11px;padding:0 13px;
+    font-size:8px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;cursor:pointer
+  }
+  .mobile-open-project{background:#1a1f1d;color:#f4f1e9}
+  .mobile-inspect-projects{background:rgba(255,255,255,.48);color:#303735}
+  .mobile-inspect-projects[hidden]{display:none}
 }
 @media(prefers-reduced-motion:reduce){.intro,.info,.mobile-sheet,.mobile-sheet-panel,.mobile-sheet-chevron{transition:none!important}}
-
-@media(max-width:760px){
-  .mobile-context-actions{margin-top:10px}
-  .mobile-context-actions button{min-height:44px;border:1px solid rgba(26,31,29,.12);border-radius:10px;background:rgba(255,255,255,.5);color:#39423e;font-size:9px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
-  body.view-games:not(.inspect-selector) .mobile-context-actions,
-  body.view-web .mobile-context-actions{display:block}
-  #mobileGameInspect,#mobileWebSelector{display:none}
-  body.view-games:not(.inspect-selector) #mobileGameInspect{display:block;width:100%}
-  body.view-web #mobileWebSelector{display:grid;grid-template-columns:repeat(2,1fr);gap:5px}
-  body.view-web #mobileWebSelector button.active{background:#1a1f1d;color:#f4f1e9}
-}
 
 @media(max-width:370px){
   .nav .t{font-size:6.5px;letter-spacing:.04em}
