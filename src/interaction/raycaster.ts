@@ -60,6 +60,10 @@ export function createRaycaster(options: Options): void {
   }, { passive: true })
 
   canvas.addEventListener('pointerdown', (event) => {
+    if (store.get().mobileSheet === 'expanded') {
+      store.set({ mobileSheet: 'collapsed' })
+      return
+    }
     updatePointer(event); raycaster.setFromCamera(pointer, camera)
     const hit = detailHit()
     if (hit) {

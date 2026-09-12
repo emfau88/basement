@@ -2,7 +2,7 @@
 
 Last updated: 2026-09-12  
 Current phase: Phase A — Mobile UX  
-Current bulk: Bulk 4 — Context-aware mobile camera choreography
+Current bulk: Bulk 5 — Mobile production hardening
 
 ## Status legend
 
@@ -69,18 +69,19 @@ Acceptance: roughly 80–90% of the mobile viewport remains available to the 3D 
 
 Acceptance: project selection is consistent between 2D UI and 3D scene, with no inaccessible touch-only actions.
 
-### Bulk 4 — Context-aware mobile camera choreography — **IN PROGRESS**
+### Bulk 4 — Context-aware mobile camera choreography — COMPLETE
 
-- [ ] Calibrate Portrait presets for every studio area.
-- [ ] Calibrate Landscape presets for every studio area.
-- [ ] Offset framing according to collapsed or expanded sheet height.
-- [ ] Make transitions interruptible and orientation-safe.
-- [ ] Respect reduced motion.
-- [ ] Confirm Desktop camera values remain unchanged.
+- [x] Calibrate Portrait presets for every studio area.
+- [x] Calibrate Landscape presets for every studio area.
+- [x] Offset framing according to collapsed or expanded sheet height.
+- [x] Use a compact right-side sheet composition in Landscape.
+- [x] Make transitions interruptible and orientation-safe.
+- [x] Respect reduced motion.
+- [x] Confirm Desktop camera values remain unchanged.
 
 Acceptance: the important physical display remains visible in every state without free-orbit controls.
 
-### Bulk 5 — Mobile production hardening
+### Bulk 5 — Mobile production hardening — **IN PROGRESS**
 
 - [ ] Calibrate mobile pixel ratio, shadows and postprocessing.
 - [ ] Confirm demand-driven rendering remains effective.

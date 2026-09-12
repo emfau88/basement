@@ -16,6 +16,7 @@ import { createMobileControls } from './ui/mobileControls'
 import { createNavigationUI } from './ui/navigation'
 import { createProjectModal } from './ui/projectModal'
 import { createViewportController } from './ui/viewport'
+import { isMobileViewport } from './config/responsive'
 
 const app = requiredElement<HTMLElement>('app')
 const loader = requiredElement<HTMLElement>('loader')
@@ -69,7 +70,7 @@ try {
     tooltip.classList.remove('show'); document.body.style.cursor = 'default'
     fade.style.opacity = '.13'; window.setTimeout(() => { fade.style.opacity = '0' }, 150)
     store.set({ view, inspectMode: null, mobileSheet: 'collapsed' })
-    cameraController.moveToView(view); scheduler.startTransition()
+    cameraController.moveToView(view, 'collapsed'); scheduler.startTransition()
   }
   const enterInspect = () => {
     if (store.get().view !== 'games') return
@@ -79,7 +80,7 @@ try {
   const exitInspect = () => {
     const state = store.get(); if (!state.inspectMode) return
     store.set({ inspectMode: null }); setInspectLabel(false)
-    cameraController.exitInspect(state.view); scheduler.startTransition()
+    cameraController.exitInspect(state.view, state.mobileSheet); scheduler.startTransition()
   }
 
   const navigation = createNavigationUI(store, navigate)
@@ -98,6 +99,13 @@ try {
     setFeaturedSelection: (key) => { if (projectWall.setSelected(key)) scheduler.requestRender() },
     requestRender: scheduler.requestRender,
   })
+  let previousSheet = store.get().mobileSheet
+  const unsubscribeCameraLayout = store.subscribe((state) => {
+    if (state.mobileSheet === previousSheet) return
+    previousSheet = state.mobileSheet
+    if (!isMobileViewport() || state.inspectMode) return
+    cameraController.adaptToSheet(state.view, state.mobileSheet); scheduler.startTransition()
+  })
   createRaycaster({ canvas: rendering.renderer.domElement, camera: rendering.camera, meshes, hotspots, screens, projectWall, store, modal, tooltip, navigate, enterInspect, requestRender: scheduler.requestRender })
 
   window.addEventListener('keydown', (event) => {
@@ -108,10 +116,11 @@ try {
     else navigate('studio')
   })
   const viewport = createViewportController(() => {
-    rendering.resize(); cameraController.resize(store.get().view, Boolean(store.get().inspectMode)); scheduler.requestRender()
+    const state = store.get()
+    rendering.resize(); cameraController.resize(state.view, Boolean(state.inspectMode), state.mobileSheet); scheduler.requestRender()
   })
   window.addEventListener('pagehide', () => {
-    viewport.destroy(); mobileControls.destroy(); navigation.destroy(); scheduler.destroy()
+    viewport.destroy(); mobileControls.destroy(); navigation.destroy(); unsubscribeCameraLayout(); scheduler.destroy()
   }, { once: true })
 
   rendering.scene.traverse((object) => {

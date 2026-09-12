@@ -20,7 +20,8 @@ try {
   browser = await chromium.launch({ channel: 'msedge', headless: true })
 
   const desktop = await browser.newPage({ viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce' })
-  await desktop.goto(baseUrl, { waitUntil: 'networkidle' })
+  await desktop.goto(baseUrl, { waitUntil: 'domcontentloaded' })
+  await desktop.waitForFunction(() => document.querySelector('#loader')?.classList.contains('done'))
   await desktop.locator('.nav button[data-view="games"]').click()
   assert(await desktop.locator('body').evaluate((body) => !body.classList.contains('mobile-ui')), 'Desktop activated mobile UI')
   assert(await desktop.locator('.info').evaluate((element) => getComputedStyle(element).display !== 'none'), 'Desktop information card disappeared')
@@ -33,7 +34,7 @@ try {
     if (message.type() === 'warning' || message.type() === 'error') runtimeProblems.push(`${message.type()}: ${message.text()}`)
   })
   mobile.on('pageerror', (error) => runtimeProblems.push(`pageerror: ${error.message}`))
-  await mobile.goto(baseUrl, { waitUntil: 'networkidle' })
+  await mobile.goto(baseUrl, { waitUntil: 'domcontentloaded' })
   await mobile.waitForFunction(() => document.querySelector('#loader')?.classList.contains('done'))
   assert(await mobile.locator('body').evaluate((body) => body.classList.contains('mobile-ui')), 'Mobile UI class is missing')
   assert(await mobile.locator('#mobileSheet').evaluate((element) => element.inert), 'Studio sheet must be inert')
@@ -83,6 +84,30 @@ try {
   }
   assert(runtimeProblems.length === 0, `Browser console problems:\n${runtimeProblems.join('\n')}`)
   await mobile.close()
+
+  const landscape = await browser.newPage({ viewport: { width: 740, height: 430 }, reducedMotion: 'reduce' })
+  await landscape.goto(baseUrl, { waitUntil: 'domcontentloaded' })
+  await landscape.waitForFunction(() => document.querySelector('#loader')?.classList.contains('done'))
+  assert(await landscape.locator('body').evaluate((body) => body.classList.contains('mobile-landscape')), 'Landscape class is missing')
+  for (const view of ['games', 'web', 'projects', 'archive']) {
+    await landscape.locator(`.nav button[data-view="${view}"]`).click()
+    await landscape.locator('#mobileSheetToggle').click()
+    await landscape.waitForTimeout(50)
+    const bounds = await landscape.evaluate(() => {
+      const sheet = document.querySelector('#mobileSheet')?.getBoundingClientRect()
+      const nav = document.querySelector('.navwrap')?.getBoundingClientRect()
+      return { sheetTop: sheet?.top ?? -1, navBottom: nav?.bottom ?? Infinity, width: document.documentElement.clientWidth, scrollWidth: document.documentElement.scrollWidth }
+    })
+    assert(bounds.sheetTop >= 0, `${view} landscape sheet is clipped at the top`)
+    assert(bounds.navBottom <= 430, `${view} landscape navigation is clipped`)
+    assert(bounds.width === bounds.scrollWidth, `${view} landscape has horizontal overflow`)
+    await landscape.screenshot({ path: path.join(outputDirectory, `mobile-landscape-740x430-${view}-expanded.jpg`), type: 'jpeg', quality: 84 })
+    await landscape.keyboard.press('Escape')
+  }
+  await landscape.setViewportSize({ width: 390, height: 844 })
+  await landscape.waitForTimeout(50)
+  assert(!(await landscape.locator('body').evaluate((body) => body.classList.contains('mobile-landscape'))), 'Orientation change did not clear landscape class')
+  await landscape.close()
 } finally {
   await browser?.close()
   await server.close()

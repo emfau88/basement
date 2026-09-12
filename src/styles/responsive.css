@@ -109,3 +109,19 @@
   .nav .t{font-size:6.5px;letter-spacing:.04em}
   .mobile-sheet-summary span{display:none}
 }
+
+@media(max-width:760px) and (orientation:landscape){
+  body.mobile-landscape .mobile-sheet{
+    left:auto;right:var(--mobile-edge);width:min(46vw,360px);transform:none
+  }
+  body.mobile-landscape.view-studio .mobile-sheet,
+  body.mobile-landscape.inspect-selector .mobile-sheet{transform:translateY(12px)}
+  body.mobile-landscape.mobile-sheet-expanded .mobile-sheet-panel{
+    max-height:calc(var(--app-height,100dvh) - var(--mobile-nav-height) - var(--mobile-safe-bottom) - 82px)
+  }
+  body.mobile-landscape .mobile-sheet-panel>p{display:none}
+  body.mobile-landscape .mobile-sheet-panel h2{font-size:22px}
+  body.mobile-landscape .mobile-project-card{flex-basis:91%;height:108px}
+  body.mobile-landscape .mobile-sheet-actions{grid-template-columns:1fr}
+  body.mobile-landscape .mobile-sheet-actions button{min-height:40px}
+}
