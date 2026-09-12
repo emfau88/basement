@@ -279,7 +279,7 @@ export function buildGamesHero(scene: THREE.Scene, budget: SceneDetailBudget, ma
   addTypographyPoster(root, materials)
 
   if (heroPlants[0]) placePlant(root, heroPlants[0], 'GamesHeroPlantLeft', [-3.72, 0, -4.72], 1.82, -0.42)
-  if (heroPlants[1]) placePlant(root, heroPlants[1], 'GamesHeroPlantRight', [3.73, 0, -4.62], 1.48, 0.58)
+  if (heroPlants[1]) placePlant(root, heroPlants[1], 'GamesHeroPlantRight', [3.98, 0, -4.44], 1.48, 0.58)
 
   const hiddenOriginals = new Map<THREE.Object3D, boolean>()
   for (const name of ['Chair', 'rug']) {
