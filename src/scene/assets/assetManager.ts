@@ -175,7 +175,7 @@ export function createAssetManager(renderer: THREE.WebGLRenderer, options: Asset
             return new Promise<THREE.Texture>((resolve, reject) => ktx2Loader.parse(buffer, resolve, reject))
           }
           const mime = /\.png(?:$|\?)/i.test(url) ? 'image/png' : /\.webp(?:$|\?)/i.test(url) ? 'image/webp' : 'image/jpeg'
-          return createImageBitmap(new Blob([buffer], { type: mime })).then((bitmap) => new THREE.Texture(bitmap))
+          return createImageBitmap(new Blob([buffer], { type: mime }), { imageOrientation: 'flipY' }).then((bitmap) => new THREE.Texture(bitmap))
         })
         .then((texture) => {
           const configured = configurePbrTexture(texture, role, anisotropy)

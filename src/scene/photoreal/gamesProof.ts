@@ -5,6 +5,7 @@ import { createPbrMaterial, ensureSecondaryUvs } from '../assets/pbrMaterials'
 import type { SceneDetailBudget } from '../assets/detailBudget'
 import type { RenderQualityProfile } from '../../performance/deviceProfile'
 import type { StudioMaterials } from '../materials'
+import { buildGamesHero } from './gamesHero'
 
 export interface GamesProofController {
   setActive(active: boolean): void
@@ -24,6 +25,11 @@ interface MaterialSet {
   concrete: THREE.MeshStandardMaterial
   walnut: THREE.MeshStandardMaterial
   graphite: THREE.MeshStandardMaterial
+  floor: THREE.MeshStandardMaterial
+  rug: THREE.MeshStandardMaterial
+  upholstery: THREE.MeshStandardMaterial
+  chairMesh: THREE.MeshStandardMaterial
+  backdrop: THREE.MeshBasicMaterial
   ownedTextures: THREE.Texture[]
 }
 
@@ -36,13 +42,52 @@ function repeat(texture: THREE.Texture, x: number, y: number): THREE.Texture {
   return texture
 }
 
+function createChairMeshMaterial(ownedTextures: THREE.Texture[]): THREE.MeshStandardMaterial {
+  const canvas = document.createElement('canvas')
+  canvas.width = 96
+  canvas.height = 96
+  const context = canvas.getContext('2d')
+  if (!context) return new THREE.MeshStandardMaterial({ color: 0x242725, roughness: 0.82, side: THREE.DoubleSide })
+  context.fillStyle = '#141615'
+  context.fillRect(0, 0, 96, 96)
+  context.strokeStyle = '#a7aaa5'
+  context.lineWidth = 3
+  for (let offset = -96; offset < 192; offset += 12) {
+    context.beginPath()
+    context.moveTo(offset, 0)
+    context.lineTo(offset - 96, 96)
+    context.stroke()
+    context.beginPath()
+    context.moveTo(offset, 0)
+    context.lineTo(offset + 96, 96)
+    context.stroke()
+  }
+  const alphaMap = new THREE.CanvasTexture(canvas)
+  alphaMap.colorSpace = THREE.NoColorSpace
+  alphaMap.wrapS = THREE.RepeatWrapping
+  alphaMap.wrapT = THREE.RepeatWrapping
+  alphaMap.repeat.set(4.5, 6)
+  ownedTextures.push(alphaMap)
+  return new THREE.MeshStandardMaterial({
+    color: 0x343835,
+    roughness: 0.78,
+    metalness: 0,
+    alphaMap,
+    alphaTest: 0.28,
+    transparent: true,
+    opacity: 0.92,
+    side: THREE.DoubleSide,
+  })
+}
+
 async function loadMaterialSet(assets: AssetManager, anisotropy: number, desktop: boolean): Promise<MaterialSet> {
   const ownedTextures: THREE.Texture[] = []
   const concreteRoot = `${ASSET_ROOT}materials/concrete-wall/`
-  const [concreteColor, concreteNormal, concreteArm] = await Promise.all([
-    assets.loadTexture(`${concreteRoot}basecolor.jpg`, 'baseColor', anisotropy),
-    assets.loadTexture(`${concreteRoot}normal-gl.jpg`, 'normal', anisotropy),
-    assets.loadTexture(`${concreteRoot}arm.jpg`, 'roughness', anisotropy),
+  const [concreteColor, concreteNormal, concreteArm, backdropTexture] = await Promise.all([
+    assets.loadTexture(`${concreteRoot}basecolor.webp`, 'baseColor', anisotropy),
+    assets.loadTexture(`${concreteRoot}normal-gl.webp`, 'normal', anisotropy),
+    assets.loadTexture(`${concreteRoot}arm.webp`, 'roughness', anisotropy),
+    assets.loadTexture(`${ASSET_ROOT}backdrops/waterfront-city.webp`, 'baseColor', anisotropy),
   ])
   repeat(concreteColor, 1.6, 1.6)
   repeat(concreteNormal, 1.6, 1.6)
@@ -61,13 +106,30 @@ async function loadMaterialSet(assets: AssetManager, anisotropy: number, desktop
   concrete.normalScale.set(0.46, 0.46)
   concrete.roughness = 0.92
 
+  const floorColor = repeat(concreteColor.clone(), 4.8, 2.7)
+  const floorNormal = repeat(concreteNormal.clone(), 4.8, 2.7)
+  const floorArm = repeat(concreteArm.clone(), 4.8, 2.7)
+  const floorAo = floorArm.clone()
+  floorAo.channel = 1
+  ownedTextures.push(floorColor, floorNormal, floorArm, floorAo)
+  const floor = createPbrMaterial('floor', {
+    baseColor: floorColor,
+    normal: floorNormal,
+    roughness: floorArm,
+    metalness: floorArm,
+    ao: floorAo,
+  }) as THREE.MeshStandardMaterial
+  floor.color.set(0x817c74)
+  floor.normalScale.set(0.16, 0.16)
+  floor.roughness = 0.9
+
   let walnut = createPbrMaterial('walnut') as THREE.MeshStandardMaterial
   if (desktop) {
     const walnutRoot = `${ASSET_ROOT}materials/walnut/`
     const [walnutColor, walnutNormal, walnutArm] = await Promise.all([
-      assets.loadTexture(`${walnutRoot}basecolor.jpg`, 'baseColor', anisotropy),
-      assets.loadTexture(`${walnutRoot}normal-gl.jpg`, 'normal', anisotropy),
-      assets.loadTexture(`${walnutRoot}arm.jpg`, 'roughness', anisotropy),
+      assets.loadTexture(`${walnutRoot}basecolor.webp`, 'baseColor', anisotropy),
+      assets.loadTexture(`${walnutRoot}normal-gl.webp`, 'normal', anisotropy),
+      assets.loadTexture(`${walnutRoot}arm.webp`, 'roughness', anisotropy),
     ])
     repeat(walnutColor, 2.2, 1.1)
     repeat(walnutNormal, 2.2, 1.1)
@@ -88,7 +150,44 @@ async function loadMaterialSet(assets: AssetManager, anisotropy: number, desktop
     walnut.roughness = 0.64
   }
   const graphite = createPbrMaterial('powderCoat') as THREE.MeshStandardMaterial
-  return { concrete, walnut, graphite, ownedTextures }
+  graphite.color.set(0x242725)
+  graphite.roughness = 0.52
+  graphite.metalness = 0.42
+  const upholstery = createPbrMaterial('chairMesh') as THREE.MeshStandardMaterial
+  upholstery.color.set(0x222522)
+  upholstery.roughness = 0.82
+  const chairMesh = createChairMeshMaterial(ownedTextures)
+
+  let rug = createPbrMaterial('chairMesh') as THREE.MeshStandardMaterial
+  rug.color.set(0x706153)
+  rug.roughness = 0.96
+  if (desktop) {
+    const rugRoot = `${ASSET_ROOT}materials/rug/`
+    const [rugColor, rugNormal, rugArm] = await Promise.all([
+      assets.loadTexture(`${rugRoot}basecolor-warm.webp`, 'baseColor', anisotropy),
+      assets.loadTexture(`${rugRoot}normal-gl.webp`, 'normal', anisotropy),
+      assets.loadTexture(`${rugRoot}arm.webp`, 'roughness', anisotropy),
+    ])
+    repeat(rugColor, 6.4, 3.8)
+    repeat(rugNormal, 6.4, 3.8)
+    repeat(rugArm, 6.4, 3.8)
+    const rugAo = rugArm.clone()
+    rugAo.channel = 1
+    ownedTextures.push(rugAo)
+    rug.dispose()
+    rug = createPbrMaterial('chairMesh', {
+      baseColor: rugColor,
+      normal: rugNormal,
+      roughness: rugArm,
+      ao: rugAo,
+    }) as THREE.MeshStandardMaterial
+    rug.color.set(0xc4b7a8)
+    rug.normalScale.set(0.34, 0.34)
+    rug.roughness = 0.98
+  }
+
+  const backdrop = new THREE.MeshBasicMaterial({ map: backdropTexture, color: 0xffffff, toneMapped: false, fog: false })
+  return { concrete, walnut, graphite, floor, rug, upholstery, chairMesh, backdrop, ownedTextures }
 }
 
 function addRoundedBox(root: THREE.Group, name: string, size: readonly [number, number, number], position: readonly [number, number, number], material: THREE.Material, radius: number, segments: number): THREE.Mesh {
@@ -110,6 +209,10 @@ function buildShell(materials: MaterialSet, budget: SceneDetailBudget): THREE.Gr
   addRoundedBox(root, 'ConcreteHeader', [7.35, 0.46, 0.58], [0, 4.66, -6.38], materials.concrete, 0.055, segments)
   addRoundedBox(root, 'ConcreteLeftPier', [0.52, 3.72, 0.58], [-3.42, 2.72, -6.38], materials.concrete, 0.045, segments)
   addRoundedBox(root, 'ConcreteRightPier', [0.52, 3.72, 0.58], [3.42, 2.72, -6.38], materials.concrete, 0.045, segments)
+  // These infill panels join the Games reveal to the original building wall.
+  // They turn the former freestanding portal into one continuous wall opening.
+  addRoundedBox(root, 'ConcreteLeftInfill', [1.46, 3.72, 0.3], [-4.41, 2.72, -6.43], materials.concrete, 0.035, segments)
+  addRoundedBox(root, 'ConcreteRightInfill', [1.46, 3.72, 0.3], [4.41, 2.72, -6.43], materials.concrete, 0.035, segments)
   addRoundedBox(root, 'ConcreteSill', [7.35, 0.23, 0.66], [0, 0.94, -6.33], materials.concrete, 0.035, segments)
 
   for (const x of [-3.06, 0, 3.06]) {
@@ -126,6 +229,21 @@ function buildShell(materials: MaterialSet, budget: SceneDetailBudget): THREE.Gr
   }
   ensureSecondaryUvs(root)
   return root
+}
+
+function collectLegacyWindowLayers(scene: THREE.Scene): Map<THREE.Object3D, boolean> {
+  const originals = new Map<THREE.Object3D, boolean>()
+  scene.traverse((object) => {
+    if (['sky', 'City', 'mullion', 'windowTop', 'windowBottom'].includes(object.name)) {
+      originals.set(object, object.visible)
+    }
+  })
+
+  // Keep the GAME LAB sign and timber accents, but suppress the three old
+  // structural portal slabs now replaced by the continuous PBR wall reveal.
+  const legacyPortal = scene.getObjectByName('GamesPortal')
+  for (const child of legacyPortal?.children.slice(0, 3) ?? []) originals.set(child, child.visible)
+  return originals
 }
 
 function swapGamesMaterials(scene: THREE.Scene, current: StudioMaterials, next: MaterialSet): Map<THREE.Mesh, THREE.Material | THREE.Material[]> {
@@ -148,9 +266,16 @@ function swapGamesMaterials(scene: THREE.Scene, current: StudioMaterials, next: 
 export async function createGamesPhotorealProof(options: GamesProofOptions): Promise<GamesProofController> {
   const { scene, renderer, materials: current, budget, quality, assets } = options
   const desktop = quality.name === 'desktop'
-  const materials = await loadMaterialSet(assets, budget.textureAnisotropy, desktop)
+  const legacyWindowLayers = collectLegacyWindowLayers(scene)
+  const [materials, heroPlant] = await Promise.all([
+    loadMaterialSet(assets, budget.textureAnisotropy, desktop),
+    desktop
+      ? assets.loadModel(`${ASSET_ROOT}models/potted-plant-02.glb`).then((model) => model.root).catch(() => null)
+      : Promise.resolve(null),
+  ])
   const shell = buildShell(materials, budget)
   scene.add(shell)
+  const hero = buildGamesHero(scene, budget, materials, heroPlant)
   const originals = swapGamesMaterials(scene, current, materials)
 
   const previousEnvironment = scene.environment
@@ -161,7 +286,7 @@ export async function createGamesPhotorealProof(options: GamesProofOptions): Pro
 
   const key = new THREE.SpotLight(0xffd39a, desktop ? 20 : 13, 10, Math.PI / 5.6, 0.72, 1.55)
   key.name = 'GamesHeroKey'
-  key.position.set(-3.0, 4.9, -1.65)
+  key.position.set(-3.0, 4.9, 0.8)
   key.target.position.set(-0.4, 1.15, -3.55)
   key.castShadow = quality.shadows
   key.shadow.mapSize.set(desktop ? 1536 : 768, desktop ? 1536 : 768)
@@ -185,6 +310,8 @@ export async function createGamesPhotorealProof(options: GamesProofOptions): Pro
     key.visible = active
     key.target.visible = active
     fill.visible = active
+    hero.setActive(active)
+    for (const [object, originalVisibility] of legacyWindowLayers) object.visible = active ? false : originalVisibility
     for (const [mesh, original] of originals) mesh.material = active ? (
       original === current.concreteDark ? materials.concrete
         : original === current.oakDark ? materials.walnut
@@ -197,7 +324,7 @@ export async function createGamesPhotorealProof(options: GamesProofOptions): Pro
       scene.environment = previousEnvironment
       scene.environmentIntensity = previousEnvironmentIntensity
     }
-    renderer.toneMappingExposure = active ? 0.68 : previousExposure
+    renderer.toneMappingExposure = active ? 0.75 : previousExposure
     renderer.shadowMap.needsUpdate = true
   }
 
@@ -207,6 +334,8 @@ export async function createGamesPhotorealProof(options: GamesProofOptions): Pro
     dispose() {
       setActive(false)
       shell.removeFromParent()
+      hero.dispose()
+      if (heroPlant) assets.release(heroPlant)
       key.removeFromParent()
       key.target.removeFromParent()
       fill.removeFromParent()
@@ -216,6 +345,11 @@ export async function createGamesPhotorealProof(options: GamesProofOptions): Pro
       materials.concrete.dispose()
       materials.walnut.dispose()
       materials.graphite.dispose()
+      materials.floor.dispose()
+      materials.rug.dispose()
+      materials.upholstery.dispose()
+      materials.chairMesh.dispose()
+      materials.backdrop.dispose()
       for (const texture of materials.ownedTextures) texture.dispose()
     },
   }

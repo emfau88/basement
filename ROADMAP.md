@@ -2,7 +2,7 @@
 
 Last updated: 2026-09-12  
 Current phase: Phase D — Photorealistic Games proof
-Current bulk: Bulk 17 — Games hero assets and materials
+Current bulk: Bulk 18 — Games final light, mobile LOD and proof
 
 ## Status legend
 
@@ -214,17 +214,19 @@ Acceptance: the empty architectural shell already reads as a believable photogra
 
 Verification: fixed Desktop/Mobile captures, TypeScript, production build, asset success/fallback/disposal suite, full Mobile interaction/responsive suite and GitHub Pages `/basement/` subpath QA passed on 2026-09-12. The focus-visible furniture and set dressing intentionally remain the Bulk 17 blockout.
 
-### Bulk 17 — Games hero assets and materials — **IN PROGRESS**
+### Bulk 17 — Games hero assets and materials — COMPLETE
 
-- [ ] Replace focus-visible blockout objects with optimized authored assets.
-- [ ] Complete the desk, seating, displays, computer hardware and signature props.
-- [ ] Apply physically plausible concrete, painted metal, wood, glass and emissive display materials.
-- [ ] Remove floating objects, scale inconsistencies, texture repetition and visibly sharp CG edges.
-- [ ] Keep branded and screen content local, crisp and accessible.
+- [x] Replace focus-visible blockout objects with optimized authored assets.
+- [x] Complete the desk, seating, displays, computer hardware and signature props.
+- [x] Apply physically plausible concrete, painted metal, wood, glass and emissive display materials.
+- [x] Remove floating objects, scale inconsistencies, texture repetition and visibly sharp CG edges.
+- [x] Keep branded and screen content local, crisp and accessible.
 
 Acceptance: at the approved fixed Desktop camera, the Games area reaches the reference's material richness, depth and object credibility rather than merely sharing its colors.
 
-### Bulk 18 — Games final light, mobile LOD and proof
+Verification: fixed Desktop/Mobile captures, optimized/validated Meshopt plant GLB, production-size WebP materials, generated waterfront backplate, TypeScript and interaction-preserving render checks passed on 2026-09-12. Final AO/light polish, explicit LOD measurement and physical-phone approval remain intentionally assigned to Bulk 18.
+
+### Bulk 18 — Games final light, mobile LOD and proof — **IN PROGRESS**
 
 - [ ] Bake/finalize AO or lightmaps and tune restrained postprocessing.
 - [ ] Create explicit Desktop, Mobile standard and Mobile low asset/texture tiers.
