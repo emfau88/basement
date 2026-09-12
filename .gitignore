@@ -2,3 +2,7 @@ node_modules/
 dist/
 *.log
 .DS_Store
+docs/qa/current/
+public/assets/runtime/
+tmp/
+public/assets/photoreal/games/materials/rug/basecolor.webp

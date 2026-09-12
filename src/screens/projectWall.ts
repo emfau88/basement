@@ -4,9 +4,10 @@ import { attachLiveTexture, calibratedCoverCrop, createLiveCanvas, loadRemoteIma
 
 export interface ProjectWall {
   setHover(card: THREE.Mesh | null): boolean
+  setSelected(key: ProjectKey | null): boolean
 }
 
-export function createProjectWall(cards: THREE.Mesh[], frames: THREE.Mesh[]): ProjectWall {
+export function createProjectWall(cards: THREE.Mesh[], frames: THREE.Mesh[], textureAnisotropy = 4): ProjectWall {
   cards.forEach((card, index) => {
     const key = featuredProjectKeys[index]
     const frame = frames[index]
@@ -16,10 +17,11 @@ export function createProjectWall(cards: THREE.Mesh[], frames: THREE.Mesh[]): Pr
     card.userData.section = 'projects'
     card.userData.detailLabel = 'Open project'
     const project = projects[key]
-    const live = createLiveCanvas(); attachLiveTexture(card, live, 0.015)
+    const live = createLiveCanvas(textureAnisotropy); attachLiveTexture(card, live, 0.28)
     void loadRemoteImage(project.image).then((image) => {
       const { context, texture } = live; screenBase(context, '#d8d3c7')
       calibratedCoverCrop(context, { key, name: project.title, image }, 0, 0, 768, 432, 1.05, 0.5, 0.48)
+      context.save(); context.globalCompositeOperation = 'screen'; context.fillStyle = 'rgba(255,248,232,.09)'; context.fillRect(0, 0, 768, 432); context.restore()
       const gradient = context.createLinearGradient(0, 220, 0, 432); gradient.addColorStop(0, 'rgba(16,19,18,0)'); gradient.addColorStop(1, 'rgba(16,19,18,.84)')
       context.fillStyle = gradient; context.fillRect(0, 190, 768, 242); context.fillStyle = 'rgba(255,255,255,.14)'; context.fillRect(20, 18, 122, 28)
       context.fillStyle = '#f1f1eb'; context.font = '700 14px Arial'; context.fillText('FEATURED', 34, 37); context.font = '800 30px Arial'; context.fillText(project.title, 28, 350)
@@ -31,20 +33,28 @@ export function createProjectWall(cards: THREE.Mesh[], frames: THREE.Mesh[]): Pr
   })
 
   let hovered: THREE.Mesh | null = null
+  let selectedKey: ProjectKey | null = null
+  const updateCard = (card: THREE.Mesh) => {
+    const frame = card.userData.hoverFrame as THREE.Mesh | undefined
+    const hoveredCard = hovered === card
+    const selectedCard = selectedKey === card.userData.projectKey
+    if (frame?.material instanceof THREE.Material) frame.material.opacity = hoveredCard ? 1 : selectedCard ? 0.56 : 0
+    const scale = hoveredCard ? 1.025 : selectedCard ? 1.014 : 1
+    card.scale.set(scale, scale, scale)
+  }
   return {
     setHover: (card) => {
       if (hovered === card) return false
-      if (hovered) {
-        const frame = hovered.userData.hoverFrame as THREE.Mesh | undefined
-        if (frame?.material instanceof THREE.Material) frame.material.opacity = 0
-        hovered.scale.set(1, 1, 1)
-      }
+      const previous = hovered
       hovered = card
-      if (hovered) {
-        const frame = hovered.userData.hoverFrame as THREE.Mesh | undefined
-        if (frame?.material instanceof THREE.Material) frame.material.opacity = 0.82
-        hovered.scale.set(1.025, 1.025, 1.025)
-      }
+      if (previous) updateCard(previous)
+      if (hovered) updateCard(hovered)
+      return true
+    },
+    setSelected: (key) => {
+      if (selectedKey === key) return false
+      selectedKey = key
+      cards.forEach(updateCard)
       return true
     },
   }

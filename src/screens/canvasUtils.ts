@@ -16,7 +16,7 @@ export interface LoadedProjectImage {
 
 const imageCache = new Map<string, Promise<HTMLImageElement>>()
 
-export function createLiveCanvas(): LiveCanvas {
+export function createLiveCanvas(anisotropy = 4): LiveCanvas {
   const canvas = document.createElement('canvas')
   canvas.width = 768
   canvas.height = 432
@@ -24,7 +24,7 @@ export function createLiveCanvas(): LiveCanvas {
   if (!context) throw new Error('Canvas 2D is unavailable')
   const texture = new THREE.CanvasTexture(canvas)
   texture.colorSpace = THREE.SRGBColorSpace
-  texture.anisotropy = 4
+  texture.anisotropy = anisotropy
   return { canvas, context, texture }
 }
 

@@ -4,15 +4,31 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "assets:prepare": "node scripts/prepare-asset-runtime.mjs && gltf-transform optimize node_modules/.cache/emfau/smoke-box.source.glb public/assets/runtime/fixtures/smoke-box.glb --compress meshopt --texture-compress webp",
+    "assets:inspect": "gltf-transform inspect",
+    "assets:validate": "gltf-transform validate",
+    "assets:optimize": "gltf-transform optimize",
+    "predev": "npm run assets:prepare",
     "dev": "vite",
+    "prebuild": "npm run assets:prepare",
     "build": "tsc --noEmit && vite build",
+    "prepreview": "npm run assets:prepare",
     "preview": "vite preview",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "qa:capture-baseline": "node scripts/capture-baseline.mjs --baseline",
+    "qa:capture-current": "node scripts/capture-baseline.mjs",
+    "qa:benchmark": "node scripts/benchmark-games.mjs",
+    "qa:mobile": "node scripts/verify-mobile-ui.mjs",
+    "qa:pages": "node scripts/verify-pages-build.mjs",
+    "preqa:assets": "npm run assets:prepare",
+    "qa:assets": "node scripts/verify-asset-foundation.mjs"
   },
   "dependencies": {
     "three": "0.186.0"
   },
   "devDependencies": {
+    "@gltf-transform/cli": "^4.5.0",
+    "@playwright/test": "1.63.0",
     "@types/three": "0.186.0",
     "typescript": "5.9.2",
     "vite": "8.3.0"

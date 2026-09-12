@@ -6,6 +6,7 @@
 <meta name="theme-color" content="#d9d4c9">
 <title>EMFAU — Virtual Studio v11</title>
 <meta name="description" content="EMFAU Virtual Studio — a bright interactive developer studio for games, web and experiments.">
+<link rel="icon" href="./favicon.svg" type="image/svg+xml">
 
 
 <link rel="stylesheet" href="/src/styles/base.css">
@@ -22,6 +23,11 @@
     <div class="loadbar"><i id="loadbar"></i></div>
   </div>
 </div>
+
+<aside class="webgl-recovery" id="webglRecovery" role="status" hidden>
+  <strong>Restoring the studio…</strong>
+  <span>The 3D connection was interrupted. The scene will return automatically.</span>
+</aside>
 
 <header class="top">
   <div class="logo">emfau</div>
@@ -42,9 +48,26 @@
     <h2 id="title"></h2>
     <p id="copy"></p>
     <div class="rows" id="rows"></div>
-    <div class="mobile-context-actions">
-      <button type="button" id="mobileGameInspect">Select game</button>
-      <div id="mobileWebSelector" aria-label="Select web project"></div>
+  </div>
+</aside>
+
+<aside class="mobile-sheet" id="mobileSheet" aria-label="Current studio area">
+  <button class="mobile-sheet-toggle" id="mobileSheetToggle" type="button" aria-expanded="false" aria-controls="mobileSheetPanel">
+    <span class="mobile-sheet-index" id="mobileSheetIndex"></span>
+    <span class="mobile-sheet-summary">
+      <strong id="mobileSheetLabel"></strong>
+      <span id="mobileSheetCount"></span>
+    </span>
+    <span class="mobile-sheet-chevron" aria-hidden="true">⌃</span>
+  </button>
+  <div class="mobile-sheet-panel" id="mobileSheetPanel" aria-hidden="true" inert>
+    <div class="mobile-sheet-kicker" id="mobileSheetKicker"></div>
+    <h2 id="mobileSheetTitle"></h2>
+    <p id="mobileSheetCopy"></p>
+    <div class="mobile-project-track" id="mobileProjectTrack" role="listbox" aria-label="Select project"></div>
+    <div class="mobile-sheet-actions">
+      <button type="button" class="mobile-open-project" id="mobileOpenProject">Open project</button>
+      <button type="button" class="mobile-inspect-projects" id="mobileGameInspect">View room selector</button>
     </div>
   </div>
 </aside>

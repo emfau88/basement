@@ -107,6 +107,7 @@ body.focus .info{opacity:1;pointer-events:auto;transform:translateY(-50%) transl
 }
 .row b{font-size:8px;letter-spacing:.1em;text-transform:uppercase}.row span{font-size:9px;color:#7d837f}
 .mobile-context-actions{display:none}
+.mobile-sheet{display:none}
 .close{
   position:absolute;right:8px;top:8px;width:34px;height:34px;border:0;border-radius:50%;
   background:transparent;color:#7c837f;font-size:19px;cursor:pointer
@@ -114,6 +115,13 @@ body.focus .info{opacity:1;pointer-events:auto;transform:translateY(-50%) transl
 .close:hover{background:rgba(20,25,23,.05);color:#171b1a}
 
 /* Contextual HUD composition */
+
+/* Games: leave the desk surface and hero props unobstructed. */
+body.view-games .info{
+  right:18px;top:82px;width:min(330px,calc(100vw - 34px));
+  transform:translateY(-12px) translateX(26px)
+}
+body.focus.view-games .info{transform:translateY(0) translateX(0)}
 
 /* Web: keep information away from the two screens. */
 body.view-web .info{
@@ -126,23 +134,36 @@ body.view-web .card h2{font-size:23px;margin-bottom:8px}
 body.view-web .card p{margin-bottom:0;line-height:1.48}
 body.view-web .rows{display:none}
 
-/* Projects: a deliberately tiny gallery label in the EMPTY CENTER between the four cards. */
+/* Projects: keep the label off the interactive wall. */
 body.view-projects .info{
-  left:50%;right:auto;top:50%;width:176px;
-  transform:translate(-50%,-50%) scale(.965)
+  left:24px;right:auto;top:86px;width:min(270px,calc(100vw - 34px));
+  transform:translateY(-12px)
 }
-body.focus.view-projects .info{transform:translate(-50%,-50%) scale(1)}
+body.focus.view-projects .info{transform:translateY(0)}
 body.view-projects .card{
-  padding:11px 13px 12px;border-radius:12px;
+  padding:15px 17px 16px;border-radius:14px;
   background:rgba(247,245,239,.90);
   backdrop-filter:blur(12px) saturate(1.04);
   box-shadow:0 13px 34px rgba(64,53,44,.10),inset 0 1px rgba(255,255,255,.65)
 }
-body.view-projects .card .eyebrow{font-size:7px;margin-bottom:6px}
-body.view-projects .card h2{font-size:16px;line-height:1;margin:0;padding-right:20px}
+body.view-projects .card .eyebrow{font-size:7px;margin-bottom:7px}
+body.view-projects .card h2{font-size:23px;line-height:1;margin:0;padding-right:20px}
 body.view-projects .card p,
 body.view-projects .rows{display:none}
 body.view-projects .close{width:26px;height:26px;right:5px;top:5px;font-size:16px}
+
+/* Archive: a compact label leaves the memorial terminal and lounge visible. */
+body.view-archive .info{
+  right:24px;top:86px;width:min(290px,calc(100vw - 34px));
+  transform:translateY(-12px) translateX(26px)
+}
+body.focus.view-archive .info{transform:translateY(0) translateX(0)}
+body.view-archive .card{padding:15px 17px 16px;border-radius:14px}
+body.view-archive .card .eyebrow{font-size:7px;margin-bottom:7px}
+body.view-archive .card h2{font-size:23px;line-height:1;margin:0 0 8px;padding-right:20px}
+body.view-archive .card p{margin:0;line-height:1.48}
+body.view-archive .rows{display:none}
+body.view-archive .close{width:26px;height:26px;right:5px;top:5px;font-size:16px}
 
 body.inspect-selector .info{opacity:0!important;pointer-events:none!important}
 .inspect-back{
@@ -203,6 +224,12 @@ body.inspect-selector .inspect-back{opacity:1;transform:translateY(0);pointer-ev
 .webgl-fallback h1{margin:0 0 10px;font-size:clamp(28px,5vw,56px)}
 .webgl-fallback p{margin:0;color:#5f6864}
 .project-media[data-fallback]::after{content:attr(data-fallback);position:absolute;inset:0;display:grid;place-content:center;padding:24px;background:#4e5a54;color:#f1f1eb;font-weight:800;font-size:clamp(22px,4vw,42px);text-align:center}
+.webgl-recovery{
+  position:fixed;z-index:90;left:50%;top:22px;width:min(420px,calc(100vw - 24px));transform:translateX(-50%);
+  display:grid;gap:4px;padding:13px 15px;border:1px solid rgba(26,31,29,.14);border-radius:13px;
+  background:rgba(248,246,240,.96);box-shadow:0 16px 42px rgba(52,44,37,.16);text-align:center
+}
+.webgl-recovery[hidden]{display:none}.webgl-recovery strong{font-size:12px}.webgl-recovery span{font-size:9px;color:#68716d}
 
 /* project detail overlay */
 .project-backdrop{
@@ -211,19 +238,20 @@ body.inspect-selector .inspect-back{opacity:1;transform:translateY(0);pointer-ev
 }
 .project-panel{
   position:fixed;z-index:35;left:50%;top:50%;
-  width:min(900px,calc(100vw - 28px));opacity:0;pointer-events:none;
+  width:min(900px,calc(100vw - 28px));max-height:calc(100dvh - 40px);opacity:0;pointer-events:none;
   transform:translate(-50%,-50%) scale(.985);transition:opacity .22s ease,transform .22s ease
 }
 body.project-open .project-backdrop{opacity:1;pointer-events:auto}
 body.project-open .project-panel{opacity:1;pointer-events:auto;transform:translate(-50%,-50%) scale(1)}
 .project-shell{
   display:grid;grid-template-columns:minmax(280px,1.05fr) minmax(280px,.95fr);
+  height:min(620px,calc(100dvh - 40px));
   border:1px solid rgba(26,31,29,.14);border-radius:18px;overflow:hidden;
   background:rgba(247,244,236,.98);box-shadow:0 28px 85px rgba(68,56,45,.18), inset 0 1px rgba(255,255,255,.72)
 }
-.project-media{position:relative;min-height:320px;background:#ddd7cc}
+.project-media{position:relative;min-width:0;min-height:0;overflow:hidden;background:#ddd7cc}
 .project-media img{display:block;width:100%;height:100%;object-fit:cover}
-.project-copy{position:relative;padding:24px 24px 22px}
+.project-copy{position:relative;min-width:0;overflow-y:auto;padding:24px 24px 22px}
 .project-tag{font-size:8px;letter-spacing:.22em;text-transform:uppercase;color:#6d8371;margin-bottom:10px}
 .project-copy h3{margin:0;font-size:30px;line-height:.95;letter-spacing:-.055em;color:#151918}
 .project-copy p{margin:12px 0 15px;font-size:12px;line-height:1.58;color:#64706a}
@@ -241,8 +269,8 @@ body.project-open .project-panel{opacity:1;pointer-events:auto;transform:transla
   background:rgba(255,255,255,.45);color:#1a1f1d
 }
 .project-close{
-  position:absolute;right:10px;top:10px;width:36px;height:36px;border:0;border-radius:50%;
-  background:rgba(255,255,255,.56);color:#5d6661;font-size:22px;cursor:pointer;
-  box-shadow:0 8px 18px rgba(37,29,23,.08)
+  position:absolute;z-index:3;right:12px;top:12px;width:42px;height:42px;border:1px solid rgba(26,31,29,.13);border-radius:50%;
+  background:rgba(248,246,240,.92);color:#3e4743;font-size:24px;line-height:1;cursor:pointer;
+  box-shadow:0 8px 22px rgba(37,29,23,.14);backdrop-filter:blur(10px)
 }
 .project-close:hover{background:white;color:#131816}

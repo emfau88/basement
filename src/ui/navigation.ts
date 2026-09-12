@@ -2,7 +2,7 @@ import type { StudioStore, StudioView } from '../state/studioState'
 import { archiveProjectKeys, gameProjectKeys, projects, type ProjectKey } from '../data/projects'
 import { requiredElement } from './dom'
 
-interface ViewContent {
+export interface ViewContent {
   eyebrow: string
   title: string
   copy: string
@@ -14,11 +14,11 @@ const projectRows = (keys: readonly ProjectKey[]): ReadonlyArray<readonly [strin
   return [project.title, project.facts.find(([label]) => label === 'Focus')?.[1] ?? project.category] as const
 })
 
-const content: Record<Exclude<StudioView, 'studio'>, ViewContent> = {
+export const viewContent: Record<Exclude<StudioView, 'studio'>, ViewContent> = {
   games: { eyebrow: '01 / Games', title: 'Playable ideas.', copy: 'The main desk is the game-dev station: builds, testing and released projects.', rows: projectRows(gameProjectKeys) },
-  web: { eyebrow: '02 / Web', title: 'Selected web work.', copy: 'Use the small screen to browse; open the large preview for details.', rows: [['Apps', 'Manual browser'], ['Preview', 'Large screen'], ['Tap', 'Open details']] },
+  web: { eyebrow: '02 / Web', title: 'Selected web work.', copy: 'Use the product index to browse; open the large preview for details.', rows: [['Apps', 'Manual browser'], ['Preview', 'Large screen'], ['Tap', 'Open details']] },
   projects: { eyebrow: '03 / Projects', title: 'Currently building.', copy: 'Four selected projects. Tap a wall card to open it.', rows: [['Gallery', '4 featured cards'], ['Tap', 'Open project'], ['View', 'Frontal focus']] },
-  archive: { eyebrow: '04 / Archive', title: 'Not everything survives.', copy: 'The archive shelves and retro terminal keep retired projects visible instead of hiding them.', rows: projectRows(archiveProjectKeys) },
+  archive: { eyebrow: '04 / Archive', title: 'Not everything survives.', copy: 'The memorial terminal keeps retired projects visible — and their lessons alive.', rows: projectRows(archiveProjectKeys) },
 }
 
 export interface NavigationUI {
@@ -39,16 +39,16 @@ export function createNavigationUI(store: StudioStore, navigate: (view: StudioVi
     document.body.classList.remove('view-studio', 'view-games', 'view-web', 'view-projects', 'view-archive')
     document.body.classList.add(`view-${view}`)
     document.body.classList.toggle('focus', view !== 'studio')
-    document.body.classList.toggle('inspect-selector', inspectMode === 'gameSelector')
+    document.body.classList.toggle('inspect-selector', inspectMode !== null)
     buttons.forEach((button) => {
       const active = button.dataset.view === view
       button.classList.toggle('active', active)
       button.setAttribute('aria-current', active ? 'page' : 'false')
     })
     if (view === 'studio') return
-    const viewContent = content[view]
-    eyebrow.textContent = viewContent.eyebrow; title.textContent = viewContent.title; copy.textContent = viewContent.copy
-    rows.replaceChildren(...viewContent.rows.map(([label, value]) => {
+    const content = viewContent[view]
+    eyebrow.textContent = content.eyebrow; title.textContent = content.title; copy.textContent = content.copy
+    rows.replaceChildren(...content.rows.map(([label, value]) => {
       const row = document.createElement('div'); row.className = 'row'
       const strong = document.createElement('b'); strong.textContent = label
       const span = document.createElement('span'); span.textContent = value
