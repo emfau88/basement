@@ -55,7 +55,7 @@ function boxLabelMaterial(tools: SceneTools, key: string, title: string, note: s
 }
 
 export function buildArchiveZone(materials: StudioMaterials, tools: SceneTools, budget: SceneDetailBudget): ArchiveZoneMeshes {
-  const { addBox, addCylinder, group, point, screen } = tools
+  const { addBox, addCylinder, group, point } = tools
   const wood = archiveWoodMaterial(tools)
   const fabric = archiveFabricMaterial(tools)
   const warmMetal = new THREE.MeshStandardMaterial({ color: 0x9b7446, roughness: .38, metalness: .66 })
@@ -64,7 +64,9 @@ export function buildArchiveZone(materials: StudioMaterials, tools: SceneTools, 
   const archiveRug = new THREE.MeshStandardMaterial({ color: 0x81776a, roughness: .96, metalness: 0 })
 
   // A wall-aligned archive replaces the old shelf that projected deep into the room.
-  const shelves = group('ArchiveShelves', [-7.04, 0, -3.55], [0, Math.PI / 2, 0])
+  // Keep the shelving behind the memorial's sightline so its front edges never
+  // occlude the framed cemetery display in the dedicated inspect camera.
+  const shelves = group('ArchiveShelves', [-7.04, 0, -3.9], [0, Math.PI / 2, 0])
   addBox(shelves, [3.26, 3.55, .08], [0, 2.05, -.27], materials.concreteDark, [0, 0, 0], .035)
   for (const x of [-1.55, 0, 1.55]) addBox(shelves, [.075, 3.68, .52], [x, 2.02, 0], darkMetal, [0, 0, 0], .018)
   for (const y of [.42, 1.12, 1.82, 2.52, 3.22]) addBox(shelves, [3.18, .075, .56], [0, y, 0], wood, [0, 0, 0], .022)
@@ -86,15 +88,20 @@ export function buildArchiveZone(materials: StudioMaterials, tools: SceneTools, 
   addCylinder(shelves, .18, .18, .11, [.92, 2.79, .04], warmMetal, [Math.PI / 2, 0, 0], 24)
   addCylinder(shelves, .066, .066, .125, [.92, 2.79, .105], darkMetal, [Math.PI / 2, 0, 0], 18)
 
-  // One substantial memorial terminal is the interactive Archive hero.
-  const terminal = group('ArchiveTerminal', [-6.78, 0, -1.34], [0, Math.PI / 2, 0])
-  addBox(terminal, [1.94, .7, .72], [0, .5, 0], wood, [0, 0, 0], .065)
-  addBox(terminal, [1.72, 1.12, .62], [0, 1.48, -.02], darkMetal, [-.025, 0, 0], .105)
-  addBox(terminal, [1.52, .09, .26], [0, .94, .3], wood, [-.08, 0, 0], .025)
-  const archiveScreen = screen(terminal, 1.38, .76, [0, 1.52, .32], 'PROJECT CEMETERY', 'retired builds', '#c88462')
-  addBox(terminal, [1.46, .2, .026], [0, .54, .372], plaqueMaterial(tools, 'terminal', 'MEMORIAL 04', 'CLICK THE LIT GRAVE'), [0, 0, 0], .014)
-  for (const x of [-.58, -.43]) addCylinder(terminal, .045, .045, .034, [x, .98, .44], x < -.5 ? materials.sage : materials.terracotta, [Math.PI / 2, 0, 0], 18)
-  for (const x of [-.74, .74]) for (const z of [-.23, .23]) addCylinder(terminal, .035, .045, .3, [x, .15, z], darkMetal, [0, 0, 0], 16)
+  // A flush wall memorial replaces the freestanding CRT box. The sideboard may project;
+  // the display itself remains a shallow architectural layer on the left wall.
+  const memorial = group('ArchiveMemorial', [-7.28, 0, -1.08], [0, Math.PI / 2, 0])
+  addBox(memorial, [2.46, .72, .58], [0, .5, .22], wood, [0, 0, 0], .065)
+  addBox(memorial, [2.22, .09, .66], [0, .9, .22], wood, [0, 0, 0], .035)
+  for (const x of [-.98, .98]) for (const z of [.04, .4]) addCylinder(memorial, .035, .045, .28, [x, .16, z], darkMetal, [0, 0, 0], 16)
+  addBox(memorial, [2.44, 2.34, .1], [0, 2.02, -.02], darkMetal, [0, 0, 0], .055)
+  addBox(memorial, [2.22, 1.34, .075], [0, 2.15, .075], wood, [0, 0, 0], .045)
+  addBox(memorial, [2.1, 1.22, .04], [0, 2.15, .135], materials.black, [0, 0, 0], .028)
+  const archiveScreen = addBox(memorial, [2.02, 1.14, .018], [0, 2.15, .168], materials.black, [0, 0, 0], .02)
+  archiveScreen.castShadow = false; archiveScreen.receiveShadow = false
+  addBox(memorial, [2.14, .035, .025], [0, 3.14, .08], warmMetal, [0, 0, 0], .008)
+  addBox(memorial, [1.72, .18, .026], [0, .53, .524], plaqueMaterial(tools, 'terminal', 'MEMORIAL 04', 'OPEN SCREEN · CHOOSE A GRAVE'), [0, 0, 0], .014)
+  for (const x of [-.91, -.76]) addCylinder(memorial, .045, .045, .034, [x, .92, .54], x < -.85 ? materials.sage : materials.terracotta, [Math.PI / 2, 0, 0], 18)
 
   // The lounge keeps the left side human in scale without competing with the terminal.
   tools.box('ArchiveLoungeRug', [2.75, .028, 3.65], [-5.98, .018, .62], archiveRug, [0, 0, 0], false, true, .08)

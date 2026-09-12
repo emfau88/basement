@@ -13,7 +13,7 @@ import type { AssetManager } from './scene/assets/assetManager'
 import type { GamesProofController } from './scene/photoreal/gamesProof'
 import { createLiveScreenSystem } from './screens/liveScreens'
 import { createProjectWall } from './screens/projectWall'
-import { createStudioStore, type StudioView } from './state/studioState'
+import { createStudioStore, type InspectMode, type StudioView } from './state/studioState'
 import { requiredElement } from './ui/dom'
 import { createMobileControls } from './ui/mobileControls'
 import { createNavigationUI } from './ui/navigation'
@@ -118,14 +118,18 @@ try {
 
   const usesGamesProof = (view: StudioView): boolean => rendering.quality.name === 'desktop' || view === 'games'
 
-  const setInspectLabel = (active: boolean) => { meshes.gameLeftScreen.userData.detailLabel = active ? 'Select project' : 'Zoom into selector' }
+  const setInspectLabels = (mode: InspectMode) => {
+    meshes.gameLeftScreen.userData.detailLabel = mode === 'gameSelector' ? 'Select project' : 'Zoom into selector'
+    meshes.archiveScreen.userData.detailLabel = mode === 'archiveCemetery' ? 'Open archived project' : 'Zoom into cemetery'
+    inspectBack.textContent = mode === 'archiveCemetery' ? '← ARCHIVE LOUNGE' : '← GAMES OVERVIEW'
+  }
   const navigate = (view: StudioView) => {
     const state = store.get()
     if (state.view === view && !state.inspectMode) {
       if (state.mobileSheet === 'expanded') store.set({ mobileSheet: 'collapsed' })
       return
     }
-    projectWall.setHover(null); setInspectLabel(false)
+    projectWall.setHover(null); setInspectLabels(null)
     tooltip.classList.remove('show'); document.body.style.cursor = 'default'
     fade.style.opacity = '.13'; window.setTimeout(() => { fade.style.opacity = '0' }, 150)
     store.set({ view, inspectMode: null, mobileSheet: 'collapsed' })
@@ -140,14 +144,18 @@ try {
     else gamesProof?.setActive(false)
     cameraController.moveToView(view, 'collapsed'); scheduler.startTransition()
   }
-  const enterInspect = () => {
-    if (store.get().view !== 'games') return
-    store.set({ inspectMode: 'gameSelector' }); setInspectLabel(true)
-    cameraController.enterGameSelector(); scheduler.startTransition()
+  const enterInspect = (mode: Exclude<InspectMode, null>) => {
+    const view = store.get().view
+    if ((mode === 'gameSelector' && view !== 'games') || (mode === 'archiveCemetery' && view !== 'archive')) return
+    const archiveKey = mode === 'archiveCemetery' ? screens.getArchiveProject() : undefined
+    store.set({ inspectMode: mode, ...(archiveKey ? { selectedArchiveId: archiveKey } : {}) }); setInspectLabels(mode)
+    cameraController.enterInspect(mode); scheduler.startTransition()
   }
+  const enterGameInspect = () => enterInspect('gameSelector')
+  const enterArchiveInspect = () => enterInspect('archiveCemetery')
   const exitInspect = () => {
     const state = store.get(); if (!state.inspectMode) return
-    store.set({ inspectMode: null }); setInspectLabel(false)
+    store.set({ inspectMode: null }); setInspectLabels(null)
     cameraController.exitInspect(state.view, state.mobileSheet); scheduler.startTransition()
   }
 
@@ -167,7 +175,7 @@ try {
   rendering.renderer.domElement.addEventListener('webglcontextrestored', () => { webglRecovery.hide(); scheduler.requestRender() })
   const mobileControls = createMobileControls({
     store,
-    enterGameInspect: enterInspect,
+    enterGameInspect,
     openProject: modal.open,
     setFeaturedSelection: (key) => { if (projectWall.setSelected(key)) scheduler.requestRender() },
     requestRender: scheduler.requestRender,
@@ -210,7 +218,7 @@ try {
     if (!isMobileViewport() || state.inspectMode) return
     cameraController.adaptToSheet(state.view, state.mobileSheet); scheduler.startTransition()
   })
-  createRaycaster({ canvas: rendering.renderer.domElement, camera: rendering.camera, meshes, hotspots, screens, projectWall, store, modal, tooltip, navigate, enterInspect, requestRender: scheduler.requestRender })
+  createRaycaster({ canvas: rendering.renderer.domElement, camera: rendering.camera, meshes, hotspots, screens, projectWall, store, modal, tooltip, navigate, enterGameInspect, enterArchiveInspect, requestRender: scheduler.requestRender })
 
   window.addEventListener('keydown', (event) => {
     if (event.key !== 'Escape') return
@@ -221,7 +229,7 @@ try {
   })
   const viewport = createViewportController(() => {
     const state = store.get()
-    rendering.resize(); cameraController.resize(state.view, Boolean(state.inspectMode), state.mobileSheet); scheduler.requestRender()
+    rendering.resize(); cameraController.resize(state.view, state.inspectMode, state.mobileSheet); scheduler.requestRender()
   })
   window.addEventListener('pagehide', () => {
     viewport.destroy(); mobileControls.destroy(); navigation.destroy(); unsubscribeCameraLayout(); scheduler.destroy(); gamesProof?.dispose(); assetManager?.dispose()

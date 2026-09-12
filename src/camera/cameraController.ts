@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 import { getInspectPreset, getViewPreset, type CameraPreset } from './presets'
-import type { MobileSheetState, StudioView } from '../state/studioState'
+import type { InspectMode, MobileSheetState, StudioView } from '../state/studioState'
 
 const cubicEaseInOut = (value: number) => value < 0.5
   ? 4 * value * value * value
@@ -31,16 +31,16 @@ export class CameraController {
     this.moveTo(getViewPreset(view, sheet), 460)
   }
 
-  enterGameSelector(): void {
-    this.moveTo(getInspectPreset(), 720)
+  enterInspect(mode: Exclude<InspectMode, null>): void {
+    this.moveTo(getInspectPreset(mode), 720)
   }
 
   exitInspect(view: StudioView, sheet: MobileSheetState = 'collapsed'): void {
     this.moveTo(getViewPreset(view, sheet), 720)
   }
 
-  resize(view: StudioView, inspecting: boolean, sheet: MobileSheetState = 'collapsed'): void {
-    this.snapTo(inspecting ? getInspectPreset() : getViewPreset(view, sheet))
+  resize(view: StudioView, inspectMode: InspectMode, sheet: MobileSheetState = 'collapsed'): void {
+    this.snapTo(inspectMode ? getInspectPreset(inspectMode) : getViewPreset(view, sheet))
   }
 
   update(now: number): boolean {

@@ -2,7 +2,7 @@
 
 Last updated: 2026-09-12  
 Current phase: Phase E — Photorealistic Desktop rollout
-Current bulk: Bulk 22 — Archive and lounge — complete
+Current bulk: Bulk 22.1 — Archive memorial correction — complete
 
 ## Status legend
 
@@ -304,6 +304,20 @@ Acceptance: Archive feels intentionally aged and tactile while remaining part of
 Commit boundary: Archive/Lounge view, its fixed capture and interaction tests.
 
 Verification: fixed 1440 × 900 before/after captures, production build, complete responsive/interaction suite, direct Desktop memorial-terminal click regression and GitHub Pages `/basement/` subpath QA passed on 2026-09-12.
+
+### Bulk 22.1 — Archive memorial correction
+
+- [x] Replace the projecting CRT box with one shallow wall-integrated memorial console.
+- [x] Increase the cemetery display and keep its physical frame flush and coherent.
+- [x] Add a frontal Desktop inspect camera with four individually clickable graves and pointer-driven highlights.
+- [x] Preserve direct project-modal opening, Escape/back behavior and Mobile's existing archive flow.
+- [x] Remove the obsolete vertical timber slats behind the Archive shelving.
+
+Acceptance: the Archive first reads as a coherent lounge installation, then offers a legible frontal project cemetery without introducing a second 3D environment.
+
+Commit boundary: Archive memorial geometry, inspect interaction, fixed captures and targeted regression tests.
+
+Verification: fixed 1440 × 900 overview and frontal-inspect captures, hover-to-highlight/fourth-grave click regression, return-flow regression, typecheck, production build, complete responsive suite and GitHub Pages `/basement/` subpath QA passed on 2026-09-12.
 
 ### Bulk 23 — Desktop integration and approval
 

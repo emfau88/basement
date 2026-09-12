@@ -6,6 +6,7 @@ import type { ProjectWall } from '../screens/projectWall'
 import type { StudioStore, StudioView } from '../state/studioState'
 import type { ProjectModal } from '../ui/projectModal'
 import type { Hotspot } from './hotspots'
+import { isMobileViewport } from '../config/responsive'
 
 interface Options {
   canvas: HTMLCanvasElement
@@ -18,7 +19,8 @@ interface Options {
   modal: ProjectModal
   tooltip: HTMLElement
   navigate(view: StudioView): void
-  enterInspect(): void
+  enterGameInspect(): void
+  enterArchiveInspect(): void
   requestRender(): void
 }
 
@@ -31,7 +33,7 @@ export function createRaycaster(options: Options): void {
   meshes.gameRightScreen.userData = { ...meshes.gameRightScreen.userData, section: 'games', detailLabel: 'Open project', getProjectKey: () => store.get().selectedGameId }
   meshes.webMainScreen.userData = { ...meshes.webMainScreen.userData, section: 'web', detailLabel: 'Open project', getProjectKey: () => store.get().selectedWebId }
   meshes.webSideScreen.userData = { ...meshes.webSideScreen.userData, section: 'web', detailLabel: 'Select app' }
-  meshes.archiveScreen.userData = { ...meshes.archiveScreen.userData, section: 'archive', detailLabel: 'Open project', getProjectKey: () => screens.getArchiveProject() }
+  meshes.archiveScreen.userData = { ...meshes.archiveScreen.userData, section: 'archive', detailLabel: 'Zoom into cemetery', getProjectKey: () => screens.getArchiveProject() }
 
   const updatePointer = (event: PointerEvent) => {
     const rect = canvas.getBoundingClientRect()
@@ -39,7 +41,7 @@ export function createRaycaster(options: Options): void {
   }
   const detailHit = () => {
     const state = store.get(); if (state.view === 'studio') return undefined
-    const candidates = state.inspectMode === 'gameSelector' ? [meshes.gameLeftScreen] : detailMeshes
+    const candidates = state.inspectMode === 'gameSelector' ? [meshes.gameLeftScreen] : state.inspectMode === 'archiveCemetery' ? [meshes.archiveScreen] : detailMeshes
     return raycaster.intersectObjects(candidates, false).find((hit) => hit.object.userData.section === state.view)
   }
 
@@ -49,6 +51,10 @@ export function createRaycaster(options: Options): void {
     const hit = detailHit()
     if (hit) {
       const mesh = hit.object as THREE.Mesh; const changed = projectWall.setHover(store.get().view === 'projects' && meshes.projectCardMeshes.includes(mesh) ? mesh : null)
+      if (mesh === meshes.archiveScreen && store.get().inspectMode === 'archiveCemetery') {
+        screens.selectArchiveFromHit(hit)
+        options.requestRender()
+      }
       document.body.style.cursor = 'pointer'; tooltip.textContent = String(mesh.userData.detailLabel ?? 'Open project'); tooltip.style.left = `${event.clientX}px`; tooltip.style.top = `${event.clientY}px`; tooltip.classList.add('show')
       if (changed) options.requestRender(); return
     }
@@ -69,9 +75,17 @@ export function createRaycaster(options: Options): void {
     if (hit) {
       const mesh = hit.object as THREE.Mesh; const state = store.get()
       if (mesh === meshes.gameLeftScreen) {
-        if (state.inspectMode !== 'gameSelector') options.enterInspect()
+        if (state.inspectMode !== 'gameSelector') options.enterGameInspect()
         else { screens.selectGameFromHit(hit); options.requestRender() }
         return
+      }
+      if (mesh === meshes.archiveScreen) {
+        if (state.inspectMode === 'archiveCemetery') {
+          const key = screens.selectArchiveFromHit(hit)
+          if (key) modal.open(key)
+          options.requestRender(); return
+        }
+        if (!isMobileViewport()) { options.enterArchiveInspect(); return }
       }
       if (mesh === meshes.webSideScreen) { screens.selectWebFromHit(hit); options.requestRender(); return }
       const key = (typeof mesh.userData.getProjectKey === 'function' ? mesh.userData.getProjectKey() : mesh.userData.projectKey) as ProjectKey | undefined

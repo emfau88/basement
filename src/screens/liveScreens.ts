@@ -23,6 +23,7 @@ export interface LiveScreenSystem {
   registerArchive(mesh: THREE.Mesh): void
   selectGameFromHit(hit: THREE.Intersection): void
   selectWebFromHit(hit: THREE.Intersection): void
+  selectArchiveFromHit(hit: THREE.Intersection): ProjectKey | undefined
   getArchiveProject(): ProjectKey | undefined
   update(now: number): boolean
 }
@@ -141,7 +142,7 @@ export function createLiveScreenSystem(store: StudioStore, textureAnisotropy = 4
   const drawArchive = (screen: LiveScreen, ms: number) => {
     const { context, texture } = screen.live; screenBase(context, '#11130f'); if (!screen.items.length) { texture.needsUpdate = true; return }
     const interval = 7200; const state = store.get(); const automaticItem = screen.items[Math.floor(ms / interval) % screen.items.length]!
-    const item = state.view === 'archive' && isMobileViewport()
+    const item = state.view === 'archive' && (isMobileViewport() || state.inspectMode === 'archiveCemetery')
       ? screen.items.find((candidate) => candidate.key === state.selectedArchiveId) ?? automaticItem
       : automaticItem
     screen.currentKey = item.key
@@ -190,6 +191,15 @@ export function createLiveScreenSystem(store: StudioStore, textureAnisotropy = 4
     registerArchive: (mesh) => registerImageScreen(mesh, 'archive', archiveProjectKeys, 0.52),
     selectGameFromHit: (hit) => { const y = (1 - (hit.uv?.y ?? -1)) * 432; if (y < 86 || y > 86 + gameProjectKeys.length * 58) return; const key = gameProjectKeys[Math.floor((y - 86) / 58)]; if (key) store.set({ selectedGameId: key }) },
     selectWebFromHit: (hit) => { const y = (1 - (hit.uv?.y ?? -1)) * 432; if (y < 92 || y > 92 + webProjectKeys.length * 56) return; const key = webProjectKeys[Math.floor((y - 92) / 56)]; if (key) store.set({ selectedWebId: key }) },
+    selectArchiveFromHit: (hit) => {
+      const screen = screens.find((candidate) => candidate.type === 'archive')
+      const x = (hit.uv?.x ?? -1) * 768; const y = (1 - (hit.uv?.y ?? -1)) * 432
+      const index = Math.floor((x - 24) / 184); const left = 24 + index * 184
+      if (!screen || index < 0 || index >= screen.items.length || x < left || x > left + 164 || y < 100 || y > 380) return undefined
+      const key = screen.items[index]?.key
+      if (!key) return undefined
+      screen.currentKey = key; screen.last = 0; store.set({ selectedArchiveId: key }); return key
+    },
     getArchiveProject: () => screens.find((screen) => screen.type === 'archive')?.currentKey,
     update: (now) => { let changed = false; for (const screen of screens) { if (now - screen.last < 90) continue; screen.last = now; changed = true; if (screen.type === 'games') drawGames(screen, now); else if (screen.type === 'gamepan') drawGamePan(screen, now); else if (screen.type === 'terminal') drawGameSelector(screen); else if (screen.type === 'apps') drawApps(screen, now); else if (screen.type === 'appticker') drawAppSelector(screen, now); else drawArchive(screen, now) } return changed },
   }

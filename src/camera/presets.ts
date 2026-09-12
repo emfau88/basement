@@ -1,4 +1,4 @@
-import type { MobileSheetState, StudioView } from '../state/studioState'
+import type { InspectMode, MobileSheetState, StudioView } from '../state/studioState'
 import { isLandscapeViewport, isMobileViewport } from '../config/responsive'
 
 export type VectorTuple = readonly [number, number, number]
@@ -55,6 +55,11 @@ export const inspectCameraPresets = {
     portrait: { position: [-.66, 2.14, .76], target: [-1.77, 1.91, -3.28], fov: 43 },
     landscape: { position: [-.92, 2.1, -.12], target: [-1.77, 1.91, -3.28], fov: 34 },
   },
+  archiveCemetery: {
+    desktop: { position: [-3.82, 2.15, -1.08], target: [-7.28, 2.15, -1.08], fov: 34 },
+    portrait: { position: [-3.4, 2.15, -1.08], target: [-7.28, 2.15, -1.08], fov: 50 },
+    landscape: { position: [-3.7, 2.15, -1.08], target: [-7.28, 2.15, -1.08], fov: 36 },
+  },
 } as const
 
 export function getViewPreset(view: StudioView, sheet: MobileSheetState = 'collapsed'): CameraPreset {
@@ -63,7 +68,7 @@ export function getViewPreset(view: StudioView, sheet: MobileSheetState = 'colla
   return (sheet === 'expanded' ? mobilePortraitExpandedCameraPresets : mobilePortraitCameraPresets)[view]
 }
 
-export function getInspectPreset(): CameraPreset {
-  if (!isMobileViewport()) return inspectCameraPresets.gameSelector.desktop
-  return inspectCameraPresets.gameSelector[isLandscapeViewport() ? 'landscape' : 'portrait']
+export function getInspectPreset(mode: Exclude<InspectMode, null>): CameraPreset {
+  if (!isMobileViewport()) return inspectCameraPresets[mode].desktop
+  return inspectCameraPresets[mode][isLandscapeViewport() ? 'landscape' : 'portrait']
 }

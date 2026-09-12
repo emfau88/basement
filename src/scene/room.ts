@@ -96,9 +96,6 @@ for(let i=0;i<budget.cityBuildings;i++){
   m.castShadow=false;m.receiveShadow=false
 }
 
-/* oak slat accent wall left-back */
-for(let i=0;i<12;i++) box('slat',[.07,3.25,.16],[-7.30,2.65,-5.55+i*.34],M.oakLight,[0,0,0],false,true,.01);
-
 /* a recessed acoustic raft replaces the former floating ceiling bars */
 box('ceilingRaft',[10.4,.16,3.18],[0,5.02,-1.88],M.graphite,[0,0,0],false,false,.055);
 for(let i=0;i<19;i++){

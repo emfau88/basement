@@ -39,7 +39,7 @@ export function createNavigationUI(store: StudioStore, navigate: (view: StudioVi
     document.body.classList.remove('view-studio', 'view-games', 'view-web', 'view-projects', 'view-archive')
     document.body.classList.add(`view-${view}`)
     document.body.classList.toggle('focus', view !== 'studio')
-    document.body.classList.toggle('inspect-selector', inspectMode === 'gameSelector')
+    document.body.classList.toggle('inspect-selector', inspectMode !== null)
     buttons.forEach((button) => {
       const active = button.dataset.view === view
       button.classList.toggle('active', active)
