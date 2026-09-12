@@ -29,6 +29,7 @@ interface MaterialSet {
   rug: THREE.MeshStandardMaterial
   upholstery: THREE.MeshStandardMaterial
   chairMesh: THREE.MeshStandardMaterial
+  mug: THREE.MeshStandardMaterial
   backdrop: THREE.MeshBasicMaterial
   ownedTextures: THREE.Texture[]
 }
@@ -78,6 +79,25 @@ function createChairMeshMaterial(ownedTextures: THREE.Texture[]): THREE.MeshStan
     opacity: 0.92,
     side: THREE.DoubleSide,
   })
+}
+
+function createMugMaterial(ownedTextures: THREE.Texture[]): THREE.MeshStandardMaterial {
+  const canvas = document.createElement('canvas')
+  canvas.width = 768
+  canvas.height = 256
+  const context = canvas.getContext('2d')
+  if (!context) return new THREE.MeshStandardMaterial({ color: 0x171918, roughness: 0.48 })
+  context.fillStyle = '#171918'
+  context.fillRect(0, 0, canvas.width, canvas.height)
+  context.fillStyle = '#f2eee3'
+  context.font = '900 92px Arial'
+  context.textAlign = 'center'
+  context.textBaseline = 'middle'
+  context.fillText('emfau', canvas.width / 2, canvas.height / 2)
+  const texture = new THREE.CanvasTexture(canvas)
+  texture.colorSpace = THREE.SRGBColorSpace
+  ownedTextures.push(texture)
+  return new THREE.MeshStandardMaterial({ map: texture, roughness: 0.42, metalness: 0.03 })
 }
 
 async function loadMaterialSet(assets: AssetManager, anisotropy: number, desktop: boolean): Promise<MaterialSet> {
@@ -157,6 +177,7 @@ async function loadMaterialSet(assets: AssetManager, anisotropy: number, desktop
   upholstery.color.set(0x222522)
   upholstery.roughness = 0.82
   const chairMesh = createChairMeshMaterial(ownedTextures)
+  const mug = createMugMaterial(ownedTextures)
 
   let rug = createPbrMaterial('chairMesh') as THREE.MeshStandardMaterial
   rug.color.set(0x706153)
@@ -187,7 +208,7 @@ async function loadMaterialSet(assets: AssetManager, anisotropy: number, desktop
   }
 
   const backdrop = new THREE.MeshBasicMaterial({ map: backdropTexture, color: 0xffffff, toneMapped: false, fog: false })
-  return { concrete, walnut, graphite, floor, rug, upholstery, chairMesh, backdrop, ownedTextures }
+  return { concrete, walnut, graphite, floor, rug, upholstery, chairMesh, mug, backdrop, ownedTextures }
 }
 
 function addRoundedBox(root: THREE.Group, name: string, size: readonly [number, number, number], position: readonly [number, number, number], material: THREE.Material, radius: number, segments: number): THREE.Mesh {
@@ -234,7 +255,7 @@ function buildShell(materials: MaterialSet, budget: SceneDetailBudget): THREE.Gr
 function collectLegacyWindowLayers(scene: THREE.Scene): Map<THREE.Object3D, boolean> {
   const originals = new Map<THREE.Object3D, boolean>()
   scene.traverse((object) => {
-    if (['sky', 'City', 'mullion', 'windowTop', 'windowBottom', 'GamesPortalRibs'].includes(object.name)) {
+    if (['sky', 'City', 'mullion', 'windowTop', 'windowBottom', 'GamesPortalRibs', 'Plant'].includes(object.name)) {
       originals.set(object, object.visible)
     }
   })
@@ -267,15 +288,19 @@ export async function createGamesPhotorealProof(options: GamesProofOptions): Pro
   const { scene, renderer, materials: current, budget, quality, assets } = options
   const desktop = quality.name === 'desktop'
   const legacyWindowLayers = collectLegacyWindowLayers(scene)
-  const [materials, heroPlant] = await Promise.all([
+  const [materials, leftHeroPlant, rightHeroPlant] = await Promise.all([
     loadMaterialSet(assets, budget.textureAnisotropy, desktop),
+    desktop
+      ? assets.loadModel(`${ASSET_ROOT}models/potted-plant-02.glb`).then((model) => model.root).catch(() => null)
+      : Promise.resolve(null),
     desktop
       ? assets.loadModel(`${ASSET_ROOT}models/potted-plant-02.glb`).then((model) => model.root).catch(() => null)
       : Promise.resolve(null),
   ])
   const shell = buildShell(materials, budget)
   scene.add(shell)
-  const hero = buildGamesHero(scene, budget, materials, heroPlant)
+  const heroPlants = [leftHeroPlant, rightHeroPlant].filter((plant): plant is THREE.Object3D => plant !== null)
+  const hero = buildGamesHero(scene, budget, materials, heroPlants)
   const originals = swapGamesMaterials(scene, current, materials)
 
   const previousEnvironment = scene.environment
@@ -335,7 +360,7 @@ export async function createGamesPhotorealProof(options: GamesProofOptions): Pro
       setActive(false)
       shell.removeFromParent()
       hero.dispose()
-      if (heroPlant) assets.release(heroPlant)
+      for (const plant of heroPlants) assets.release(plant)
       key.removeFromParent()
       key.target.removeFromParent()
       fill.removeFromParent()
@@ -349,6 +374,7 @@ export async function createGamesPhotorealProof(options: GamesProofOptions): Pro
       materials.rug.dispose()
       materials.upholstery.dispose()
       materials.chairMesh.dispose()
+      materials.mug.dispose()
       materials.backdrop.dispose()
       for (const texture of materials.ownedTextures) texture.dispose()
     },

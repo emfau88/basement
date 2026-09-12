@@ -116,6 +116,13 @@ body.focus .info{opacity:1;pointer-events:auto;transform:translateY(-50%) transl
 
 /* Contextual HUD composition */
 
+/* Games: leave the desk surface and hero props unobstructed. */
+body.view-games .info{
+  right:18px;top:82px;width:min(330px,calc(100vw - 34px));
+  transform:translateY(-12px) translateX(26px)
+}
+body.focus.view-games .info{transform:translateY(0) translateX(0)}
+
 /* Web: keep information away from the two screens. */
 body.view-web .info{
   left:24px;right:auto;top:86px;width:min(270px,calc(100vw - 34px));

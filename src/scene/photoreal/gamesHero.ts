@@ -9,6 +9,7 @@ export interface GamesHeroMaterials {
   rug: THREE.MeshStandardMaterial
   upholstery: THREE.MeshStandardMaterial
   chairMesh: THREE.MeshStandardMaterial
+  mug: THREE.MeshStandardMaterial
   backdrop: THREE.MeshBasicMaterial
 }
 
@@ -55,6 +56,105 @@ function cylinder(
   mesh.receiveShadow = true
   root.add(mesh)
   return mesh
+}
+
+function canvasMaterial(
+  width: number,
+  height: number,
+  paint: (context: CanvasRenderingContext2D, canvas: HTMLCanvasElement) => void,
+): THREE.MeshBasicMaterial {
+  const canvas = document.createElement('canvas')
+  canvas.width = width
+  canvas.height = height
+  const context = canvas.getContext('2d')
+  if (!context) {
+    const fallback = new THREE.MeshBasicMaterial({ color: 0x171918 })
+    fallback.userData.heroOwned = true
+    return fallback
+  }
+  paint(context, canvas)
+  const texture = new THREE.CanvasTexture(canvas)
+  texture.colorSpace = THREE.SRGBColorSpace
+  texture.anisotropy = 4
+  const material = new THREE.MeshBasicMaterial({ map: texture, toneMapped: false })
+  material.userData.heroOwned = true
+  return material
+}
+
+function addBookStack(root: THREE.Group): void {
+  const labels = ['GAME DESIGN', 'REAL-TIME GRAPHICS', 'PLAYTESTING']
+  const colors = [0x242725, 0x66503d, 0x343a35]
+  for (let index = 0; index < labels.length; index += 1) {
+    const text = labels[index] ?? ''
+    const y = 1.285 + index * 0.122
+    const bookMaterial = new THREE.MeshStandardMaterial({
+      color: colors[index] ?? 0x242725,
+      roughness: 0.78,
+      metalness: 0.02,
+    })
+    bookMaterial.userData.heroOwned = true
+    roundedBox(root, 'DeskBook', [0.96 - index * 0.035, 0.112, 0.4], [-2.02, y, -3.01], bookMaterial, 0.014, 2, [0, -0.035 + index * 0.018, 0])
+
+    const labelMaterial = canvasMaterial(512, 72, (context, canvas) => {
+      context.fillStyle = '#242624'
+      context.fillRect(0, 0, canvas.width, canvas.height)
+      context.fillStyle = index === 1 ? '#e0bd76' : '#ece8dc'
+      context.font = '700 28px Arial'
+      context.textAlign = 'center'
+      context.textBaseline = 'middle'
+      context.fillText(text, canvas.width / 2, canvas.height / 2)
+    })
+    const label = new THREE.Mesh(new THREE.PlaneGeometry(0.79, 0.084), labelMaterial)
+    label.name = 'DeskBookLabel'
+    label.position.set(-2.02, y, -2.806)
+    label.rotation.y = -0.035 + index * 0.018
+    root.add(label)
+  }
+}
+
+function addTypographyPoster(root: THREE.Group, materials: GamesHeroMaterials): void {
+  roundedBox(root, 'GamesTypographyPosterFrame', [1.02, 1.52, 0.065], [-4.42, 3.12, -6.23], materials.graphite, 0.028, 4)
+  const posterMaterial = canvasMaterial(640, 960, (context, canvas) => {
+    context.fillStyle = '#171918'
+    context.fillRect(0, 0, canvas.width, canvas.height)
+    context.fillStyle = '#d9b66f'
+    context.fillRect(62, 82, 84, 9)
+    context.fillStyle = '#eee9dd'
+    context.font = '800 78px Arial'
+    context.textAlign = 'left'
+    context.textBaseline = 'top'
+    for (const [line, y] of [['BETTER', 210], ['GAMES', 310], ['BRIGHTER', 410], ['PEOPLE.', 510]] as const) {
+      context.fillText(line, 62, y)
+    }
+    context.fillStyle = '#d9b66f'
+    context.fillRect(62, 716, 54, 7)
+  })
+  const poster = new THREE.Mesh(new THREE.PlaneGeometry(0.9, 1.38), posterMaterial)
+  poster.name = 'GamesTypographyPoster'
+  poster.position.set(-4.42, 3.12, -6.194)
+  root.add(poster)
+}
+
+function placePlant(root: THREE.Group, plant: THREE.Object3D, name: string, position: readonly [number, number, number], height: number, rotationY: number): void {
+  const plantAnchor = new THREE.Group()
+  plantAnchor.name = name
+  plantAnchor.position.set(...position)
+  plant.updateWorldMatrix(true, true)
+  const initialBounds = new THREE.Box3().setFromObject(plant)
+  const initialHeight = initialBounds.getSize(new THREE.Vector3()).y
+  plant.scale.setScalar(initialHeight > 0 ? height / initialHeight : 1)
+  plant.updateWorldMatrix(true, true)
+  const scaledBounds = new THREE.Box3().setFromObject(plant)
+  plant.position.y -= scaledBounds.min.y
+  plant.rotation.y = rotationY
+  plant.traverse((object) => {
+    if (!(object instanceof THREE.Mesh)) return
+    object.castShadow = true
+    object.receiveShadow = true
+    object.userData.assetManagedGeometry = true
+  })
+  plantAnchor.add(plant)
+  root.add(plantAnchor)
 }
 
 function buildChair(root: THREE.Group, materials: GamesHeroMaterials, segments: number): void {
@@ -128,17 +228,29 @@ function buildDeskDetails(root: THREE.Group, materials: GamesHeroMaterials, segm
   keys.castShadow = true
   keyboard.add(keys)
 
-  cylinder(root, 'DeskMug', 0.105, 0.22, [1.45, 1.34, -2.86], materials.upholstery, segments)
-  const handle = new THREE.Mesh(new THREE.TorusGeometry(0.085, 0.018, 8, Math.max(16, segments), Math.PI * 1.55), materials.upholstery)
+  cylinder(root, 'DeskMug', 0.168, 0.336, [1.48, 1.388, -2.84], materials.mug, segments, [0, Math.PI, 0])
+  const handle = new THREE.Mesh(new THREE.TorusGeometry(0.126, 0.026, 8, Math.max(16, segments), Math.PI * 1.55), materials.mug)
   handle.name = 'DeskMugHandle'
-  handle.position.set(1.56, 1.36, -2.86)
+  handle.position.set(1.66, 1.4, -2.84)
   handle.rotation.z = -Math.PI * 0.25
   handle.castShadow = true
   root.add(handle)
 
-  for (let index = 0; index < 3; index += 1) {
-    roundedBox(root, 'DeskBook', [0.72 - index * 0.04, 0.055, 0.34], [-2.04, 1.25 + index * 0.058, -3.03], index === 1 ? materials.upholstery : materials.graphite, 0.012, 2, [0, -0.05 + index * 0.025, 0])
-  }
+  const mugLabelMaterial = canvasMaterial(512, 144, (context, canvas) => {
+    context.fillStyle = '#171918'
+    context.fillRect(0, 0, canvas.width, canvas.height)
+    context.fillStyle = '#f2eee3'
+    context.font = '900 78px Arial'
+    context.textAlign = 'center'
+    context.textBaseline = 'middle'
+    context.fillText('emfau', canvas.width / 2, canvas.height / 2)
+  })
+  const mugLabel = new THREE.Mesh(new THREE.PlaneGeometry(0.25, 0.082), mugLabelMaterial)
+  mugLabel.name = 'DeskMugLabel'
+  mugLabel.position.set(1.48, 1.4, -2.669)
+  root.add(mugLabel)
+
+  addBookStack(root)
 
   roundedBox(root, 'MonitorLightBar', [0.64, 0.055, 0.075], [0, 2.86, -3.57], materials.graphite, 0.018, 3)
   const lightBarGlow = new THREE.MeshBasicMaterial({ color: 0xffc775, toneMapped: false })
@@ -146,7 +258,7 @@ function buildDeskDetails(root: THREE.Group, materials: GamesHeroMaterials, segm
   roundedBox(root, 'MonitorLightBarGlow', [0.48, 0.012, 0.018], [0, 2.825, -3.52], lightBarGlow, 0.005, 2)
 }
 
-export function buildGamesHero(scene: THREE.Scene, budget: SceneDetailBudget, materials: GamesHeroMaterials, heroPlant: THREE.Object3D | null): GamesHeroController {
+export function buildGamesHero(scene: THREE.Scene, budget: SceneDetailBudget, materials: GamesHeroMaterials, heroPlants: readonly THREE.Object3D[]): GamesHeroController {
   const root = new THREE.Group()
   root.name = 'GamesPhotorealHero'
   scene.add(root)
@@ -164,29 +276,10 @@ export function buildGamesHero(scene: THREE.Scene, budget: SceneDetailBudget, ma
   roundedBox(root, 'GamesWovenRug', [5.72, 0.045, 3.35], [0, 0.025, -2.2], materials.rug, 0.065, 4)
   buildDeskDetails(root, materials, Math.max(16, budget.cylinderSegments))
   buildChair(root, materials, Math.max(16, budget.cylinderSegments))
+  addTypographyPoster(root, materials)
 
-  if (heroPlant) {
-    const plantAnchor = new THREE.Group()
-    plantAnchor.name = 'GamesHeroPlant'
-    plantAnchor.position.set(-3.72, 0, -4.72)
-    heroPlant.updateWorldMatrix(true, true)
-    const initialBounds = new THREE.Box3().setFromObject(heroPlant)
-    const initialHeight = initialBounds.getSize(new THREE.Vector3()).y
-    const scale = initialHeight > 0 ? 1.82 / initialHeight : 1
-    heroPlant.scale.setScalar(scale)
-    heroPlant.updateWorldMatrix(true, true)
-    const scaledBounds = new THREE.Box3().setFromObject(heroPlant)
-    heroPlant.position.y -= scaledBounds.min.y
-    heroPlant.rotation.y = -0.42
-    heroPlant.traverse((object) => {
-      if (!(object instanceof THREE.Mesh)) return
-      object.castShadow = true
-      object.receiveShadow = true
-      object.userData.assetManagedGeometry = true
-    })
-    plantAnchor.add(heroPlant)
-    root.add(plantAnchor)
-  }
+  if (heroPlants[0]) placePlant(root, heroPlants[0], 'GamesHeroPlantLeft', [-3.72, 0, -4.72], 1.82, -0.42)
+  if (heroPlants[1]) placePlant(root, heroPlants[1], 'GamesHeroPlantRight', [3.73, 0, -4.62], 1.48, 0.58)
 
   const hiddenOriginals = new Map<THREE.Object3D, boolean>()
   for (const name of ['Chair', 'rug']) {
@@ -213,7 +306,11 @@ export function buildGamesHero(scene: THREE.Scene, budget: SceneDetailBudget, ma
         for (const material of objectMaterials) if (material.userData.heroOwned) ownedMaterials.add(material)
       })
       for (const geometry of geometries) geometry.dispose()
-      for (const material of ownedMaterials) material.dispose()
+      for (const material of ownedMaterials) {
+        const mapped = material as THREE.Material & { map?: THREE.Texture | null }
+        mapped.map?.dispose()
+        material.dispose()
+      }
     },
   }
 }
