@@ -96,11 +96,8 @@ for(let i=0;i<budget.cityBuildings;i++){
   m.castShadow=false;m.receiveShadow=false
 }
 
-/* a recessed acoustic raft replaces the former floating ceiling bars */
+/* clean recessed acoustic raft: the former timber slat field was visually noisy */
 box('ceilingRaft',[10.4,.16,3.18],[0,5.02,-1.88],M.graphite,[0,0,0],false,false,.055);
-for(let i=0;i<19;i++){
-  box('ceilingSlat',[.20,.055,2.82],[-4.5+i*.50,4.915,-1.88],M.oakDark,[0,0,0],false,false,.025)
-}
 const coveMaterial=new THREE.MeshBasicMaterial({color:0xffd69e,toneMapped:false,transparent:true,opacity:.42});
 box('leftCove',[.055,.035,3.0],[-5.03,4.90,-1.88],coveMaterial,[0,0,0],false,false,.01);
 box('rightCove',[.055,.035,3.0],[5.03,4.90,-1.88],coveMaterial,[0,0,0],false,false,.01);
@@ -176,17 +173,6 @@ for(let i=0;i<dustCount;i++){dustPos[i*3]=-6.8+Math.random()*13.6;dustPos[i*3+1]
 dustGeo.setAttribute('position',new THREE.BufferAttribute(dustPos,3));
 const dust=new THREE.Points(dustGeo,new THREE.PointsMaterial({map:dustTexture(),size:.045,transparent:true,opacity:.22,depthWrite:false,color:0xfff1d9,blending:THREE.AdditiveBlending}));
 scene.add(dust);
-
-/* Tasteful floor markers retained from v11. */
-const marker = (position: Triple, color: number) => {
-  const material = new THREE.MeshStandardMaterial({color,emissive:color,emissiveIntensity:.18,roughness:.38,metalness:.32});
-  const mesh = new THREE.Mesh(new THREE.TorusGeometry(.13,.012,8,40),material);
-  mesh.position.set(...position);mesh.rotation.x=Math.PI/2;scene.add(mesh);return mesh
-};
-marker([0,.03,-2.25],0x90a886);
-marker([4.55,.03,-2.25],0x78a8b9);
-marker([5.75,.03,1.65],0xc88462);
-marker([-5,.03,-3.55],0xa58357);
 
   return { gameMainScreen, gameLeftScreen, gameRightScreen, webMainScreen, webSideScreen, archiveScreen, projectCardFrames, projectCardMeshes }
 }

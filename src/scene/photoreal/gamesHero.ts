@@ -271,7 +271,7 @@ export function buildGamesHero(scene: THREE.Scene, budget: SceneDetailBudget, ma
   backdrop.receiveShadow = false
   root.add(backdrop)
 
-  const floor = roundedBox(root, 'GamesConcreteFloor', [10.2, 0.035, 5.45], [0, 0.006, -2.7], materials.floor, 0.018, 2)
+  const floor = roundedBox(root, 'StudioConcreteFloor', [15.02, 0.035, 10.62], [0, 0.006, -1.2], materials.floor, 0.018, 2)
   floor.castShadow = false
   roundedBox(root, 'GamesWovenRug', [5.72, 0.045, 3.35], [0, 0.025, -2.2], materials.rug, 0.065, 4)
   buildDeskDetails(root, materials, Math.max(16, budget.cylinderSegments))

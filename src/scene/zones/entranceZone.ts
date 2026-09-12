@@ -16,24 +16,7 @@ function signMaterial(tools: SceneTools, key: string, title: string, subtitle: s
 }
 
 export function buildEntranceZone(materials: StudioMaterials, tools: SceneTools, budget: SceneDetailBudget): void {
-  const { addBox, addCylinder, addInstances, group, point } = tools
-  const entrance = group('StudioEntrance')
-
-  // Fine floor inlays lead into the room without turning the open foreground into furniture.
-  addInstances(entrance, 'EntranceGuideLines', [.035, .016, 4.2], [
-    { position: [-1.18, .032, 1.6] },
-    { position: [1.18, .032, 1.6] },
-  ], materials.brass, .008)
-  addInstances(entrance, 'EntranceGuideSteps', [2.38, .014, .028], [
-    { position: [0, .038, 2.42] },
-    { position: [0, .038, .96] },
-  ], materials.graphite2, .006)
-
-  const marker = group('EntranceMarker', [0, 0, 3.62])
-  addBox(marker, [1.44, .025, .52], [0, .04, 0], materials.concreteDark, [0, 0, 0], .08)
-  addBox(marker, [1.12, .018, .035], [0, .058, -.08], materials.brass, [0, 0, 0], .009)
-  addCylinder(marker, .035, .035, .018, [-.48, .06, .1], materials.sage, [0, 0, 0], 16)
-  addCylinder(marker, .035, .035, .018, [.48, .06, .1], materials.terracotta, [0, 0, 0], 16)
+  const { addBox, group, point } = tools
 
   // Side-wall signs make the room legible from the entrance and support the bottom navigation.
   const leftSign = group('ArchiveWayfinding', [-7.31, 0, -.15], [0, Math.PI / 2, 0])

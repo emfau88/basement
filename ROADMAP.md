@@ -2,7 +2,7 @@
 
 Last updated: 2026-09-12  
 Current phase: Phase E — Photorealistic Desktop rollout
-Current bulk: Bulk 22.1 — Archive memorial correction — complete
+Current bulk: Bulk 23 — Desktop integration and approval — complete; Decision gate E awaiting visual approval
 
 ## Status legend
 
@@ -321,14 +321,18 @@ Verification: fixed 1440 × 900 overview and frontal-inspect captures, hover-to-
 
 ### Bulk 23 — Desktop integration and approval
 
-- [ ] Harmonize zone borders, material scale, exposure, shadows, color temperature and prop density across all five Desktop views.
-- [ ] Revisit all Desktop camera presets and contextual-card positions only where the upgraded geometry requires it.
-- [ ] Remove view-specific visibility leaks and confirm transitions never expose unfinished backsides or loading artifacts.
-- [ ] Capture Studio, Games, Web, Projects and Archive at 1440 × 900 and compare them as one visual set.
-- [ ] Run typecheck, production build, interaction tests, GitHub Pages subpath checks and Desktop visual regression QA.
-- [ ] Record deferred cosmetic ideas separately so the approved rollout does not become an endless polish loop.
+- [x] Harmonize zone borders, material scale, exposure, shadows, color temperature and prop density across all five Desktop views.
+- [x] Extend the dark PBR cement floor across the complete studio at one consistent material scale.
+- [x] Replace the timber-slat ceiling field with a clean recessed ceiling raft and remove obsolete entrance-floor rails, signal buttons and markers.
+- [x] Revisit all Desktop camera presets and contextual-card positions only where the upgraded geometry requires it.
+- [x] Remove view-specific visibility leaks and confirm transitions never expose unfinished backsides or loading artifacts.
+- [x] Capture Studio, Games, Web, Projects and Archive at 1440 × 900 and compare them as one visual set.
+- [x] Run typecheck, production build, interaction tests, GitHub Pages subpath checks and Desktop visual regression QA.
+- [x] Record deferred cosmetic ideas separately so the approved rollout does not become an endless polish loop.
 
 Acceptance: all five Desktop views meet the Games baseline, feel like one designed environment and are explicitly approved before Mobile work resumes.
+
+Verification: five-view fixed 1440 × 900 before/after set, responsive viewport matrix through 1920 × 1080, complete interaction suite, typecheck, production build and GitHub Pages `/basement/` subpath QA passed on 2026-09-12. Final visual approval remains Decision gate E.
 
 ### Decision gate E — Complete Desktop approval
 

@@ -126,9 +126,11 @@ async function loadMaterialSet(assets: AssetManager, anisotropy: number, desktop
   concrete.normalScale.set(0.46, 0.46)
   concrete.roughness = 0.92
 
-  const floorColor = repeat(concreteColor.clone(), 4.8, 2.7)
-  const floorNormal = repeat(concreteNormal.clone(), 4.8, 2.7)
-  const floorArm = repeat(concreteArm.clone(), 4.8, 2.7)
+  // One continuous material scale across the entire 15.2 × 10.8 m studio,
+  // rather than a darker Games-only island surrounded by the legacy floor.
+  const floorColor = repeat(concreteColor.clone(), 7.2, 5.1)
+  const floorNormal = repeat(concreteNormal.clone(), 7.2, 5.1)
+  const floorArm = repeat(concreteArm.clone(), 7.2, 5.1)
   const floorAo = floorArm.clone()
   floorAo.channel = 1
   ownedTextures.push(floorColor, floorNormal, floorArm, floorAo)
