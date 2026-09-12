@@ -2,7 +2,7 @@
 
 Last updated: 2026-09-12  
 Current phase: Phase D — Photorealistic Games proof
-Current bulk: Bulk 15 — Production asset foundation
+Current bulk: Bulk 16 — Games architectural shell and lighting proof
 
 ## Status legend
 
@@ -189,18 +189,20 @@ Acceptance: the target, legal provenance, asset shortlist, fixed comparison came
 
 No visible 3D replacement begins before Decision Gate C.
 
-### Bulk 15 — Production asset foundation — **IN PROGRESS**
+### Bulk 15 — Production asset foundation — COMPLETE
 
-- [ ] Add a resilient GLTF loading layer with progress, timeout/error fallback, caching and disposal.
-- [ ] Integrate KTX2/Basis texture transcoding and Meshopt or Draco only where inspection proves a benefit.
-- [ ] Add a validated asset-build step using glTF Transform inspect/validate/optimize.
-- [ ] Add HDR environment loading with PMREM and a lightweight offline fallback.
-- [ ] Establish shared PBR material presets, correct color spaces and second-UV handling for AO/lightmaps.
-- [ ] Keep all new assets lazy and area-scoped so initial navigation remains usable.
+- [x] Add a resilient GLTF loading layer with progress, timeout/error fallback, caching and disposal.
+- [x] Integrate KTX2/Basis texture transcoding and Meshopt compression with a validated compressed smoke asset.
+- [x] Add a validated asset-build step using glTF Transform inspect/validate/optimize.
+- [x] Add HDR environment loading with PMREM and a lightweight offline fallback.
+- [x] Establish shared PBR material presets, correct color spaces and second-UV handling for AO/lightmaps.
+- [x] Keep all new assets lazy and area-scoped so initial navigation remains usable.
 
 Acceptance: one test asset loads, falls back and disposes correctly at the GitHub Pages subpath on every supported profile without changing the visible production scene.
 
-### Bulk 16 — Games architectural shell and lighting proof
+Verification: compressed GLB success/fallback/disposal, HDR fallback, KTX2 runtime delivery, typecheck, production build, Mobile regression suite, dependency audit and GitHub Pages `/basement/` subpath QA passed on 2026-09-12.
+
+### Bulk 16 — Games architectural shell and lighting proof — **IN PROGRESS**
 
 - [ ] Rebuild only the Games shell at coherent real-world scale.
 - [ ] Establish the fixed hero camera before detail dressing.

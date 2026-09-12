@@ -14,6 +14,18 @@ The approved target is now a hybrid asset pipeline: optimized GLB/PBR assets for
 - Existing live-screen canvases remain independent because each carries changing project content.
 - All twelve project previews are self-hosted as normalized WebP files (maximum 1280px), removing runtime dependence on external image hosts.
 
+## Photoreal asset runtime
+
+- `assetManager.ts` is dynamically imported, keeping GLTF/KTX2/HDR support out of the initial scene bundle until an asset area requests it.
+- Binary GLB requests report progress and have explicit timeouts, cache invalidation after failure and caller-provided fallback groups.
+- Meshopt decoding and KTX2/Basis transcoding are configured through the Three.js production loaders.
+- HDR data is converted to a PMREM environment; missing HDR files resolve to `RoomEnvironment` rather than breaking the studio.
+- Source models are cached, instances are cloned and GPU resources are disposed centrally on teardown.
+- `pbrMaterials.ts` owns semantic presets, texture color-space rules and second-UV fallback handling.
+- `npm run assets:prepare` creates and Meshopt-compresses a deterministic GLB smoke fixture.
+- `npm run assets:inspect -- <file>`, `npm run assets:validate -- <file>` and `npm run assets:optimize -- <input> <output>` expose the production asset checks.
+- `npm run qa:assets` verifies model success, model fallback, HDR fallback, teardown and runtime support assets in a browser.
+
 ## Legacy procedural budget
 
 This table continues to define the current blockout/fallback profile. It does not replace the GLB/PBR budgets in `photorealism-plan.md`.

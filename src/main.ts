@@ -9,6 +9,7 @@ import { createSceneTools } from './scene/primitives'
 import { createRenderingContext } from './scene/renderer'
 import { buildStudioRoom } from './scene/room'
 import { resolveSceneDetailBudget } from './scene/assets/detailBudget'
+import type { AssetManager } from './scene/assets/assetManager'
 import { createLiveScreenSystem } from './screens/liveScreens'
 import { createProjectWall } from './screens/projectWall'
 import { createStudioStore, type StudioView } from './state/studioState'
@@ -42,6 +43,7 @@ try {
   const store = createStudioStore()
   const rendering = createRenderingContext(app)
   const detailBudget = resolveSceneDetailBudget(rendering.quality)
+  let assetManager: AssetManager | null = null
   loadbar.style.width = '36%'
   const cameraController = new CameraController(rendering.camera)
   const materials = createStudioMaterials()
@@ -108,6 +110,41 @@ try {
     setFeaturedSelection: (key) => { if (projectWall.setSelected(key)) scheduler.requestRender() },
     requestRender: scheduler.requestRender,
   })
+  const assetSmoke = new URLSearchParams(location.search).get('assetSmoke')
+  if (assetSmoke) {
+    rendering.renderer.domElement.dataset.assetSmoke = 'loading'
+    void import('./scene/assets/assetManager').then(({ createAssetManager }) => {
+      assetManager = createAssetManager(rendering.renderer, {
+        onProgress: ({ ratio }) => {
+          rendering.renderer.domElement.dataset.assetProgress = ratio === null ? 'indeterminate' : ratio.toFixed(3)
+        },
+      })
+      const smokePath = assetSmoke === 'missing' ? 'assets/runtime/fixtures/missing.glb' : 'assets/runtime/fixtures/smoke-box.glb'
+      void assetManager.loadModel(smokePath, {
+        timeoutMs: 4_000,
+        fallback: () => new THREE.Group(),
+      }).then((model) => {
+        model.root.visible = false
+        rendering.scene.add(model.root)
+        rendering.renderer.domElement.dataset.assetSmoke = model.source
+        if (assetSmoke === 'dispose') {
+          assetManager?.release(model.root)
+          assetManager?.dispose()
+          assetManager = null
+          rendering.renderer.domElement.dataset.assetDisposed = 'true'
+        }
+      }).catch(() => {
+        rendering.renderer.domElement.dataset.assetSmoke = 'error'
+      })
+      if (assetSmoke === 'environment') {
+        void assetManager.loadEnvironment('assets/runtime/fixtures/missing.hdr', 4_000).then((environment) => {
+          rendering.renderer.domElement.dataset.assetEnvironment = environment.source
+        })
+      }
+    }).catch(() => {
+      rendering.renderer.domElement.dataset.assetSmoke = 'error'
+    })
+  }
   let previousSheet = store.get().mobileSheet
   const unsubscribeCameraLayout = store.subscribe((state) => {
     if (state.mobileSheet === previousSheet) return
@@ -129,7 +166,7 @@ try {
     rendering.resize(); cameraController.resize(state.view, Boolean(state.inspectMode), state.mobileSheet); scheduler.requestRender()
   })
   window.addEventListener('pagehide', () => {
-    viewport.destroy(); mobileControls.destroy(); navigation.destroy(); unsubscribeCameraLayout(); scheduler.destroy()
+    viewport.destroy(); mobileControls.destroy(); navigation.destroy(); unsubscribeCameraLayout(); scheduler.destroy(); assetManager?.dispose()
   }, { once: true })
 
   rendering.scene.traverse((object) => {
