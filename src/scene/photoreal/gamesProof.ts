@@ -290,11 +290,11 @@ function swapGamesMaterials(scene: THREE.Scene, current: StudioMaterials, next: 
 export async function createGamesPhotorealProof(options: GamesProofOptions): Promise<GamesProofController> {
   const { scene, renderer, materials: current, budget, quality, assets } = options
   const desktop = quality.name === 'desktop'
-  // A narrow desktop window uses the compact HUD, but a fine pointer still
-  // identifies it as a desktop inspection context. Keep real touch devices on
-  // procedural fallbacks while avoiding an unexpected visual downgrade in the
-  // resizable in-app browser.
-  const enhancedModels = desktop || (window.innerWidth >= 680 && window.matchMedia('(pointer: fine)').matches)
+  // Window width controls the compact HUD, not the fidelity of a desktop
+  // workstation. Fine-pointer PCs keep the authored hero models even when the
+  // browser is docked in a narrow panel; touch devices retain the lightweight
+  // procedural fallbacks.
+  const enhancedModels = desktop || window.matchMedia('(pointer: fine)').matches
   const legacyWindowLayers = collectLegacyWindowLayers(scene)
   const [materials, leftHeroPlant, rightHeroPlant, keyboardMouse, archiveSofa] = await Promise.all([
     loadMaterialSet(assets, budget.textureAnisotropy, desktop),

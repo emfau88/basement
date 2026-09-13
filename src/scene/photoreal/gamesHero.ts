@@ -283,7 +283,10 @@ function buildDeskDetails(root: THREE.Group, materials: GamesHeroMaterials, segm
     prepareKeyboardMouse(keyboardMouse)
     placeFittedModel(root, keyboardMouse, {
       name: 'HeroKeyboardMouse',
-      center: [-0.2, -3.15],
+      // Offset the keyboard slightly left of the chair sightline. This keeps
+      // the real desk scale while making the input pair readable: keyboard on
+      // the left, mouse and pad on the right.
+      center: [-0.52, -3.15],
       floorY: 1.228,
       maxWidth: 2.22,
       maxDepth: 0.68,

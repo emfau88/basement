@@ -160,7 +160,9 @@ for(const x of [-3.4,0,3.4]){
 }
 /* practical glows */
 if (budget.decorativeLights) {
-  point(0xffd7a8,1.85,4.5,[-1.45,2.0,-2.95]);
+  // Keep the warm desk fill above the monitor sightline. Its former low,
+  // front-facing position produced a bright specular disk over the selector.
+  point(0xffd7a8,.72,4.5,[-2.15,3.18,-2.95]);
   point(0x9bb5bd,1.65,4.5,[5.05,2.0,-2.65]);
 }
 
