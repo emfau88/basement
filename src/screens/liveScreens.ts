@@ -2,11 +2,27 @@ import * as THREE from 'three'
 import { archiveProjectKeys, gameProjectKeys, projects, webProjectKeys, type ProjectKey } from '../data/projects'
 import type { StudioStore } from '../state/studioState'
 import { isMobileViewport } from '../config/responsive'
-import { attachLiveTexture, calibratedCoverCrop, coverCrop, createLiveCanvas, loadProjectImages, roundRect, screenBase, topChrome, type LiveCanvas, type LoadedProjectImage } from './canvasUtils'
+import {
+  LIVE_CANVAS_HEIGHT,
+  LIVE_CANVAS_WIDTH,
+  attachLiveTexture,
+  calibratedCoverCrop,
+  coverCrop,
+  createLiveCanvas,
+  loadProjectImages,
+  roundRect,
+  screenBase,
+  setLiveCanvasResolution,
+  topChrome,
+  type LiveCanvas,
+  type LiveCanvasResolutionScale,
+  type LoadedProjectImage,
+} from './canvasUtils'
 
 type ScreenType = 'games' | 'gamepan' | 'terminal' | 'apps' | 'appticker' | 'archive'
 interface LiveScreen {
   type: ScreenType
+  mesh: THREE.Mesh
   live: LiveCanvas
   items: LoadedProjectImage[]
   last: number
@@ -25,15 +41,45 @@ export interface LiveScreenSystem {
   selectWebFromHit(hit: THREE.Intersection): void
   selectArchiveFromHit(hit: THREE.Intersection): ProjectKey | undefined
   getArchiveProject(): ProjectKey | undefined
+  syncResolution(): boolean
+  getResolutionSnapshot(): ReadonlyArray<{ type: ScreenType, width: number, height: number, scale: LiveCanvasResolutionScale }>
   update(now: number): boolean
 }
 
 export function createLiveScreenSystem(store: StudioStore, textureAnisotropy = 4): LiveScreenSystem {
   const screens: LiveScreen[] = []
 
+  const sectionForScreen = (type: ScreenType) => {
+    if (type === 'games' || type === 'gamepan' || type === 'terminal') return 'games'
+    if (type === 'apps' || type === 'appticker') return 'web'
+    return 'archive'
+  }
+
+  const desiredResolutionScale = (screen: LiveScreen): LiveCanvasResolutionScale => {
+    if (isMobileViewport()) return 1
+    const state = store.get()
+    if (sectionForScreen(screen.type) !== state.view) return 1
+    if (state.view !== 'games') return 2
+    if (state.inspectMode === 'gameSelector') return screen.type === 'terminal' ? 2 : 1
+    return screen.type === 'games' ? 2 : 1
+  }
+
+  const syncResolution = (): boolean => {
+    let changed = false
+    screens.forEach((screen) => {
+      const resolutionScale = desiredResolutionScale(screen)
+      if (!setLiveCanvasResolution(screen.live, resolutionScale)) return
+      screen.last = 0
+      screen.mesh.userData.liveScreenResolution = `${LIVE_CANVAS_WIDTH * resolutionScale}x${LIVE_CANVAS_HEIGHT * resolutionScale}`
+      changed = true
+    })
+    return changed
+  }
+
   const registerImageScreen = (mesh: THREE.Mesh, type: ScreenType, keys: readonly ProjectKey[], emissive: number) => {
     const live = createLiveCanvas(textureAnisotropy); attachLiveTexture(mesh, live, emissive)
-    const screen: LiveScreen = { type, live, items: [], last: 0 }
+    mesh.userData.liveScreenResolution = `${LIVE_CANVAS_WIDTH}x${LIVE_CANVAS_HEIGHT}`
+    const screen: LiveScreen = { type, mesh, live, items: [], last: 0 }
     void loadProjectImages(keys).then((items) => { screen.items = items; screen.last = 0 })
     screens.push(screen)
   }
@@ -185,9 +231,9 @@ export function createLiveScreenSystem(store: StudioStore, textureAnisotropy = 4
   return {
     registerGameSlideshow: (mesh) => registerImageScreen(mesh, 'games', gameProjectKeys, 0.5),
     registerGamePan: (mesh) => registerImageScreen(mesh, 'gamepan', ['territory_tide', 'pocket_pier', 'core_arena'], 0.46),
-    registerGameSelector: (mesh) => { const live = createLiveCanvas(textureAnisotropy); attachLiveTexture(mesh, live, 0.38); screens.push({ type: 'terminal', live, items: [], last: 0 }) },
+    registerGameSelector: (mesh) => { const live = createLiveCanvas(textureAnisotropy); attachLiveTexture(mesh, live, 0.38); mesh.userData.liveScreenResolution = `${LIVE_CANVAS_WIDTH}x${LIVE_CANVAS_HEIGHT}`; screens.push({ type: 'terminal', mesh, live, items: [], last: 0 }) },
     registerApps: (mesh) => registerImageScreen(mesh, 'apps', ['between', 'zerohero', 'mirror', 'chargegeist'], 0.24),
-    registerAppSelector: (mesh) => { const live = createLiveCanvas(textureAnisotropy); attachLiveTexture(mesh, live, 0.36); screens.push({ type: 'appticker', live, items: [], last: 0, apps: ['MIRROR', 'ZEROHERO', 'BETWEEN', 'CHARGEGEIST', 'MEWTRACK', 'MARSCHLEGENDEN'] }) },
+    registerAppSelector: (mesh) => { const live = createLiveCanvas(textureAnisotropy); attachLiveTexture(mesh, live, 0.36); mesh.userData.liveScreenResolution = `${LIVE_CANVAS_WIDTH}x${LIVE_CANVAS_HEIGHT}`; screens.push({ type: 'appticker', mesh, live, items: [], last: 0, apps: ['MIRROR', 'ZEROHERO', 'BETWEEN', 'CHARGEGEIST', 'MEWTRACK', 'MARSCHLEGENDEN'] }) },
     registerArchive: (mesh) => registerImageScreen(mesh, 'archive', archiveProjectKeys, 0.52),
     selectGameFromHit: (hit) => { const y = (1 - (hit.uv?.y ?? -1)) * 432; if (y < 86 || y > 86 + gameProjectKeys.length * 58) return; const key = gameProjectKeys[Math.floor((y - 86) / 58)]; if (key) store.set({ selectedGameId: key }) },
     selectWebFromHit: (hit) => { const y = (1 - (hit.uv?.y ?? -1)) * 432; if (y < 92 || y > 92 + webProjectKeys.length * 56) return; const key = webProjectKeys[Math.floor((y - 92) / 56)]; if (key) store.set({ selectedWebId: key }) },
@@ -201,6 +247,13 @@ export function createLiveScreenSystem(store: StudioStore, textureAnisotropy = 4
       screen.currentKey = key; screen.last = 0; store.set({ selectedArchiveId: key }); return key
     },
     getArchiveProject: () => screens.find((screen) => screen.type === 'archive')?.currentKey,
-    update: (now) => { let changed = false; for (const screen of screens) { if (now - screen.last < 90) continue; screen.last = now; changed = true; if (screen.type === 'games') drawGames(screen, now); else if (screen.type === 'gamepan') drawGamePan(screen, now); else if (screen.type === 'terminal') drawGameSelector(screen); else if (screen.type === 'apps') drawApps(screen, now); else if (screen.type === 'appticker') drawAppSelector(screen, now); else drawArchive(screen, now) } return changed },
+    syncResolution,
+    getResolutionSnapshot: () => screens.map((screen) => ({
+      type: screen.type,
+      width: screen.live.canvas.width,
+      height: screen.live.canvas.height,
+      scale: screen.live.resolutionScale,
+    })),
+    update: (now) => { let changed = syncResolution(); for (const screen of screens) { if (now - screen.last < 90) continue; screen.last = now; changed = true; if (screen.type === 'games') drawGames(screen, now); else if (screen.type === 'gamepan') drawGamePan(screen, now); else if (screen.type === 'terminal') drawGameSelector(screen); else if (screen.type === 'apps') drawApps(screen, now); else if (screen.type === 'appticker') drawAppSelector(screen, now); else drawArchive(screen, now) } return changed },
   }
 }

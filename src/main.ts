@@ -81,6 +81,16 @@ try {
   screens.registerArchive(meshes.archiveScreen)
 
   const projectWall = createProjectWall(meshes.projectCardMeshes, meshes.projectCardFrames, detailBudget.textureAnisotropy)
+  const syncScreenFidelity = (): boolean => {
+    const state = store.get()
+    const liveChanged = screens.syncResolution()
+    const projectsChanged = projectWall.syncResolution(!isMobileViewport() && state.view === 'projects')
+    rendering.renderer.domElement.dataset.screenResolutions = JSON.stringify({
+      live: screens.getResolutionSnapshot(),
+      projects: projectWall.getResolutionSnapshot(),
+    })
+    return liveChanged || projectsChanged
+  }
   const modal = createProjectModal(store)
   const webglRecovery = createWebGLRecoveryUI()
   const hotspots = createHotspots(rendering.scene)
@@ -138,6 +148,7 @@ try {
     tooltip.classList.remove('show'); document.body.style.cursor = 'default'
     fade.style.opacity = '.13'; window.setTimeout(() => { fade.style.opacity = '0' }, 150)
     store.set({ view, inspectMode: null, mobileSheet: 'collapsed' })
+    syncScreenFidelity()
     if (usesGamesProof(view)) {
       void ensureGamesProof().then((proof) => {
         if (usesGamesProof(store.get().view)) {
@@ -154,6 +165,7 @@ try {
     if (((mode === 'gameSelector' || mode === 'gamePreview') && view !== 'games') || (mode === 'archiveCemetery' && view !== 'archive')) return
     const archiveKey = mode === 'archiveCemetery' ? screens.getArchiveProject() : undefined
     store.set({ inspectMode: mode, ...(archiveKey ? { selectedArchiveId: archiveKey } : {}) }); setInspectLabels(mode)
+    syncScreenFidelity()
     cameraController.enterInspect(mode); scheduler.startTransition()
   }
   const enterGameInspect = () => enterInspect('gameSelector')
@@ -162,11 +174,13 @@ try {
   const exitInspect = () => {
     const state = store.get(); if (!state.inspectMode) return
     store.set({ inspectMode: null }); setInspectLabels(null)
+    syncScreenFidelity()
     cameraController.exitInspect(state.view, state.mobileSheet); scheduler.startTransition()
   }
   const backFromInspect = () => {
     if (store.get().inspectMode !== 'gamePreview') { exitInspect(); return }
     store.set({ inspectMode: 'gameSelector' }); setInspectLabels('gameSelector')
+    syncScreenFidelity()
     cameraController.enterInspect('gameSelector'); scheduler.startTransition()
   }
 
@@ -182,6 +196,7 @@ try {
   })
   rendering.renderer.domElement.dataset.quality = rendering.quality.name
   rendering.renderer.domElement.dataset.sceneDetail = String(detailBudget.dustParticles)
+  syncScreenFidelity()
   rendering.renderer.domElement.addEventListener('webglcontextlost', (event) => { event.preventDefault(); webglRecovery.show() })
   rendering.renderer.domElement.addEventListener('webglcontextrestored', () => { webglRecovery.hide(); scheduler.requestRender() })
   const mobileControls = createMobileControls({
@@ -240,7 +255,7 @@ try {
   })
   const viewport = createViewportController(() => {
     const state = store.get()
-    rendering.resize(); cameraController.resize(state.view, state.inspectMode, state.mobileSheet); scheduler.requestRender()
+    rendering.resize(); syncScreenFidelity(); cameraController.resize(state.view, state.inspectMode, state.mobileSheet); scheduler.requestRender()
   })
   window.addEventListener('pagehide', () => {
     viewport.destroy(); mobileControls.destroy(); navigation.destroy(); unsubscribeCameraLayout(); scheduler.destroy(); gamesProof?.dispose(); assetManager?.dispose()

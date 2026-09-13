@@ -1,8 +1,8 @@
 # EMFAU Virtual Studio roadmap
 
-Last updated: 2026-09-12  
+Last updated: 2026-09-13
 Current phase: Phase E — Photorealistic Desktop rollout
-Current bulk: Bulk 23.1a — Games selection handoff — complete; Bulk 23.2 planned
+Current bulk: Bulk 23.2 — Focus-aware screen fidelity — complete; Decision gate E pending
 
 ## Status legend
 
@@ -360,16 +360,18 @@ Verification: Desktop Game Select → Core Arena → main-preview → project-mo
 
 ### Bulk 23.2 — Focus-aware screen fidelity
 
-- [ ] Make live-screen resolution configurable instead of globally fixed at 768 × 432.
-- [ ] Render screens in the active Desktop zone (and inspected screen) at 1536 × 864 while distant zones retain the efficient base resolution and redraw cadence.
-- [ ] Audit project-image source dimensions and replace only visibly insufficient originals; never upscale low-resolution sources and call them improved.
-- [ ] Use 2K PBR textures only on large close-up surfaces where the current assets visibly limit quality.
-- [ ] Verify hover, selection, project opening, asset fallbacks and Archive/Games inspect views at both screen resolutions.
-- [ ] Repeat the complete Desktop visual set, responsive tests, production build and Pages subpath QA.
+- [x] Make live-screen resolution configurable instead of globally fixed at 768 × 432.
+- [x] Render the focal screen in the active Desktop zone (and the inspected screen) at 1536 × 864 while distant/non-focal screens retain the efficient base resolution.
+- [x] Audit project-image source dimensions and retain the best available originals rather than fabricating detail through offline upscaling.
+- [x] Audit close-up PBR surfaces; the existing tiled 1K sets remain sufficient at the approved cameras, so no unjustified 2K payload was added.
+- [x] Verify hover, selection, project opening, asset fallbacks and Archive/Games inspect views at both screen resolutions.
+- [x] Repeat the complete Desktop visual set, responsive tests, production build and Pages subpath QA.
 
 Acceptance: close-up displays and major surfaces reach a perceived 9/10 Desktop sharpness while background work remains performance-conscious.
 
 Commit boundary: focus-aware screen resolution, selective asset upgrades and final sharpness/performance evidence.
+
+Verification: focal Desktop canvases switch from 768 × 432 to 1536 × 864 (4× pixels) while Mobile and non-focal screens remain unchanged. Resolution-state interaction tests, source audit, five-view/close-up visual review, GPU-safe resize regression, responsive suite, production build, benchmark and Pages subpath QA passed on 2026-09-13.
 
 ### Decision gate E — Complete Desktop approval
 

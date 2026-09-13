@@ -5,7 +5,13 @@ export interface LiveCanvas {
   canvas: HTMLCanvasElement
   context: CanvasRenderingContext2D
   texture: THREE.CanvasTexture
+  resolutionScale: LiveCanvasResolutionScale
 }
+
+export type LiveCanvasResolutionScale = 1 | 2
+
+export const LIVE_CANVAS_WIDTH = 768
+export const LIVE_CANVAS_HEIGHT = 432
 
 export interface LoadedProjectImage {
   key: ProjectKey
@@ -16,16 +22,32 @@ export interface LoadedProjectImage {
 
 const imageCache = new Map<string, Promise<HTMLImageElement>>()
 
-export function createLiveCanvas(anisotropy = 4): LiveCanvas {
+function configureCanvasResolution(canvas: HTMLCanvasElement, context: CanvasRenderingContext2D, scale: LiveCanvasResolutionScale): void {
+  canvas.width = LIVE_CANVAS_WIDTH * scale
+  canvas.height = LIVE_CANVAS_HEIGHT * scale
+  context.setTransform(scale, 0, 0, scale, 0, 0)
+}
+
+export function createLiveCanvas(anisotropy = 4, resolutionScale: LiveCanvasResolutionScale = 1): LiveCanvas {
   const canvas = document.createElement('canvas')
-  canvas.width = 768
-  canvas.height = 432
   const context = canvas.getContext('2d')
   if (!context) throw new Error('Canvas 2D is unavailable')
+  configureCanvasResolution(canvas, context, resolutionScale)
   const texture = new THREE.CanvasTexture(canvas)
   texture.colorSpace = THREE.SRGBColorSpace
   texture.anisotropy = anisotropy
-  return { canvas, context, texture }
+  return { canvas, context, texture, resolutionScale }
+}
+
+export function setLiveCanvasResolution(live: LiveCanvas, resolutionScale: LiveCanvasResolutionScale): boolean {
+  if (live.resolutionScale === resolutionScale) return false
+  live.resolutionScale = resolutionScale
+  configureCanvasResolution(live.canvas, live.context, resolutionScale)
+  // Three.js otherwise attempts a sub-image upload into the texture storage
+  // allocated for the previous canvas dimensions.
+  live.texture.dispose()
+  live.texture.needsUpdate = true
+  return true
 }
 
 export function attachLiveTexture(mesh: THREE.Mesh, live: LiveCanvas, emissive = 0.72): void {

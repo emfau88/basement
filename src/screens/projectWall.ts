@@ -1,13 +1,50 @@
 import * as THREE from 'three'
 import { featuredProjectKeys, projects, type ProjectKey } from '../data/projects'
-import { attachLiveTexture, calibratedCoverCrop, createLiveCanvas, loadRemoteImage, screenBase } from './canvasUtils'
+import {
+  attachLiveTexture,
+  calibratedCoverCrop,
+  createLiveCanvas,
+  loadRemoteImage,
+  screenBase,
+  setLiveCanvasResolution,
+  type LiveCanvas,
+  type LiveCanvasResolutionScale,
+} from './canvasUtils'
 
 export interface ProjectWall {
   setHover(card: THREE.Mesh | null): boolean
   setSelected(key: ProjectKey | null): boolean
+  syncResolution(active: boolean): boolean
+  getResolutionSnapshot(): { width: number, height: number, scale: LiveCanvasResolutionScale }
+}
+
+interface ProjectCardScreen {
+  key: ProjectKey
+  live: LiveCanvas
+  image?: HTMLImageElement
+  failed: boolean
 }
 
 export function createProjectWall(cards: THREE.Mesh[], frames: THREE.Mesh[], textureAnisotropy = 4): ProjectWall {
+  const cardScreens: ProjectCardScreen[] = []
+
+  const drawCard = (screen: ProjectCardScreen) => {
+    const project = projects[screen.key]
+    const { context, texture } = screen.live
+    screenBase(context, screen.failed ? '#4e5a54' : '#d8d3c7')
+    if (!screen.image) {
+      context.fillStyle = '#f1f1eb'; context.font = '800 28px Arial'; context.fillText(project.title, 28, 200)
+      texture.needsUpdate = true
+      return
+    }
+    calibratedCoverCrop(context, { key: screen.key, name: project.title, image: screen.image }, 0, 0, 768, 432, 1.05, 0.5, 0.48)
+    context.save(); context.globalCompositeOperation = 'screen'; context.fillStyle = 'rgba(255,248,232,.09)'; context.fillRect(0, 0, 768, 432); context.restore()
+    const gradient = context.createLinearGradient(0, 220, 0, 432); gradient.addColorStop(0, 'rgba(16,19,18,0)'); gradient.addColorStop(1, 'rgba(16,19,18,.84)')
+    context.fillStyle = gradient; context.fillRect(0, 190, 768, 242); context.fillStyle = 'rgba(255,255,255,.14)'; context.fillRect(20, 18, 122, 28)
+    context.fillStyle = '#f1f1eb'; context.font = '700 14px Arial'; context.fillText('FEATURED', 34, 37); context.font = '800 30px Arial'; context.fillText(project.title, 28, 350)
+    context.fillStyle = 'rgba(241,241,235,.72)'; context.font = '600 15px monospace'; context.fillText(project.category, 29, 380); context.fillStyle = 'rgba(241,241,235,.62)'; context.font = '600 12px monospace'; context.fillText('TAP TO OPEN', 29, 401); texture.needsUpdate = true
+  }
+
   cards.forEach((card, index) => {
     const key = featuredProjectKeys[index]
     const frame = frames[index]
@@ -18,17 +55,16 @@ export function createProjectWall(cards: THREE.Mesh[], frames: THREE.Mesh[], tex
     card.userData.detailLabel = 'Open project'
     const project = projects[key]
     const live = createLiveCanvas(textureAnisotropy); attachLiveTexture(card, live, 0.28)
+    const screen: ProjectCardScreen = { key, live, failed: false }
+    cardScreens.push(screen)
+    drawCard(screen)
     void loadRemoteImage(project.image).then((image) => {
-      const { context, texture } = live; screenBase(context, '#d8d3c7')
-      calibratedCoverCrop(context, { key, name: project.title, image }, 0, 0, 768, 432, 1.05, 0.5, 0.48)
-      context.save(); context.globalCompositeOperation = 'screen'; context.fillStyle = 'rgba(255,248,232,.09)'; context.fillRect(0, 0, 768, 432); context.restore()
-      const gradient = context.createLinearGradient(0, 220, 0, 432); gradient.addColorStop(0, 'rgba(16,19,18,0)'); gradient.addColorStop(1, 'rgba(16,19,18,.84)')
-      context.fillStyle = gradient; context.fillRect(0, 190, 768, 242); context.fillStyle = 'rgba(255,255,255,.14)'; context.fillRect(20, 18, 122, 28)
-      context.fillStyle = '#f1f1eb'; context.font = '700 14px Arial'; context.fillText('FEATURED', 34, 37); context.font = '800 30px Arial'; context.fillText(project.title, 28, 350)
-      context.fillStyle = 'rgba(241,241,235,.72)'; context.font = '600 15px monospace'; context.fillText(project.category, 29, 380); context.fillStyle = 'rgba(241,241,235,.62)'; context.font = '600 12px monospace'; context.fillText('TAP TO OPEN', 29, 401); texture.needsUpdate = true
+      screen.image = image
+      drawCard(screen)
     }).catch((error: unknown) => {
       console.warn('[project card asset]', error)
-      const { context, texture } = live; screenBase(context, '#4e5a54'); context.fillStyle = '#f1f1eb'; context.font = '800 28px Arial'; context.fillText(project.title, 28, 200); texture.needsUpdate = true
+      screen.failed = true
+      drawCard(screen)
     })
   })
 
@@ -56,6 +92,22 @@ export function createProjectWall(cards: THREE.Mesh[], frames: THREE.Mesh[], tex
       selectedKey = key
       cards.forEach(updateCard)
       return true
+    },
+    syncResolution: (active) => {
+      const resolutionScale: LiveCanvasResolutionScale = active ? 2 : 1
+      let changed = false
+      cardScreens.forEach((screen) => {
+        if (!setLiveCanvasResolution(screen.live, resolutionScale)) return
+        drawCard(screen)
+        changed = true
+      })
+      return changed
+    },
+    getResolutionSnapshot: () => {
+      const live = cardScreens[0]?.live
+      return live
+        ? { width: live.canvas.width, height: live.canvas.height, scale: live.resolutionScale }
+        : { width: 768, height: 432, scale: 1 }
     },
   }
 }
