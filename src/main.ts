@@ -120,8 +120,13 @@ try {
 
   const setInspectLabels = (mode: InspectMode) => {
     meshes.gameLeftScreen.userData.detailLabel = mode === 'gameSelector' ? 'Select project' : 'Zoom into selector'
+    meshes.gameMainScreen.userData.detailLabel = mode === 'gamePreview' ? 'Open selected game' : 'Open project'
     meshes.archiveScreen.userData.detailLabel = mode === 'archiveCemetery' ? 'Open archived project' : 'Zoom into cemetery'
-    inspectBack.textContent = mode === 'archiveCemetery' ? '← ARCHIVE LOUNGE' : '← GAMES OVERVIEW'
+    inspectBack.textContent = mode === 'archiveCemetery'
+      ? '← ARCHIVE LOUNGE'
+      : mode === 'gamePreview'
+        ? '← GAME SELECT'
+        : '← GAMES OVERVIEW'
   }
   const navigate = (view: StudioView) => {
     const state = store.get()
@@ -146,21 +151,27 @@ try {
   }
   const enterInspect = (mode: Exclude<InspectMode, null>) => {
     const view = store.get().view
-    if ((mode === 'gameSelector' && view !== 'games') || (mode === 'archiveCemetery' && view !== 'archive')) return
+    if (((mode === 'gameSelector' || mode === 'gamePreview') && view !== 'games') || (mode === 'archiveCemetery' && view !== 'archive')) return
     const archiveKey = mode === 'archiveCemetery' ? screens.getArchiveProject() : undefined
     store.set({ inspectMode: mode, ...(archiveKey ? { selectedArchiveId: archiveKey } : {}) }); setInspectLabels(mode)
     cameraController.enterInspect(mode); scheduler.startTransition()
   }
   const enterGameInspect = () => enterInspect('gameSelector')
+  const enterGamePreview = () => enterInspect('gamePreview')
   const enterArchiveInspect = () => enterInspect('archiveCemetery')
   const exitInspect = () => {
     const state = store.get(); if (!state.inspectMode) return
     store.set({ inspectMode: null }); setInspectLabels(null)
     cameraController.exitInspect(state.view, state.mobileSheet); scheduler.startTransition()
   }
+  const backFromInspect = () => {
+    if (store.get().inspectMode !== 'gamePreview') { exitInspect(); return }
+    store.set({ inspectMode: 'gameSelector' }); setInspectLabels('gameSelector')
+    cameraController.enterInspect('gameSelector'); scheduler.startTransition()
+  }
 
   const navigation = createNavigationUI(store, navigate)
-  inspectBack.addEventListener('click', exitInspect)
+  inspectBack.addEventListener('click', backFromInspect)
   createAmbientAudio()
 
   scheduler = createRenderScheduler({
@@ -218,12 +229,12 @@ try {
     if (!isMobileViewport() || state.inspectMode) return
     cameraController.adaptToSheet(state.view, state.mobileSheet); scheduler.startTransition()
   })
-  createRaycaster({ canvas: rendering.renderer.domElement, camera: rendering.camera, meshes, hotspots, screens, projectWall, store, modal, tooltip, navigate, enterGameInspect, enterArchiveInspect, requestRender: scheduler.requestRender })
+  createRaycaster({ canvas: rendering.renderer.domElement, camera: rendering.camera, meshes, hotspots, screens, projectWall, store, modal, tooltip, navigate, enterGameInspect, enterGamePreview, enterArchiveInspect, requestRender: scheduler.requestRender })
 
   window.addEventListener('keydown', (event) => {
     if (event.key !== 'Escape') return
     if (modal.isOpen()) modal.close()
-    else if (store.get().inspectMode) exitInspect()
+    else if (store.get().inspectMode) backFromInspect()
     else if (store.get().mobileSheet === 'expanded') store.set({ mobileSheet: 'collapsed' })
     else navigate('studio')
   })

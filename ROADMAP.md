@@ -2,7 +2,7 @@
 
 Last updated: 2026-09-12  
 Current phase: Phase E — Photorealistic Desktop rollout
-Current bulk: Bulk 23.1 — Adaptive Desktop sharpness — complete; Bulk 23.2 planned
+Current bulk: Bulk 23.1a — Games selection handoff — complete; Bulk 23.2 planned
 
 ## Status legend
 
@@ -347,6 +347,16 @@ Acceptance: supported Desktop hardware receives visibly sharper geometry and tex
 Commit boundary: adaptive Desktop renderer policy, benchmarks and fixed visual evidence.
 
 Verification: 1440 × 900 HiDPI now receives 2× resolution (5.18 MP, +66.5% pixels), 1080p HiDPI reaches the 8.29 MP native-4K ceiling and 1440p HiDPI is safely capped at 1.5×/8.29 MP. Mobile remains exactly 1.1×/1×. Five-view 2880 × 1800 before/after captures, relative warmed-transition benchmark, idle-render budget, complete responsive/interaction suite, production build and Pages subpath QA passed on 2026-09-12.
+
+### Bulk 23.1a — Games selection handoff
+
+- [x] After a selection on the left Game Select monitor, transition to the selected project on the main monitor.
+- [x] Add an explicit `← GAME SELECT` return path; Escape follows the same hierarchy before returning to Games overview.
+- [x] Keep direct main-monitor detail opening and existing Mobile controls working.
+
+Acceptance: choosing a game always produces an immediately visible project result rather than leaving the selected screen out of frame.
+
+Verification: Desktop Game Select → Core Arena → main-preview → project-modal flow, both return steps, Escape hierarchy, existing Mobile selection controls, typecheck, production build and complete responsive UI suite passed on 2026-09-13.
 
 ### Bulk 23.2 — Focus-aware screen fidelity
 
