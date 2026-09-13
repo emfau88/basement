@@ -26,6 +26,8 @@ try {
   const runtime = await success.evaluate(async () => {
     const paths = [
       'assets/runtime/fixtures/smoke-box.glb',
+      'assets/photoreal/games/models/keyboard-mouse.glb',
+      'assets/photoreal/shared/models/archive-sofa.glb',
     ]
     return Promise.all(paths.map(async (path) => {
       const response = await fetch(path)

@@ -35,6 +35,7 @@ interface MaterialSet {
 }
 
 const ASSET_ROOT = 'assets/photoreal/games/'
+const SHARED_ASSET_ROOT = 'assets/photoreal/shared/'
 
 function repeat(texture: THREE.Texture, x: number, y: number): THREE.Texture {
   texture.wrapS = THREE.RepeatWrapping
@@ -290,7 +291,7 @@ export async function createGamesPhotorealProof(options: GamesProofOptions): Pro
   const { scene, renderer, materials: current, budget, quality, assets } = options
   const desktop = quality.name === 'desktop'
   const legacyWindowLayers = collectLegacyWindowLayers(scene)
-  const [materials, leftHeroPlant, rightHeroPlant] = await Promise.all([
+  const [materials, leftHeroPlant, rightHeroPlant, keyboardMouse, archiveSofa] = await Promise.all([
     loadMaterialSet(assets, budget.textureAnisotropy, desktop),
     desktop
       ? assets.loadModel(`${ASSET_ROOT}models/potted-plant-02.glb`).then((model) => model.root).catch(() => null)
@@ -298,11 +299,18 @@ export async function createGamesPhotorealProof(options: GamesProofOptions): Pro
     desktop
       ? assets.loadModel(`${ASSET_ROOT}models/potted-plant-02.glb`).then((model) => model.root).catch(() => null)
       : Promise.resolve(null),
+    desktop
+      ? assets.loadModel(`${ASSET_ROOT}models/keyboard-mouse.glb`).then((model) => model.root).catch(() => null)
+      : Promise.resolve(null),
+    desktop
+      ? assets.loadModel(`${SHARED_ASSET_ROOT}models/archive-sofa.glb`).then((model) => model.root).catch(() => null)
+      : Promise.resolve(null),
   ])
   const shell = buildShell(materials, budget)
   scene.add(shell)
   const heroPlants = [leftHeroPlant, rightHeroPlant].filter((plant): plant is THREE.Object3D => plant !== null)
-  const hero = buildGamesHero(scene, budget, materials, heroPlants)
+  const hero = buildGamesHero(scene, budget, materials, heroPlants, { keyboardMouse, archiveSofa })
+  renderer.domElement.dataset.heroModels = keyboardMouse && archiveSofa ? 'desktop-ready' : 'procedural-fallback'
   const originals = swapGamesMaterials(scene, current, materials)
 
   const previousEnvironment = scene.environment
@@ -360,9 +368,10 @@ export async function createGamesPhotorealProof(options: GamesProofOptions): Pro
     setActive,
     dispose() {
       setActive(false)
+      delete renderer.domElement.dataset.heroModels
       shell.removeFromParent()
       hero.dispose()
-      for (const plant of heroPlants) assets.release(plant)
+      for (const model of [...heroPlants, keyboardMouse, archiveSofa]) if (model) assets.release(model)
       key.removeFromParent()
       key.target.removeFromParent()
       fill.removeFromParent()

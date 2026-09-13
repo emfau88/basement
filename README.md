@@ -54,7 +54,9 @@ Edit `src/camera/presets.ts`. Desktop, mobile, Games-selector and Archive-memori
 
 ## Desktop rendering quality
 
-Desktop uses antialiasing, shadows, restrained bloom and up to `2×` device pixel ratio, capped at an 8.3-megapixel native-4K drawing buffer for very large HiDPI/ultrawide windows. Live in-world screens render at `768 × 432`; this keeps interaction smooth but is intentionally below maximum Retina/4K sharpness. PBR surface textures use anisotropic filtering to remain stable at oblique camera angles.
+Desktop uses antialiasing, shadows, restrained bloom and up to `2×` device pixel ratio, capped at an 8.3-megapixel native-4K drawing buffer for very large HiDPI/ultrawide windows. The focal live screen renders at `1536 × 864`; distant and Mobile screens stay at the efficient `768 × 432` base resolution. PBR surface textures use anisotropic filtering to remain stable at oblique camera angles.
+
+Third-party visual assets and their licenses are documented in [`public/assets/photoreal/LICENSES.md`](public/assets/photoreal/LICENSES.md); checksums and production modifications are tracked in [`docs/architecture/asset-register.md`](docs/architecture/asset-register.md).
 
 ## Quality checks
 

@@ -27,6 +27,7 @@ try {
   await desktop.waitForFunction(() => document.querySelector('#loader')?.classList.contains('done'))
   await desktop.locator('.nav button[data-view="games"]').click()
   await desktop.waitForFunction(() => ['ready', 'fallback'].includes(document.querySelector('canvas')?.dataset.gamesProof ?? ''))
+  assert(await desktop.locator('canvas').getAttribute('data-hero-models') === 'desktop-ready', 'Desktop hero models did not load')
   assert(await desktop.locator('body').evaluate((body) => !body.classList.contains('mobile-ui')), 'Desktop activated mobile UI')
   assert(await desktop.locator('canvas').getAttribute('data-quality') === 'desktop', 'Desktop render profile is incorrect')
   assert(await desktop.locator('canvas').getAttribute('data-scene-detail') === '160', 'Desktop scene detail budget is incorrect')
@@ -128,6 +129,7 @@ try {
 
   await mobile.locator('.nav button[data-view="games"]').click()
   await mobile.waitForFunction(() => ['ready', 'fallback'].includes(document.querySelector('canvas')?.dataset.gamesProof ?? ''))
+  assert(await mobile.locator('canvas').getAttribute('data-hero-models') === 'procedural-fallback', 'Mobile loaded Desktop-only hero models')
   const mobileResolution = await readScreenResolutions(mobile)
   assert(hasScale(mobileResolution, ['games', 'gamepan', 'terminal', 'apps', 'appticker', 'archive'], 1), 'Mobile live-screen resolution policy changed')
   assert(mobileResolution.projects?.scale === 1, 'Mobile project-card resolution policy changed')

@@ -373,6 +373,21 @@ Commit boundary: focus-aware screen resolution, selective asset upgrades and fin
 
 Verification: focal Desktop canvases switch from 768 × 432 to 1536 × 864 (4× pixels) while Mobile and non-focal screens remain unchanged. Resolution-state interaction tests, source audit, five-view/close-up visual review, GPU-safe resize regression, responsive suite, production build, benchmark and Pages subpath QA passed on 2026-09-13.
 
+### Bulk 23.3 — Photoreal hero models
+
+- [x] Replace the Archive's procedural sofa with a licensed, textured two-seat model on Desktop.
+- [x] Replace the Games keyboard and mouse primitives with one licensed PBR input-device set.
+- [x] Remove visible USB cable clutter, restrain RGB emission and preserve the existing procedural geometry as the Mobile/load-failure fallback.
+- [x] Optimize both source downloads into compact Meshopt/WebP runtime GLBs and keep original packages out of the production repository.
+- [x] Record creator, license, source URL, original/runtime checksums and every material/geometry presentation change.
+- [x] Verify Games and Archive at 1440 × 900 plus the complete Desktop/Mobile interaction matrix, production build, asset QA and Pages subpath.
+
+Acceptance: the most visually exposed furniture and desk-input primitives read as authored products rather than rounded boxes, with no interaction regression or unjustified Mobile payload.
+
+Commit boundary: optimized model assets, Desktop placement/fallback logic, attribution, fixed captures and regressions.
+
+Verification: targeted 1280 × 800 and 1440 × 900 Games/Archive reviews, Desktop model-load and Mobile fallback assertions, complete interaction/responsive suite, asset runtime QA, production build and GitHub Pages `/basement/` subpath QA passed on 2026-09-13.
+
 ### Decision gate E — Complete Desktop approval
 
 - [ ] Approve the five-view Desktop set.
