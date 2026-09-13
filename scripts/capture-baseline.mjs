@@ -9,6 +9,7 @@ const force = process.argv.includes('--force')
 const viewNames = ['studio', 'games', 'web', 'projects', 'archive']
 const profiles = [
   { name: 'desktop-1440x900', width: 1440, height: 900 },
+  { name: 'desktop-hidpi-1440x900', width: 1440, height: 900, scale: 2 },
   { name: 'mobile-390x844', width: 390, height: 844 },
   { name: 'mobile-430x932', width: 430, height: 932 },
 ]
@@ -31,7 +32,7 @@ try {
   for (const profile of profiles) {
     const context = await browser.newContext({
       viewport: { width: profile.width, height: profile.height },
-      deviceScaleFactor: 1,
+      deviceScaleFactor: profile.scale ?? 1,
       reducedMotion: 'reduce',
     })
     const page = await context.newPage()

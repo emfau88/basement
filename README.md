@@ -1,6 +1,6 @@
 # EMFAU Virtual Studio
 
-EMFAU Virtual Studio is a bright, interactive 3D portfolio for games, apps and archived experiments. The room itself is the navigation: fixed camera compositions move between the main studio, Games, Web, Projects and Archive stations.
+EMFAU Virtual Studio is an interactive 3D portfolio for games, apps and archived experiments. The room itself is the navigation: calibrated camera compositions move between Studio, Games, Web, Projects and Archive. Each area combines procedural geometry, PBR materials, live project screens and accessible HTML project details.
 
 The interaction model takes conceptual inspiration from [Basement Studio](https://basement.studio/), especially its separation of scenes, camera state and inspectable objects. This repository remains an independent, deliberately smaller Three.js implementation without React, Next.js or React Three Fiber.
 
@@ -18,7 +18,7 @@ npm install
 npm run dev
 ```
 
-The Vite development server prints the local URL. Remote project screenshots require a network connection; unavailable images fall back without stopping the studio.
+The Vite development server prints the local URL. Unavailable project images fall back without stopping the studio.
 
 ## Production build
 
@@ -35,7 +35,7 @@ The static build is written to `dist/`. `vite.config.ts` uses a relative base pa
 - `src/data/projects.ts` is the single source of truth for titles, images, links, metadata and per-project display calibration.
 - `src/state/studioState.ts` stores the current view, inspect mode, project selections and open modal.
 - `src/camera/` contains desktop/mobile/inspect presets and camera transitions.
-- `src/scene/` contains the renderer, shared materials/geometries and the procedural room.
+- `src/scene/` contains the renderer, asset pipeline, PBR materials and modular procedural room zones.
 - `src/screens/` renders the animated CanvasTextures and the physical Projects wall.
 - `src/interaction/` contains hotspots and raycast behavior.
 - `src/ui/` controls navigation, mobile selectors and the accessible project modal.
@@ -50,7 +50,25 @@ Bright screenshots should be calibrated per project with `brightness`, `saturati
 
 ## Change a camera view
 
-Edit `src/camera/presets.ts`. Desktop, mobile and Games-selector inspect views are kept separate. `src/camera/cameraController.ts` applies transitions and respects `prefers-reduced-motion`.
+Edit `src/camera/presets.ts`. Desktop, mobile, Games-selector and Archive-memorial inspect views are kept separate. `src/camera/cameraController.ts` applies transitions and respects `prefers-reduced-motion`.
+
+## Desktop rendering quality
+
+Desktop uses antialiasing, shadows, restrained bloom and up to `2×` device pixel ratio, capped at an 8.3-megapixel native-4K drawing buffer for very large HiDPI/ultrawide windows. The focal live screen renders at `1536 × 864`; distant and Mobile screens stay at the efficient `768 × 432` base resolution. PBR surface textures use anisotropic filtering to remain stable at oblique camera angles.
+
+Third-party visual assets and their licenses are documented in [`public/assets/photoreal/LICENSES.md`](public/assets/photoreal/LICENSES.md); checksums and production modifications are tracked in [`docs/architecture/asset-register.md`](docs/architecture/asset-register.md).
+
+## Quality checks
+
+```bash
+npm run typecheck
+npm run build
+npm run qa:mobile
+npm run qa:pages
+npm run qa:capture-current
+```
+
+The responsive suite also exercises Desktop breakpoints, project interactions, inspect modes, asset fallbacks and WebGL recovery. Fixed visual evidence and the active implementation sequence live in `docs/qa/` and `ROADMAP.md`.
 
 ## GitHub Pages
 

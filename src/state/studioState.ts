@@ -1,7 +1,7 @@
 import type { ProjectKey } from '../data/projects'
 
 export type StudioView = 'studio' | 'games' | 'web' | 'projects' | 'archive'
-export type InspectMode = 'gameSelector' | 'archiveCemetery' | null
+export type InspectMode = 'gameSelector' | 'gamePreview' | 'archiveCemetery' | null
 export type MobileSheetState = 'collapsed' | 'expanded'
 
 export interface StudioState {

@@ -20,6 +20,7 @@ interface Options {
   tooltip: HTMLElement
   navigate(view: StudioView): void
   enterGameInspect(): void
+  enterGamePreview(): void
   enterArchiveInspect(): void
   requestRender(): void
 }
@@ -41,7 +42,13 @@ export function createRaycaster(options: Options): void {
   }
   const detailHit = () => {
     const state = store.get(); if (state.view === 'studio') return undefined
-    const candidates = state.inspectMode === 'gameSelector' ? [meshes.gameLeftScreen] : state.inspectMode === 'archiveCemetery' ? [meshes.archiveScreen] : detailMeshes
+    const candidates = state.inspectMode === 'gameSelector'
+      ? [meshes.gameLeftScreen]
+      : state.inspectMode === 'gamePreview'
+        ? [meshes.gameMainScreen]
+        : state.inspectMode === 'archiveCemetery'
+          ? [meshes.archiveScreen]
+          : detailMeshes
     return raycaster.intersectObjects(candidates, false).find((hit) => hit.object.userData.section === state.view)
   }
 
@@ -76,7 +83,11 @@ export function createRaycaster(options: Options): void {
       const mesh = hit.object as THREE.Mesh; const state = store.get()
       if (mesh === meshes.gameLeftScreen) {
         if (state.inspectMode !== 'gameSelector') options.enterGameInspect()
-        else { screens.selectGameFromHit(hit); options.requestRender() }
+        else {
+          screens.selectGameFromHit(hit)
+          if (isMobileViewport()) options.requestRender()
+          else options.enterGamePreview()
+        }
         return
       }
       if (mesh === meshes.archiveScreen) {

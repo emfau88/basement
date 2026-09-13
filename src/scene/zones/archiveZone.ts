@@ -104,7 +104,7 @@ export function buildArchiveZone(materials: StudioMaterials, tools: SceneTools, 
   for (const x of [-.91, -.76]) addCylinder(memorial, .045, .045, .034, [x, .92, .54], x < -.85 ? materials.sage : materials.terracotta, [Math.PI / 2, 0, 0], 18)
 
   // The lounge keeps the left side human in scale without competing with the terminal.
-  tools.box('ArchiveLoungeRug', [2.75, .028, 3.65], [-5.98, .018, .62], archiveRug, [0, 0, 0], false, true, .08)
+  tools.box('ArchiveLoungeRug', [2.75, .028, 3.65], [-5.98, .018, .82], archiveRug, [0, 0, 0], false, true, .08)
   const sofa = group('ArchiveLounge', [-6.78, 0, 1.02], [0, Math.PI / 2, 0])
   for (const x of [-1.04, 1.04]) for (const z of [-.31, .31]) addCylinder(sofa, .035, .05, .23, [x, .17, z], darkMetal, [0, 0, 0], 16)
   addBox(sofa, [2.6, .3, .92], [0, .39, 0], sofaFrame, [0, 0, 0], .12)
@@ -117,21 +117,21 @@ export function buildArchiveZone(materials: StudioMaterials, tools: SceneTools, 
   addBox(sofa, [.54, .18, .46], [.5, .94, .13], materials.white, [0, 0, -.06], .08)
   addBox(sofa, [.018, .15, .66], [0, .75, .08], sofaFrame, [0, 0, 0], .006)
 
-  const coffee = group('ArchiveCoffee', [-5.18, 0, .58], [0, -.05, 0])
+  const coffee = group('ArchiveCoffee', [-5.18, 0, .78], [0, -.05, 0])
   addBox(coffee, [1.42, .1, .74], [0, .43, 0], wood, [0, 0, 0], .075)
   for (const x of [-.52, .52]) for (const z of [-.25, .25]) addBox(coffee, [.052, .39, .052], [x, .2, z], darkMetal, [0, 0, 0], .014)
   addBox(coffee, [.42, .028, .26], [-.2, .5, .01], materials.white2, [0, .1, 0], .014)
   addCylinder(coffee, .085, .105, .15, [.32, .52, .02], materials.white, [0, 0, 0], 20)
 
-  const lamp = group('ArchiveFloorLamp', [-6.62, 0, 2.58])
+  const lamp = group('ArchiveFloorLamp', [-6.62, 0, 2.88])
   addCylinder(lamp, .22, .25, .035, [0, .04, 0], darkMetal, [0, 0, 0], 24)
   addCylinder(lamp, .018, .024, 1.92, [0, 1, 0], warmMetal, [0, 0, 0], 16)
   addCylinder(lamp, .22, .38, .42, [0, 2.02, 0], materials.terracotta, [0, 0, 0], 24)
   addCylinder(lamp, .12, .12, .025, [0, 1.79, 0], materials.white, [0, 0, 0], 18)
 
-  const loungeArt = group('ArchiveLoungeArt', [-7.31, 0, .94], [0, Math.PI / 2, 0])
-  addBox(loungeArt, [1.62, .92, .055], [0, 2.82, 0], darkMetal, [0, 0, 0], .03)
-  addBox(loungeArt, [1.48, .78, .025], [0, 2.82, .045], plaqueMaterial(tools, 'lounge', 'RIP, SCOPE.', 'YOU GREW TOO LARGE'), [0, 0, 0], .018)
+  const loungeArt = group('ArchiveLoungeArt', [-7.31, 0, 1.32], [0, Math.PI / 2, 0])
+  addBox(loungeArt, [1.46, .83, .055], [0, 2.74, 0], darkMetal, [0, 0, 0], .03)
+  addBox(loungeArt, [1.33, .7, .025], [0, 2.74, .045], plaqueMaterial(tools, 'lounge', 'RIP, SCOPE.', 'YOU GREW TOO LARGE'), [0, 0, 0], .018)
 
   if (budget.decorativeLights) {
     point(0xffc987, 1.18, 3.5, [-6.2, 2.0, -1.18])

@@ -90,11 +90,13 @@ export function buildGamesZone(materials: StudioMaterials, tools: SceneTools, bu
   addBox(rightMonitor, [.56, .045, .26], [0, 1.26, -.2], materials.graphite, [0, 0, 0], .02)
 
   // Input devices and tactile props keep the station readable at close range.
-  addBox(desk, [1.72, .055, .39], [-.34, 1.23, .44], materials.black, [0, 0, 0], .025)
-  addInstances(desk, 'KeyboardKeys', [.105, .02, .09], Array.from({ length: 10 }, (_, index) => ({
+  const legacyKeyboardDeck = addBox(desk, [1.72, .055, .39], [-.34, 1.23, .44], materials.black, [0, 0, 0], .025)
+  legacyKeyboardDeck.name = 'LegacyKeyboardDeck'
+  addInstances(desk, 'LegacyKeyboardKeys', [.105, .02, .09], Array.from({ length: 10 }, (_, index) => ({
     position: [-1.01 + index * .14, 1.265, .44] as const,
   })), materials.graphite2, .008)
-  addBox(desk, [.25, .035, .34], [.76, 1.24, .47], materials.black, [0, 0, 0], .04)
+  const legacyMouse = addBox(desk, [.25, .035, .34], [.76, 1.24, .47], materials.black, [0, 0, 0], .04)
+  legacyMouse.name = 'LegacyMouse'
   const controller = group('GameController', [1.28, 1.22, -2.98], [.02, 0, 0])
   addBox(controller, [.58, .11, .3], [0, 0, 0], materials.graphite, [0, 0, 0], .08)
   addCylinder(controller, .055, .055, .08, [-.14, .08, .02], materials.black, [Math.PI / 2, 0, 0], 18)

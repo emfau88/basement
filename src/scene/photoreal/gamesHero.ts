@@ -18,6 +18,11 @@ export interface GamesHeroController {
   dispose(): void
 }
 
+export interface GamesHeroModels {
+  keyboardMouse: THREE.Object3D | null
+  archiveSofa: THREE.Object3D | null
+}
+
 function roundedBox(
   root: THREE.Object3D,
   name: string,
@@ -157,6 +162,62 @@ function placePlant(root: THREE.Group, plant: THREE.Object3D, name: string, posi
   root.add(plantAnchor)
 }
 
+interface ModelPlacement {
+  name: string
+  center: readonly [number, number]
+  floorY: number
+  maxWidth: number
+  maxDepth: number
+  rotationY?: number
+}
+
+function placeFittedModel(root: THREE.Group, model: THREE.Object3D, placement: ModelPlacement): void {
+  model.name = placement.name
+  model.position.set(0, 0, 0)
+  model.rotation.set(0, placement.rotationY ?? 0, 0)
+  model.scale.setScalar(1)
+  root.add(model)
+  model.updateWorldMatrix(true, true)
+
+  const initialBounds = new THREE.Box3().setFromObject(model)
+  const initialSize = initialBounds.getSize(new THREE.Vector3())
+  const scale = Math.min(
+    initialSize.x > 0 ? placement.maxWidth / initialSize.x : 1,
+    initialSize.z > 0 ? placement.maxDepth / initialSize.z : 1,
+  )
+  model.scale.setScalar(scale)
+  model.updateWorldMatrix(true, true)
+
+  const bounds = new THREE.Box3().setFromObject(model)
+  const center = bounds.getCenter(new THREE.Vector3())
+  model.position.x += placement.center[0] - center.x
+  model.position.y += placement.floorY - bounds.min.y
+  model.position.z += placement.center[1] - center.z
+  model.traverse((object) => {
+    if (!(object instanceof THREE.Mesh)) return
+    object.castShadow = true
+    object.receiveShadow = true
+    object.userData.assetManagedGeometry = true
+  })
+}
+
+function prepareKeyboardMouse(model: THREE.Object3D): void {
+  model.traverse((object) => {
+    if (/USB (?:Cable|Connector)/i.test(object.name)) {
+      object.visible = false
+      return
+    }
+    if (!(object instanceof THREE.Mesh) || !/LED/i.test(object.name)) return
+    const materials = Array.isArray(object.material) ? object.material : [object.material]
+    for (const material of materials) {
+      if (!(material instanceof THREE.MeshStandardMaterial)) continue
+      material.emissive.set(0x739da0)
+      material.emissiveIntensity = Math.min(material.emissiveIntensity || 0.26, 0.32)
+      material.toneMapped = true
+    }
+  })
+}
+
 function buildChair(root: THREE.Group, materials: GamesHeroMaterials, segments: number): void {
   const chair = new THREE.Group()
   chair.name = 'GamesErgonomicChair'
@@ -195,7 +256,7 @@ function buildChair(root: THREE.Group, materials: GamesHeroMaterials, segments: 
   }
 }
 
-function buildDeskDetails(root: THREE.Group, materials: GamesHeroMaterials, segments: number): void {
+function buildDeskDetails(root: THREE.Group, materials: GamesHeroMaterials, segments: number, keyboardMouse: THREE.Object3D | null): void {
   roundedBox(root, 'WalnutHeroWorktop', [5.38, 0.18, 1.58], [0, 1.13, -3.45], materials.walnut, 0.055, 5)
   roundedBox(root, 'DeskCableTray', [3.5, 0.12, 0.28], [0, 0.88, -3.9], materials.graphite, 0.025, 3)
   for (const x of [-2.28, 2.28]) {
@@ -207,26 +268,37 @@ function buildDeskDetails(root: THREE.Group, materials: GamesHeroMaterials, segm
     roundedBox(root, 'DeskDrawerReveal', [0.49, 0.015, 0.035], [1.93, y, -3.215], materials.upholstery, 0.006, 2)
   }
 
-  const keyboard = new THREE.Group()
-  keyboard.name = 'HeroKeyboard'
-  keyboard.position.set(-0.32, 1.245, -3.02)
-  keyboard.rotation.x = -0.045
-  root.add(keyboard)
-  roundedBox(keyboard, 'KeyboardDeck', [1.48, 0.045, 0.42], [0, 0, 0], materials.graphite, 0.025, 3)
-  const keyGeometry = new RoundedBoxGeometry(0.075, 0.018, 0.06, 2, 0.008)
-  const keys = new THREE.InstancedMesh(keyGeometry, materials.upholstery, 60)
-  keys.name = 'KeyboardKeys'
-  const matrix = new THREE.Matrix4()
-  let instance = 0
-  for (let row = 0; row < 4; row += 1) {
-    for (let column = 0; column < 15; column += 1) {
-      matrix.makeTranslation(-0.56 + column * 0.08, 0.032, -0.12 + row * 0.078)
-      keys.setMatrixAt(instance, matrix)
-      instance += 1
+  if (keyboardMouse) {
+    prepareKeyboardMouse(keyboardMouse)
+    placeFittedModel(root, keyboardMouse, {
+      name: 'HeroKeyboardMouse',
+      center: [-0.2, -2.99],
+      floorY: 1.225,
+      maxWidth: 1.82,
+      maxDepth: 0.56,
+    })
+  } else {
+    const keyboard = new THREE.Group()
+    keyboard.name = 'HeroKeyboard'
+    keyboard.position.set(-0.32, 1.245, -3.02)
+    keyboard.rotation.x = -0.045
+    root.add(keyboard)
+    roundedBox(keyboard, 'KeyboardDeck', [1.48, 0.045, 0.42], [0, 0, 0], materials.graphite, 0.025, 3)
+    const keyGeometry = new RoundedBoxGeometry(0.075, 0.018, 0.06, 2, 0.008)
+    const keys = new THREE.InstancedMesh(keyGeometry, materials.upholstery, 60)
+    keys.name = 'KeyboardKeys'
+    const matrix = new THREE.Matrix4()
+    let instance = 0
+    for (let row = 0; row < 4; row += 1) {
+      for (let column = 0; column < 15; column += 1) {
+        matrix.makeTranslation(-0.56 + column * 0.08, 0.032, -0.12 + row * 0.078)
+        keys.setMatrixAt(instance, matrix)
+        instance += 1
+      }
     }
+    keys.castShadow = true
+    keyboard.add(keys)
   }
-  keys.castShadow = true
-  keyboard.add(keys)
 
   cylinder(root, 'DeskMug', 0.168, 0.336, [1.48, 1.388, -2.84], materials.mug, segments, [0, Math.PI, 0])
   const handle = new THREE.Mesh(new THREE.TorusGeometry(0.126, 0.026, 8, Math.max(16, segments), Math.PI * 1.55), materials.mug)
@@ -258,7 +330,13 @@ function buildDeskDetails(root: THREE.Group, materials: GamesHeroMaterials, segm
   roundedBox(root, 'MonitorLightBarGlow', [0.48, 0.012, 0.018], [0, 2.825, -3.52], lightBarGlow, 0.005, 2)
 }
 
-export function buildGamesHero(scene: THREE.Scene, budget: SceneDetailBudget, materials: GamesHeroMaterials, heroPlants: readonly THREE.Object3D[]): GamesHeroController {
+export function buildGamesHero(
+  scene: THREE.Scene,
+  budget: SceneDetailBudget,
+  materials: GamesHeroMaterials,
+  heroPlants: readonly THREE.Object3D[],
+  models: GamesHeroModels,
+): GamesHeroController {
   const root = new THREE.Group()
   root.name = 'GamesPhotorealHero'
   scene.add(root)
@@ -274,15 +352,32 @@ export function buildGamesHero(scene: THREE.Scene, budget: SceneDetailBudget, ma
   const floor = roundedBox(root, 'StudioConcreteFloor', [15.02, 0.035, 10.62], [0, 0.006, -1.2], materials.floor, 0.018, 2)
   floor.castShadow = false
   roundedBox(root, 'GamesWovenRug', [5.72, 0.045, 3.35], [0, 0.025, -2.2], materials.rug, 0.065, 4)
-  buildDeskDetails(root, materials, Math.max(16, budget.cylinderSegments))
+  buildDeskDetails(root, materials, Math.max(16, budget.cylinderSegments), models.keyboardMouse)
   buildChair(root, materials, Math.max(16, budget.cylinderSegments))
   addTypographyPoster(root, materials)
+
+  if (models.archiveSofa) {
+    placeFittedModel(root, models.archiveSofa, {
+      name: 'HeroArchiveSofa',
+      center: [-6.42, 1.34],
+      floorY: 0.035,
+      maxWidth: 1.02,
+      maxDepth: 2.64,
+      rotationY: Math.PI,
+    })
+  }
 
   if (heroPlants[0]) placePlant(root, heroPlants[0], 'GamesHeroPlantLeft', [-3.72, 0, -4.72], 1.82, -0.42)
   if (heroPlants[1]) placePlant(root, heroPlants[1], 'GamesHeroPlantRight', [3.98, 0, -4.44], 1.48, 0.58)
 
   const hiddenOriginals = new Map<THREE.Object3D, boolean>()
-  for (const name of ['Chair', 'rug']) {
+  const replacedLegacyNames = [
+    'Chair',
+    'rug',
+    ...(models.keyboardMouse ? ['LegacyKeyboardDeck', 'LegacyKeyboardKeys', 'LegacyMouse'] : []),
+    ...(models.archiveSofa ? ['ArchiveLounge'] : []),
+  ]
+  for (const name of replacedLegacyNames) {
     const object = scene.getObjectByName(name)
     if (!object) continue
     hiddenOriginals.set(object, object.visible)

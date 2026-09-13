@@ -1,8 +1,8 @@
 # EMFAU Virtual Studio roadmap
 
-Last updated: 2026-09-12  
+Last updated: 2026-09-13
 Current phase: Phase E — Photorealistic Desktop rollout
-Current bulk: Bulk 23 — Desktop integration and approval — complete; Decision gate E awaiting visual approval
+Current bulk: Bulk 23.2 — Focus-aware screen fidelity — complete; Decision gate E pending
 
 ## Status legend
 
@@ -333,6 +333,60 @@ Verification: fixed 1440 × 900 overview and frontal-inspect captures, hover-to-
 Acceptance: all five Desktop views meet the Games baseline, feel like one designed environment and are explicitly approved before Mobile work resumes.
 
 Verification: five-view fixed 1440 × 900 before/after set, responsive viewport matrix through 1920 × 1080, complete interaction suite, typecheck, production build and GitHub Pages `/basement/` subpath QA passed on 2026-09-12. Final visual approval remains Decision gate E.
+
+### Bulk 23.1 — Adaptive Desktop sharpness
+
+- [x] Capture current 1.55× Desktop performance and visual baselines at representative 1080p and HiDPI sizes.
+- [x] Raise Desktop rendering toward 2× device pixel ratio with a simple 8.3-megapixel (native 4K) drawing-buffer ceiling for 4K/ultrawide windows.
+- [x] Keep antialiasing, shadows and bloom calibrated; do not change Mobile quality profiles.
+- [x] Compare the measured p95 transition/render interval with the 1.55× baseline and document the headless GPU limitation against the nominal 22 ms hardware budget.
+- [x] Compare all five views and camera transitions for sharper edges without shimmer, stalls or excessive memory use.
+
+Acceptance: supported Desktop hardware receives visibly sharper geometry and text without destabilizing navigation or weaker laptops.
+
+Commit boundary: adaptive Desktop renderer policy, benchmarks and fixed visual evidence.
+
+Verification: 1440 × 900 HiDPI now receives 2× resolution (5.18 MP, +66.5% pixels), 1080p HiDPI reaches the 8.29 MP native-4K ceiling and 1440p HiDPI is safely capped at 1.5×/8.29 MP. Mobile remains exactly 1.1×/1×. Five-view 2880 × 1800 before/after captures, relative warmed-transition benchmark, idle-render budget, complete responsive/interaction suite, production build and Pages subpath QA passed on 2026-09-12.
+
+### Bulk 23.1a — Games selection handoff
+
+- [x] After a selection on the left Game Select monitor, transition to the selected project on the main monitor.
+- [x] Add an explicit `← GAME SELECT` return path; Escape follows the same hierarchy before returning to Games overview.
+- [x] Keep direct main-monitor detail opening and existing Mobile controls working.
+
+Acceptance: choosing a game always produces an immediately visible project result rather than leaving the selected screen out of frame.
+
+Verification: Desktop Game Select → Core Arena → main-preview → project-modal flow, both return steps, Escape hierarchy, existing Mobile selection controls, typecheck, production build and complete responsive UI suite passed on 2026-09-13.
+
+### Bulk 23.2 — Focus-aware screen fidelity
+
+- [x] Make live-screen resolution configurable instead of globally fixed at 768 × 432.
+- [x] Render the focal screen in the active Desktop zone (and the inspected screen) at 1536 × 864 while distant/non-focal screens retain the efficient base resolution.
+- [x] Audit project-image source dimensions and retain the best available originals rather than fabricating detail through offline upscaling.
+- [x] Audit close-up PBR surfaces; the existing tiled 1K sets remain sufficient at the approved cameras, so no unjustified 2K payload was added.
+- [x] Verify hover, selection, project opening, asset fallbacks and Archive/Games inspect views at both screen resolutions.
+- [x] Repeat the complete Desktop visual set, responsive tests, production build and Pages subpath QA.
+
+Acceptance: close-up displays and major surfaces reach a perceived 9/10 Desktop sharpness while background work remains performance-conscious.
+
+Commit boundary: focus-aware screen resolution, selective asset upgrades and final sharpness/performance evidence.
+
+Verification: focal Desktop canvases switch from 768 × 432 to 1536 × 864 (4× pixels) while Mobile and non-focal screens remain unchanged. Resolution-state interaction tests, source audit, five-view/close-up visual review, GPU-safe resize regression, responsive suite, production build, benchmark and Pages subpath QA passed on 2026-09-13.
+
+### Bulk 23.3 — Photoreal hero models
+
+- [x] Replace the Archive's procedural sofa with a licensed, textured two-seat model on Desktop.
+- [x] Replace the Games keyboard and mouse primitives with one licensed PBR input-device set.
+- [x] Remove visible USB cable clutter, restrain RGB emission and preserve the existing procedural geometry as the Mobile/load-failure fallback.
+- [x] Optimize both source downloads into compact Meshopt/WebP runtime GLBs and keep original packages out of the production repository.
+- [x] Record creator, license, source URL, original/runtime checksums and every material/geometry presentation change.
+- [x] Verify Games and Archive at 1440 × 900 plus the complete Desktop/Mobile interaction matrix, production build, asset QA and Pages subpath.
+
+Acceptance: the most visually exposed furniture and desk-input primitives read as authored products rather than rounded boxes, with no interaction regression or unjustified Mobile payload.
+
+Commit boundary: optimized model assets, Desktop placement/fallback logic, attribution, fixed captures and regressions.
+
+Verification: targeted 1280 × 800 and 1440 × 900 Games/Archive reviews, Desktop model-load and Mobile fallback assertions, complete interaction/responsive suite, asset runtime QA, production build and GitHub Pages `/basement/` subpath QA passed on 2026-09-13.
 
 ### Decision gate E — Complete Desktop approval
 
