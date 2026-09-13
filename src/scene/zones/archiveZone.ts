@@ -54,6 +54,15 @@ function boxLabelMaterial(tools: SceneTools, key: string, title: string, note: s
   return new THREE.MeshStandardMaterial({ map: texture, emissiveMap: texture, emissive: 0xffffff, emissiveIntensity: .08, roughness: .78, metalness: .02 })
 }
 
+function bookSpineMaterial(tools: SceneTools, key: string, title: string, color: string, accent: string): THREE.MeshStandardMaterial {
+  const texture = tools.canvasTexture(`archive:book:${key}`, 768, 128, (context, canvas) => {
+    context.fillStyle = color; context.fillRect(0, 0, canvas.width, canvas.height)
+    context.fillStyle = accent; context.fillRect(24, 20, 10, canvas.height - 40)
+    context.fillStyle = '#eee8da'; context.font = '800 34px Arial'; context.textBaseline = 'middle'; context.fillText(title, 58, canvas.height / 2)
+  })
+  return new THREE.MeshStandardMaterial({ map: texture, roughness: .78, metalness: .02 })
+}
+
 export function buildArchiveZone(materials: StudioMaterials, tools: SceneTools, budget: SceneDetailBudget): ArchiveZoneMeshes {
   const { addBox, addCylinder, group, point } = tools
   const wood = archiveWoodMaterial(tools)
@@ -70,11 +79,12 @@ export function buildArchiveZone(materials: StudioMaterials, tools: SceneTools, 
   addBox(shelves, [3.26, 3.55, .08], [0, 2.05, -.27], materials.concreteDark, [0, 0, 0], .035)
   for (const x of [-1.55, 0, 1.55]) addBox(shelves, [.075, 3.68, .52], [x, 2.02, 0], darkMetal, [0, 0, 0], .018)
   for (const y of [.42, 1.12, 1.82, 2.52, 3.22]) addBox(shelves, [3.18, .075, .56], [0, y, 0], wood, [0, 0, 0], .022)
-  addBox(shelves, [2.88, .46, .065], [0, 3.75, .08], plaqueMaterial(tools, 'shelf', 'DEAD BUILDS.', 'LIVE LESSONS  /  ARCHIVE 04'), [0, 0, 0], .025)
+  // Wall-mounted header, separated from the cabinet rather than embedded in it.
+  addBox(shelves, [2.72, .43, .065], [0, 4.24, -.23], plaqueMaterial(tools, 'shelf', 'DEAD BUILDS.', 'LIVE LESSONS  /  ARCHIVE 04'), [0, 0, 0], .025)
 
   const boxes = [
     { x: -1.02, y: .69, w: .78, h: .42, d: .44, material: materials.sage, key: 'bugs', title: 'BUGS', note: '2019–2021', color: '#536758' },
-    { x: .02, y: .67, w: 1.02, h: .38, d: .46, material: materials.graphite2, key: 'meta', title: 'OLD META', note: 'HANDLE WITH CARE', color: '#303633' },
+    { x: .92, y: .67, w: 1.02, h: .38, d: .46, material: materials.graphite2, key: 'meta', title: 'OLD META', note: 'HANDLE WITH CARE', color: '#303633' },
     { x: .98, y: 1.39, w: .86, h: .42, d: .44, material: materials.terracotta, key: 'v1', title: 'V1.0', note: 'MOSTLY WORKED', color: '#985b41' },
     { x: -.72, y: 2.08, w: 1.28, h: .42, d: .46, material: materials.graphite2, key: 'maybe', title: 'MAYBE', note: 'SOMEDAY / MAYBE', color: '#303633' },
   ]
@@ -87,6 +97,22 @@ export function buildArchiveZone(materials: StudioMaterials, tools: SceneTools, 
   }
   addCylinder(shelves, .18, .18, .11, [.92, 2.79, .04], warmMetal, [Math.PI / 2, 0, 0], 24)
   addCylinder(shelves, .066, .066, .125, [.92, 2.79, .105], darkMetal, [Math.PI / 2, 0, 0], 18)
+
+  const archiveBooks = [
+    { title: 'GAME DESIGN', color: '#242725', accent: '#d9b66f' },
+    { title: 'REAL-TIME GRAPHICS', color: '#66503d', accent: '#eee8da' },
+    { title: 'PLAYTESTING', color: '#343a35', accent: '#b9c9bf' },
+  ]
+  archiveBooks.forEach((book, index) => {
+    addBox(
+      shelves,
+      [.98 - index * .035, .105, .4],
+      [.88, 1.93 + index * .115, .03],
+      bookSpineMaterial(tools, `games-${index}`, book.title, book.color, book.accent),
+      [0, 0, (index - 1) * .018],
+      .012,
+    )
+  })
 
   // A flush wall memorial replaces the freestanding CRT box. The sideboard may project;
   // the display itself remains a shallow architectural layer on the left wall.

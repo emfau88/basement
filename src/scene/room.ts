@@ -62,7 +62,10 @@ box('ceiling',[15.2,.16,10.8],[0,5.16,-1.2],M.white2);
 box('leftSkirting',[.11,.20,10.45],[-7.32,.10,-1.2],M.graphite,[0,0,0],false,true,.025);
 box('rightSkirting',[.11,.20,10.45],[7.32,.10,-1.2],M.graphite,[0,0,0],false,true,.025);
 for(const z of [-5.78,-1.18,3.42]){
-  box('leftPier',[.20,4.82,.42],[-7.27,2.48,z],M.concreteDark,[0,0,0],true,true,.035);
+  // The middle left pier sat directly behind the Archive memorial and read as
+  // an accidental rib through the screen and sideboard. The continuous wall
+  // provides the required visual structure at this location.
+  if(z!==-1.18) box('leftPier',[.20,4.82,.42],[-7.27,2.48,z],M.concreteDark,[0,0,0],true,true,.035);
   box('rightPier',[.20,4.82,.42],[7.27,2.48,z],M.concreteDark,[0,0,0],true,true,.035)
 }
 

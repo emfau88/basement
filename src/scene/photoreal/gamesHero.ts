@@ -86,37 +86,6 @@ function canvasMaterial(
   return material
 }
 
-function addBookStack(root: THREE.Group): void {
-  const labels = ['GAME DESIGN', 'REAL-TIME GRAPHICS', 'PLAYTESTING']
-  const colors = [0x242725, 0x66503d, 0x343a35]
-  for (let index = 0; index < labels.length; index += 1) {
-    const text = labels[index] ?? ''
-    const y = 1.285 + index * 0.122
-    const bookMaterial = new THREE.MeshStandardMaterial({
-      color: colors[index] ?? 0x242725,
-      roughness: 0.78,
-      metalness: 0.02,
-    })
-    bookMaterial.userData.heroOwned = true
-    roundedBox(root, 'DeskBook', [0.96 - index * 0.035, 0.112, 0.4], [-2.02, y, -3.01], bookMaterial, 0.014, 2, [0, -0.035 + index * 0.018, 0])
-
-    const labelMaterial = canvasMaterial(512, 72, (context, canvas) => {
-      context.fillStyle = '#242624'
-      context.fillRect(0, 0, canvas.width, canvas.height)
-      context.fillStyle = index === 1 ? '#e0bd76' : '#ece8dc'
-      context.font = '700 28px Arial'
-      context.textAlign = 'center'
-      context.textBaseline = 'middle'
-      context.fillText(text, canvas.width / 2, canvas.height / 2)
-    })
-    const label = new THREE.Mesh(new THREE.PlaneGeometry(0.79, 0.084), labelMaterial)
-    label.name = 'DeskBookLabel'
-    label.position.set(-2.02, y, -2.806)
-    label.rotation.y = -0.035 + index * 0.018
-    root.add(label)
-  }
-}
-
 function addTypographyPoster(root: THREE.Group, materials: GamesHeroMaterials): void {
   roundedBox(root, 'GamesTypographyPosterFrame', [1.02, 1.52, 0.065], [-4.42, 3.12, -6.23], materials.graphite, 0.028, 4)
   const posterMaterial = canvasMaterial(640, 960, (context, canvas) => {
@@ -218,6 +187,47 @@ function prepareKeyboardMouse(model: THREE.Object3D): void {
   })
 }
 
+function placeMouse(root: THREE.Group, model: THREE.Object3D): void {
+  const parts: THREE.Mesh[] = []
+  model.traverse((object) => {
+    if (object instanceof THREE.Mesh && /Mouse/i.test(object.name)) parts.push(object)
+  })
+  if (parts.length === 0) return
+
+  const mouse = new THREE.Group()
+  mouse.name = 'HeroMouse'
+  root.add(mouse)
+  root.updateWorldMatrix(true, true)
+  for (const part of parts) mouse.attach(part)
+
+  const initialBounds = new THREE.Box3().setFromObject(mouse)
+  const initialSize = initialBounds.getSize(new THREE.Vector3())
+  const scale = Math.min(
+    initialSize.x > 0 ? 0.34 / initialSize.x : 1,
+    initialSize.z > 0 ? 0.44 / initialSize.z : 1,
+  )
+  mouse.scale.setScalar(scale)
+  mouse.updateWorldMatrix(true, true)
+
+  const bounds = new THREE.Box3().setFromObject(mouse)
+  const center = bounds.getCenter(new THREE.Vector3())
+  mouse.position.x += 0.94 - center.x
+  mouse.position.y += 1.23 - bounds.min.y
+  mouse.position.z += -2.98 - center.z
+
+  for (const part of parts) {
+    if (!/Mouse Body/i.test(part.name)) continue
+    const materials = Array.isArray(part.material) ? part.material : [part.material]
+    for (const material of materials) {
+      if (!(material instanceof THREE.MeshStandardMaterial)) continue
+      material.map = null
+      material.color.set(0xa8b8b3)
+      material.roughness = 0.46
+      material.metalness = 0.08
+    }
+  }
+}
+
 function buildChair(root: THREE.Group, materials: GamesHeroMaterials, segments: number): void {
   const chair = new THREE.Group()
   chair.name = 'GamesErgonomicChair'
@@ -269,14 +279,16 @@ function buildDeskDetails(root: THREE.Group, materials: GamesHeroMaterials, segm
   }
 
   if (keyboardMouse) {
+    roundedBox(root, 'HeroMousePad', [0.58, 0.008, 0.56], [0.94, 1.224, -2.98], materials.graphite, 0.025, 3)
     prepareKeyboardMouse(keyboardMouse)
     placeFittedModel(root, keyboardMouse, {
       name: 'HeroKeyboardMouse',
-      center: [-0.2, -2.99],
-      floorY: 1.225,
-      maxWidth: 1.82,
-      maxDepth: 0.56,
+      center: [-0.2, -3.15],
+      floorY: 1.228,
+      maxWidth: 2.22,
+      maxDepth: 0.68,
     })
+    placeMouse(root, keyboardMouse)
   } else {
     const keyboard = new THREE.Group()
     keyboard.name = 'HeroKeyboard'
@@ -300,10 +312,10 @@ function buildDeskDetails(root: THREE.Group, materials: GamesHeroMaterials, segm
     keyboard.add(keys)
   }
 
-  cylinder(root, 'DeskMug', 0.168, 0.336, [1.48, 1.388, -2.84], materials.mug, segments, [0, Math.PI, 0])
+  cylinder(root, 'DeskMug', 0.168, 0.336, [2.05, 1.388, -2.84], materials.mug, segments, [0, Math.PI, 0])
   const handle = new THREE.Mesh(new THREE.TorusGeometry(0.126, 0.026, 8, Math.max(16, segments), Math.PI * 1.55), materials.mug)
   handle.name = 'DeskMugHandle'
-  handle.position.set(1.66, 1.4, -2.84)
+  handle.position.set(2.23, 1.4, -2.84)
   handle.rotation.z = -Math.PI * 0.25
   handle.castShadow = true
   root.add(handle)
@@ -319,10 +331,8 @@ function buildDeskDetails(root: THREE.Group, materials: GamesHeroMaterials, segm
   })
   const mugLabel = new THREE.Mesh(new THREE.PlaneGeometry(0.25, 0.082), mugLabelMaterial)
   mugLabel.name = 'DeskMugLabel'
-  mugLabel.position.set(1.48, 1.4, -2.669)
+  mugLabel.position.set(2.05, 1.4, -2.669)
   root.add(mugLabel)
-
-  addBookStack(root)
 
   roundedBox(root, 'MonitorLightBar', [0.64, 0.055, 0.075], [0, 2.86, -3.57], materials.graphite, 0.018, 3)
   const lightBarGlow = new THREE.MeshBasicMaterial({ color: 0xffc775, toneMapped: false })
