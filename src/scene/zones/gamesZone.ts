@@ -64,8 +64,6 @@ export function buildGamesZone(materials: StudioMaterials, tools: SceneTools, bu
   const desk = group('MainDesk', [0, 0, -3.45])
   addBox(desk, [5.26, .19, 1.55], [0, 1.1, 0], materials.oakDark, [0, 0, 0], .065)
   addBox(desk, [5.04, .08, 1.35], [0, .98, 0], materials.graphite, [0, 0, 0], .035)
-  addBox(desk, [4.78, .15, .12], [0, .88, .68], materials.concreteDark, [0, 0, 0], .025)
-  addBox(desk, [4.48, .025, .035], [0, .99, .77], glowMaterial, [0, 0, 0], .012)
   for (const x of [-2.16, 2.16]) {
     addBox(desk, [.14, 1.02, .14], [x, .49, -.5], materials.graphite, [0, 0, x < 0 ? -.045 : .045], .022)
     addBox(desk, [.14, 1.02, .14], [x, .49, .5], materials.graphite, [0, 0, x < 0 ? -.045 : .045], .022)
@@ -97,18 +95,11 @@ export function buildGamesZone(materials: StudioMaterials, tools: SceneTools, bu
   })), materials.graphite2, .008)
   const legacyMouse = addBox(desk, [.25, .035, .34], [.76, 1.24, .47], materials.black, [0, 0, 0], .04)
   legacyMouse.name = 'LegacyMouse'
-  const controller = group('GameController', [1.28, 1.22, -2.98], [.02, 0, 0])
-  addBox(controller, [.58, .11, .3], [0, 0, 0], materials.graphite, [0, 0, 0], .08)
-  addCylinder(controller, .055, .055, .08, [-.14, .08, .02], materials.black, [Math.PI / 2, 0, 0], 18)
-  addCylinder(controller, .055, .055, .08, [.14, .08, .02], materials.black, [Math.PI / 2, 0, 0], 18)
-  for (const [x, z] of [[-.18, -.08], [.18, -.08]] as const) addBox(controller, [.05, .025, .05], [x, .07, z], statusMaterial, [0, 0, 0], .012)
-
-  // Ventilated tower and a compact single monitor speaker.
+  // Ventilated tower. The former monitor speaker was removed because it
+  // intersected the right display in the calibrated Games camera.
   addBox(desk, [.62, 1.08, .68], [2.02, .55, -.06], materials.concreteDark, [0, 0, 0], .05)
   addBox(desk, [.47, .72, .022], [2.02, .59, .292], materials.glass, [0, 0, 0], .02)
   for (let index = 0; index < 3; index += 1) addBox(desk, [.032, .032, .018], [1.87 + index * .12, .98, .31], index === 0 ? statusMaterial : glowMaterial, [0, 0, 0], .008)
-  addBox(desk, [.34, .58, .32], [2.06, 1.54, -.05], materials.black, [0, 0, 0], .04)
-  addCylinder(desk, .11, .11, .025, [2.06, 1.55, .12], materials.graphite2, [Math.PI / 2, 0, 0], 24)
 
   const lamp = group('DeskLamp', [-2.28, 0, -3.78])
   addCylinder(lamp, .035, .05, .67, [0, 1.5, 0], materials.graphite)

@@ -290,6 +290,11 @@ function swapGamesMaterials(scene: THREE.Scene, current: StudioMaterials, next: 
 export async function createGamesPhotorealProof(options: GamesProofOptions): Promise<GamesProofController> {
   const { scene, renderer, materials: current, budget, quality, assets } = options
   const desktop = quality.name === 'desktop'
+  // Window width controls the compact HUD, not the fidelity of a desktop
+  // workstation. Fine-pointer PCs keep the authored hero models even when the
+  // browser is docked in a narrow panel; touch devices retain the lightweight
+  // procedural fallbacks.
+  const enhancedModels = desktop || window.matchMedia('(pointer: fine)').matches
   const legacyWindowLayers = collectLegacyWindowLayers(scene)
   const [materials, leftHeroPlant, rightHeroPlant, keyboardMouse, archiveSofa] = await Promise.all([
     loadMaterialSet(assets, budget.textureAnisotropy, desktop),
@@ -299,10 +304,10 @@ export async function createGamesPhotorealProof(options: GamesProofOptions): Pro
     desktop
       ? assets.loadModel(`${ASSET_ROOT}models/potted-plant-02.glb`).then((model) => model.root).catch(() => null)
       : Promise.resolve(null),
-    desktop
+    enhancedModels
       ? assets.loadModel(`${ASSET_ROOT}models/keyboard-mouse.glb`).then((model) => model.root).catch(() => null)
       : Promise.resolve(null),
-    desktop
+    enhancedModels
       ? assets.loadModel(`${SHARED_ASSET_ROOT}models/archive-sofa.glb`).then((model) => model.root).catch(() => null)
       : Promise.resolve(null),
   ])

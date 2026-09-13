@@ -99,7 +99,15 @@ try {
   assert(await desktop.locator('body').evaluate((body) => !body.classList.contains('inspect-selector')), 'Desktop Archive inspect view did not return to the lounge')
   await desktop.close()
 
-  const mobile = await browser.newPage({ viewport: { width: 390, height: 844 }, reducedMotion: 'reduce' })
+  const dockedDesktop = await browser.newPage({ viewport: { width: 520, height: 900 }, reducedMotion: 'reduce' })
+  await dockedDesktop.goto(baseUrl, { waitUntil: 'domcontentloaded' })
+  await dockedDesktop.waitForFunction(() => document.querySelector('#loader')?.classList.contains('done'))
+  await dockedDesktop.locator('.nav button[data-view="games"]').click()
+  await dockedDesktop.waitForFunction(() => ['ready', 'fallback'].includes(document.querySelector('canvas')?.dataset.gamesProof ?? ''))
+  assert(await dockedDesktop.locator('canvas').getAttribute('data-hero-models') === 'desktop-ready', 'Docked fine-pointer Desktop downgraded the hero input models')
+  await dockedDesktop.close()
+
+  const mobile = await browser.newPage({ viewport: { width: 390, height: 844 }, reducedMotion: 'reduce', hasTouch: true, isMobile: true })
   await mobile.addInitScript(() => {
     Object.defineProperty(navigator, 'deviceMemory', { configurable: true, value: 8 })
     Object.defineProperty(navigator, 'hardwareConcurrency', { configurable: true, value: 8 })
