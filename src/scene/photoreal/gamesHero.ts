@@ -191,7 +191,7 @@ function placeKeyboard(root: THREE.Group, keyboard: THREE.Object3D): void {
 
   const bounds = new THREE.Box3().setFromObject(keyboard)
   const center = bounds.getCenter(new THREE.Vector3())
-  keyboard.position.x += -0.62 - center.x
+  keyboard.position.x += -0.32 - center.x
   keyboard.position.y += 1.228 - bounds.min.y
   keyboard.position.z += -3.08 - center.z
   keyboard.traverse((object) => {
@@ -202,7 +202,7 @@ function placeKeyboard(root: THREE.Group, keyboard: THREE.Object3D): void {
     const materials = Array.isArray(object.material) ? object.material : [object.material]
     for (const material of materials) {
       if (!(material instanceof THREE.MeshStandardMaterial)) continue
-      material.color.set(/Keys/i.test(object.name) ? 0x505754 : 0x333937)
+      material.color.set(/Keys/i.test(object.name) ? 0x242826 : 0x141716)
       material.roughness = 0.5
       material.metalness = 0.08
     }
@@ -211,7 +211,7 @@ function placeKeyboard(root: THREE.Group, keyboard: THREE.Object3D): void {
 
 function prepareKeyboardMouse(model: THREE.Object3D): void {
   model.traverse((object) => {
-    if (/USB (?:Cable|Connector)/i.test(object.name)) {
+    if (/USB[ _]+(?:Cable|Connector)/i.test(object.name)) {
       object.visible = false
       return
     }
@@ -232,7 +232,7 @@ function placeInputDevices(root: THREE.Group, model: THREE.Object3D): void {
   model.traverse((object) => {
     if (!(object instanceof THREE.Mesh)) return
     if (/Mouse/i.test(object.name)) mouseParts.push(object)
-    else if (/Keyboard (?:Frame|Keys)/i.test(object.name)) keyboardParts.push(object)
+    else if (/Keyboard[ _]+(?:Frame|Keys)/i.test(object.name)) keyboardParts.push(object)
   })
   if (keyboardParts.length === 0 || mouseParts.length === 0) {
     placeFittedModel(root, model, {
@@ -267,15 +267,13 @@ function placeInputDevices(root: THREE.Group, model: THREE.Object3D): void {
     maxWidth: 0.34,
     maxDepth: 0.44,
   })
-
   for (const part of mouseParts) {
-    if (!/Mouse Body/i.test(part.name)) continue
     const materials = Array.isArray(part.material) ? part.material : [part.material]
     for (const material of materials) {
       if (!(material instanceof THREE.MeshStandardMaterial)) continue
       material.map = null
-      material.color.set(0xa8b8b3)
-      material.roughness = 0.46
+      material.color.set(/Wheel/i.test(part.name) ? 0x0f1110 : 0x171a18)
+      material.roughness = 0.42
       material.metalness = 0.08
     }
   }
