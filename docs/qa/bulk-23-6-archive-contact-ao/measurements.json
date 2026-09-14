@@ -1,0 +1,14 @@
+[
+  {
+    "variant": "before",
+    "resources": 83,
+    "runtimeState": "off",
+    "estimatedGpuBytes": 0
+  },
+  {
+    "variant": "after",
+    "resources": 83,
+    "runtimeState": "pilot",
+    "estimatedGpuBytes": 262144
+  }
+]

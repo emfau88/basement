@@ -2,7 +2,7 @@
 
 Last updated: 2026-09-14
 Current phase: Phase E — Photorealistic Desktop rollout
-Current bulk: Bulk 23.5 — Archive lightmap pilot — complete; lightmap decision pending
+Current bulk: Bulk 23.6 — Archive contact-AO pilot — complete; visual decision pending
 
 ## Status legend
 
@@ -413,7 +413,16 @@ Verification: Studio, Games, Web, Projects and Archive reviewed at a fixed 1440 
 
 Acceptance: the lightmap technique can be judged against the unchanged Archive from the same build, camera and render resolution without committing other zones to the approach.
 
-Initial finding: the pilot produces a subtle warmer indirect-light distribution, but not a major realism jump. It adds no network requests and approximately 2.63 MiB of estimated uncompressed GPU texture memory on Desktop. Expansion is not recommended unless the fixed comparison is judged visibly worthwhile.
+Decision: the pilot produces only a subtle warmer indirect-light distribution and no worthwhile realism jump. Lightmaps will not be expanded to other zones. The experiment remains off by default and removable as one commit.
+
+### Bulk 23.6 — Archive contact-AO pilot
+
+- [x] Add four restrained floor contacts and three wall contacts around the Archive's largest static objects.
+- [x] Keep global SSAO, temporal noise, large-area darkening and Mobile changes out of scope.
+- [x] Capture a fixed 1440 × 900 A/B comparison and verify the additional runtime cost.
+- [x] Keep the experiment off by default and isolated behind `?contact-ao=pilot` for visual approval.
+
+Initial finding: the result adds only local grounding and remains sharp and visually quiet. It adds no network requests and approximately 0.25 MiB of estimated uncompressed GPU texture memory on Desktop. Expansion remains conditional on the fixed comparison being judged worthwhile.
 
 ### Decision gate E — Complete Desktop approval
 
