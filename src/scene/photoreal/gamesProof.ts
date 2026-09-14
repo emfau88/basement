@@ -6,6 +6,7 @@ import type { SceneDetailBudget } from '../assets/detailBudget'
 import type { RenderQualityProfile } from '../../performance/deviceProfile'
 import type { StudioMaterials } from '../materials'
 import { buildGamesHero } from './gamesHero'
+import { createArchiveLightmapPilot } from './archiveLightmapPilot'
 
 export interface GamesProofController {
   setActive(active: boolean): void
@@ -422,9 +423,13 @@ export async function createGamesPhotorealProof(options: GamesProofOptions): Pro
   }
 
   setActive(true)
+  // Apply the pilot after the proof activation has installed its final PBR
+  // materials; otherwise the activation swap would immediately hide the maps.
+  const archiveLightmap = createArchiveLightmapPilot(scene, renderer, current, budget)
   return {
     setActive,
     dispose() {
+      archiveLightmap.dispose()
       setActive(false)
       delete renderer.domElement.dataset.heroModels
       shell.removeFromParent()

@@ -130,6 +130,7 @@ export function buildArchiveZone(materials: StudioMaterials, tools: SceneTools, 
   memorialFrame.userData.surfaceMaterial = 'walnut'
   addBox(memorial, [2.1, 1.22, .04], [0, 2.15, .135], materials.black, [0, 0, 0], .028)
   const archiveScreen = addBox(memorial, [2.02, 1.14, .018], [0, 2.15, .168], materials.black, [0, 0, 0], .02)
+  archiveScreen.name = 'ArchiveScreen'
   archiveScreen.castShadow = false; archiveScreen.receiveShadow = false
   addBox(memorial, [2.14, .035, .025], [0, 3.14, .08], warmMetal, [0, 0, 0], .008)
   addBox(memorial, [1.72, .18, .026], [0, .53, .524], plaqueMaterial(tools, 'terminal', 'MEMORIAL 04', 'OPEN SCREEN · CHOOSE A GRAVE'), [0, 0, 0], .014)

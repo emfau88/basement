@@ -2,7 +2,7 @@
 
 Last updated: 2026-09-14
 Current phase: Phase E — Photorealistic Desktop rollout
-Current bulk: Bulk 23.4 — Desktop material refinement — complete; Decision gate E pending
+Current bulk: Bulk 23.5 — Archive lightmap pilot — complete; lightmap decision pending
 
 ## Status legend
 
@@ -402,6 +402,18 @@ Acceptance: the major floor, wood and fabric surfaces react believably to the ex
 Commit boundary: Desktop PBR material calibration, cross-zone material roles, sofa weave treatment, fixed visual review and regressions.
 
 Verification: Studio, Games, Web, Projects and Archive reviewed at a fixed 1440 × 900 Desktop viewport; typecheck, production build, asset foundation, complete responsive interaction suite and GitHub Pages `/basement/` subpath QA passed on 2026-09-14.
+
+### Bulk 23.5 — Archive lightmap pilot
+
+- [x] Add an isolated Desktop-only lightmap experiment for the static Archive wall, shelving, memorial and lounge surfaces.
+- [x] Keep screens, interactions, cameras, Mobile rendering and production defaults unchanged.
+- [x] Provide a reproducible `?archive-lightmap=pilot` switch for an exact fixed-camera A/B comparison.
+- [x] Capture matching 1440 × 900 before/after evidence and record the runtime resource/memory delta.
+- [x] Keep the experiment removable as one commit while the rollout decision remains open.
+
+Acceptance: the lightmap technique can be judged against the unchanged Archive from the same build, camera and render resolution without committing other zones to the approach.
+
+Initial finding: the pilot produces a subtle warmer indirect-light distribution, but not a major realism jump. It adds no network requests and approximately 2.63 MiB of estimated uncompressed GPU texture memory on Desktop. Expansion is not recommended unless the fixed comparison is judged visibly worthwhile.
 
 ### Decision gate E — Complete Desktop approval
 
