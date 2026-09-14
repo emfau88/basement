@@ -2,7 +2,7 @@
 
 Last updated: 2026-09-14
 Current phase: Phase E — Photorealistic Desktop rollout
-Current bulk: Bulk 23.6 — Archive contact-AO pilot — complete; visual decision pending
+Current bulk: Bulk 23.6 — Archive lighting experiments retired; Bulk 24 Mobile camera correction planned
 
 ## Status legend
 
@@ -413,16 +413,16 @@ Verification: Studio, Games, Web, Projects and Archive reviewed at a fixed 1440 
 
 Acceptance: the lightmap technique can be judged against the unchanged Archive from the same build, camera and render resolution without committing other zones to the approach.
 
-Decision: the pilot produces only a subtle warmer indirect-light distribution and no worthwhile realism jump. Lightmaps will not be expanded to other zones. The experiment remains off by default and removable as one commit.
+Decision: the pilot produced only a subtle warmer indirect-light distribution and no worthwhile realism jump. Lightmaps will not be expanded to other zones, and their runtime implementation has been removed. The comparison evidence remains documented.
 
 ### Bulk 23.6 — Archive contact-AO pilot
 
 - [x] Add four restrained floor contacts and three wall contacts around the Archive's largest static objects.
 - [x] Keep global SSAO, temporal noise, large-area darkening and Mobile changes out of scope.
 - [x] Capture a fixed 1440 × 900 A/B comparison and verify the additional runtime cost.
-- [x] Keep the experiment off by default and isolated behind `?contact-ao=pilot` for visual approval.
+- [x] Remove the runtime experiment after review while preserving its comparison evidence.
 
-Initial finding: the result adds only local grounding and remains sharp and visually quiet. It adds no network requests and approximately 0.25 MiB of estimated uncompressed GPU texture memory on Desktop. Expansion remains conditional on the fixed comparison being judged worthwhile.
+Decision: the result added only minimal local grounding. Although it remained sharp and visually quiet, the visible gain did not justify keeping or expanding it. The runtime implementation has been removed; global SSAO remains rejected.
 
 ### Decision gate E — Complete Desktop approval
 
@@ -434,6 +434,10 @@ Initial finding: the result adds only local grounding and remains sharp and visu
 
 ### Bulk 24 — Mobile composition, LOD and real-device pass
 
+- [ ] Correct the outdated Web and Archive camera endpoints against the approved Desktop subject axes.
+- [ ] Reframe Studio, Games and Projects with Mobile-specific distance/FOV while preserving their Desktop visual hierarchy.
+- [ ] Route long cross-room transitions through a safe central pull-back waypoint instead of a single straight interpolation.
+- [ ] Keep collapsed/expanded sheet reframing on the same area axis and out of the scene's focal content.
 - [ ] Reframe every completed zone for portrait, landscape, collapsed sheet and expanded sheet states.
 - [ ] Create explicit Desktop, Mobile standard and Mobile low asset/texture tiers.
 - [ ] Validate scene visibility, information density, tap targets and project selection on a physical phone.

@@ -18,8 +18,6 @@
     "qa:capture-baseline": "node scripts/capture-baseline.mjs --baseline",
     "qa:capture-current": "node scripts/capture-baseline.mjs",
     "qa:benchmark": "node scripts/benchmark-games.mjs",
-    "qa:contact-ao": "node scripts/capture-archive-contact-pilot.mjs",
-    "qa:lightmap": "node scripts/capture-archive-lightmap-pilot.mjs",
     "qa:mobile": "node scripts/verify-mobile-ui.mjs",
     "qa:pages": "node scripts/verify-pages-build.mjs",
     "preqa:assets": "npm run assets:prepare",
