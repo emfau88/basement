@@ -1,8 +1,8 @@
 # EMFAU Virtual Studio roadmap
 
-Last updated: 2026-09-13
-Current phase: Phase E — Photorealistic Desktop rollout
-Current bulk: Bulk 23.3 — Photoreal hero models — complete; Decision gate E pending
+Last updated: 2026-09-14
+Current phase: Phase F — Mobile adaptation and production release
+Current bulk: Bulk 24.1 complete — Mobile endpoints and composition; Bulk 24.2 visual asset parity next
 
 ## Status legend
 
@@ -389,6 +389,41 @@ Commit boundary: optimized model assets, Desktop placement/fallback logic, attri
 
 Verification: targeted 1280 × 800 and 1440 × 900 Games/Archive reviews, full-width and docked Desktop model-load assertions, Mobile fallback assertion, complete interaction/responsive suite, asset runtime QA, production build and GitHub Pages `/basement/` subpath QA passed on 2026-09-13.
 
+### Bulk 23.4 — Desktop material refinement
+
+- [x] Refine the studio-wide cement floor with clearer surface relief and a less uniformly matte response.
+- [x] Unify the exposed Games, Web, Projects and Archive joinery with the licensed walnut PBR set.
+- [x] Add restrained woven micro-relief to the Archive hero sofa without increasing the production asset payload.
+- [x] Preserve geometry, lighting, camera composition, interactions and Mobile fallbacks for an isolated material comparison.
+- [x] Review all five Desktop views at 1440 × 900 and run the complete build/interaction/Pages QA set.
+
+Acceptance: the major floor, wood and fabric surfaces react believably to the existing light and read as one coherent material palette without changing the approved composition.
+
+Commit boundary: Desktop PBR material calibration, cross-zone material roles, sofa weave treatment, fixed visual review and regressions.
+
+Verification: Studio, Games, Web, Projects and Archive reviewed at a fixed 1440 × 900 Desktop viewport; typecheck, production build, asset foundation, complete responsive interaction suite and GitHub Pages `/basement/` subpath QA passed on 2026-09-14.
+
+### Bulk 23.5 — Archive lightmap pilot
+
+- [x] Add an isolated Desktop-only lightmap experiment for the static Archive wall, shelving, memorial and lounge surfaces.
+- [x] Keep screens, interactions, cameras, Mobile rendering and production defaults unchanged.
+- [x] Provide a reproducible `?archive-lightmap=pilot` switch for an exact fixed-camera A/B comparison.
+- [x] Capture matching 1440 × 900 before/after evidence and record the runtime resource/memory delta.
+- [x] Keep the experiment removable as one commit while the rollout decision remains open.
+
+Acceptance: the lightmap technique can be judged against the unchanged Archive from the same build, camera and render resolution without committing other zones to the approach.
+
+Decision: the pilot produced only a subtle warmer indirect-light distribution and no worthwhile realism jump. Lightmaps will not be expanded to other zones, and their runtime implementation has been removed. The comparison evidence remains documented.
+
+### Bulk 23.6 — Archive contact-AO pilot
+
+- [x] Add four restrained floor contacts and three wall contacts around the Archive's largest static objects.
+- [x] Keep global SSAO, temporal noise, large-area darkening and Mobile changes out of scope.
+- [x] Capture a fixed 1440 × 900 A/B comparison and verify the additional runtime cost.
+- [x] Remove the runtime experiment after review while preserving its comparison evidence.
+
+Decision: the result added only minimal local grounding. Although it remained sharp and visually quiet, the visible gain did not justify keeping or expanding it. The runtime implementation has been removed; global SSAO remains rejected.
+
 ### Decision gate E — Complete Desktop approval
 
 - [ ] Approve the five-view Desktop set.
@@ -399,13 +434,19 @@ Verification: targeted 1280 × 800 and 1440 × 900 Games/Archive reviews, full-w
 
 ### Bulk 24 — Mobile composition, LOD and real-device pass
 
-- [ ] Reframe every completed zone for portrait, landscape, collapsed sheet and expanded sheet states.
+- [x] Correct the outdated Web and Archive camera endpoints against the approved Desktop subject axes.
+- [x] Reframe Studio, Games and Projects with Mobile-specific distance/FOV while preserving their Desktop visual hierarchy.
+- [ ] Route long cross-room transitions through a safe central pull-back waypoint instead of a single straight interpolation.
+- [x] Keep collapsed/expanded sheet reframing on the same area axis and out of the scene's focal content.
+- [x] Reframe every completed zone for portrait, landscape, collapsed sheet and expanded sheet states.
 - [ ] Create explicit Desktop, Mobile standard and Mobile low asset/texture tiers.
 - [ ] Validate scene visibility, information density, tap targets and project selection on a physical phone.
 - [ ] Measure deferred transfer, triangles, draw calls, memory and p95 transition/render frame time against the documented budgets.
 - [ ] Verify asset failure, slow loading, WebGL recovery and reduced-motion behavior.
 
 Acceptance: Mobile presents the same finished studio with deliberate framing and production-safe detail levels, not a separate or visually reduced website.
+
+Bulk 24.1 verification: portrait `390 × 844` and landscape `740 × 430` A/B captures cover Studio plus collapsed and expanded Games, Web, Projects and Archive states. The approved Desktop presets were not changed. Mobile Standard visual asset parity is next in Bulk 24.2; camera motion routing remains isolated for Bulk 24.3.
 
 ### Bulk 25 — Release candidate, deployment and documentation
 

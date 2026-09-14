@@ -31,7 +31,13 @@ interface MaterialSet {
   chairMesh: THREE.MeshStandardMaterial
   mug: THREE.MeshStandardMaterial
   backdrop: THREE.MeshBasicMaterial
+  sofaWeave: THREE.Texture
   ownedTextures: THREE.Texture[]
+}
+
+interface MaterialSwap {
+  original: THREE.Material | THREE.Material[]
+  replacement: THREE.Material
 }
 
 const ASSET_ROOT = 'assets/photoreal/games/'
@@ -101,6 +107,32 @@ function createMugMaterial(ownedTextures: THREE.Texture[]): THREE.MeshStandardMa
   return new THREE.MeshStandardMaterial({ map: texture, roughness: 0.42, metalness: 0.03 })
 }
 
+function createFabricWeaveTexture(ownedTextures: THREE.Texture[], anisotropy: number): THREE.Texture {
+  const canvas = document.createElement('canvas')
+  canvas.width = 128
+  canvas.height = 128
+  const context = canvas.getContext('2d')
+  if (context) {
+    context.fillStyle = '#777777'
+    context.fillRect(0, 0, canvas.width, canvas.height)
+    for (let offset = 0; offset < canvas.width; offset += 4) {
+      context.fillStyle = offset % 8 === 0 ? '#a2a2a2' : '#8b8b8b'
+      context.fillRect(offset, 0, 1, canvas.height)
+      context.fillStyle = offset % 8 === 0 ? '#555555' : '#686868'
+      context.fillRect(0, offset + 1, canvas.width, 1)
+    }
+  }
+  const texture = new THREE.CanvasTexture(canvas)
+  texture.name = 'ArchiveSofaWeaveBump'
+  texture.colorSpace = THREE.NoColorSpace
+  texture.wrapS = THREE.RepeatWrapping
+  texture.wrapT = THREE.RepeatWrapping
+  texture.repeat.set(32, 20)
+  texture.anisotropy = anisotropy
+  ownedTextures.push(texture)
+  return texture
+}
+
 async function loadMaterialSet(assets: AssetManager, anisotropy: number, desktop: boolean): Promise<MaterialSet> {
   const ownedTextures: THREE.Texture[] = []
   const concreteRoot = `${ASSET_ROOT}materials/concrete-wall/`
@@ -143,8 +175,9 @@ async function loadMaterialSet(assets: AssetManager, anisotropy: number, desktop
     ao: floorAo,
   }) as THREE.MeshStandardMaterial
   floor.color.set(0x817c74)
-  floor.normalScale.set(0.16, 0.16)
-  floor.roughness = 0.9
+  floor.normalScale.set(0.24, 0.24)
+  floor.roughness = 0.84
+  floor.aoMapIntensity = 0.72
 
   let walnut = createPbrMaterial('walnut') as THREE.MeshStandardMaterial
   if (desktop) {
@@ -154,9 +187,9 @@ async function loadMaterialSet(assets: AssetManager, anisotropy: number, desktop
       assets.loadTexture(`${walnutRoot}normal-gl.webp`, 'normal', anisotropy),
       assets.loadTexture(`${walnutRoot}arm.webp`, 'roughness', anisotropy),
     ])
-    repeat(walnutColor, 2.2, 1.1)
-    repeat(walnutNormal, 2.2, 1.1)
-    repeat(walnutArm, 2.2, 1.1)
+    repeat(walnutColor, 1.8, 0.9)
+    repeat(walnutNormal, 1.8, 0.9)
+    repeat(walnutArm, 1.8, 0.9)
     const walnutAo = walnutArm.clone()
     walnutAo.channel = 1
     ownedTextures.push(walnutAo)
@@ -168,9 +201,10 @@ async function loadMaterialSet(assets: AssetManager, anisotropy: number, desktop
       metalness: walnutArm,
       ao: walnutAo,
     }) as THREE.MeshStandardMaterial
-    walnut.color.set(0x8f674e)
-    walnut.normalScale.set(0.45, 0.45)
-    walnut.roughness = 0.64
+    walnut.color.set(0x80583f)
+    walnut.normalScale.set(0.56, 0.56)
+    walnut.roughness = 0.55
+    walnut.aoMapIntensity = 0.68
   }
   const graphite = createPbrMaterial('powderCoat') as THREE.MeshStandardMaterial
   graphite.color.set(0x242725)
@@ -181,6 +215,7 @@ async function loadMaterialSet(assets: AssetManager, anisotropy: number, desktop
   upholstery.roughness = 0.82
   const chairMesh = createChairMeshMaterial(ownedTextures)
   const mug = createMugMaterial(ownedTextures)
+  const sofaWeave = createFabricWeaveTexture(ownedTextures, anisotropy)
 
   let rug = createPbrMaterial('chairMesh') as THREE.MeshStandardMaterial
   rug.color.set(0x706153)
@@ -211,7 +246,7 @@ async function loadMaterialSet(assets: AssetManager, anisotropy: number, desktop
   }
 
   const backdrop = new THREE.MeshBasicMaterial({ map: backdropTexture, color: 0xffffff, toneMapped: false, fog: false })
-  return { concrete, walnut, graphite, floor, rug, upholstery, chairMesh, mug, backdrop, ownedTextures }
+  return { concrete, walnut, graphite, floor, rug, upholstery, chairMesh, mug, backdrop, sofaWeave, ownedTextures }
 }
 
 function addRoundedBox(root: THREE.Group, name: string, size: readonly [number, number, number], position: readonly [number, number, number], material: THREE.Material, radius: number, segments: number): THREE.Mesh {
@@ -270,21 +305,42 @@ function collectLegacyWindowLayers(scene: THREE.Scene): Map<THREE.Object3D, bool
   return originals
 }
 
-function swapGamesMaterials(scene: THREE.Scene, current: StudioMaterials, next: MaterialSet): Map<THREE.Mesh, THREE.Material | THREE.Material[]> {
-  const originals = new Map<THREE.Mesh, THREE.Material | THREE.Material[]>()
-  for (const name of ['GamesPortal', 'MainDesk']) {
-    scene.getObjectByName(name)?.traverse((object) => {
-      if (!(object instanceof THREE.Mesh) || Array.isArray(object.material)) return
-      let replacement: THREE.Material | null = null
+function swapStudioMaterials(scene: THREE.Scene, current: StudioMaterials, next: MaterialSet, desktop: boolean): Map<THREE.Mesh, MaterialSwap> {
+  const originals = new Map<THREE.Mesh, MaterialSwap>()
+  const gamesRoots = new Set(['GamesPortal', 'MainDesk'])
+  scene.traverse((object) => {
+    if (!(object instanceof THREE.Mesh) || Array.isArray(object.material)) return
+    let replacement: THREE.Material | null = null
+    let gamesParent: THREE.Object3D | null = object.parent
+    while (gamesParent && !gamesRoots.has(gamesParent.name)) gamesParent = gamesParent.parent
+    if (desktop && (object.userData.surfaceMaterial === 'walnut' || object.material === current.oakDark)) replacement = next.walnut
+    else if (gamesParent) {
       if (object.material === current.concreteDark) replacement = next.concrete
       else if (object.material === current.oakDark) replacement = next.walnut
       else if (object.material === current.graphite || object.material === current.graphite2) replacement = next.graphite
-      if (!replacement) return
-      originals.set(object, object.material)
-      object.material = replacement
-    })
-  }
+    }
+    if (!replacement) return
+    ensureSecondaryUvs(object)
+    originals.set(object, { original: object.material, replacement })
+    object.material = replacement
+  })
   return originals
+}
+
+function refineSofaFabric(sofa: THREE.Object3D | null, weave: THREE.Texture): void {
+  sofa?.traverse((object) => {
+    if (!(object instanceof THREE.Mesh)) return
+    const materials = Array.isArray(object.material) ? object.material : [object.material]
+    for (const material of materials) {
+      if (!(material instanceof THREE.MeshStandardMaterial)) continue
+      material.bumpMap = weave
+      material.bumpScale = 0.007
+      material.roughness = 0.88
+      material.metalness = 0
+      material.envMapIntensity = 0.48
+      material.needsUpdate = true
+    }
+  })
 }
 
 export async function createGamesPhotorealProof(options: GamesProofOptions): Promise<GamesProofController> {
@@ -311,12 +367,13 @@ export async function createGamesPhotorealProof(options: GamesProofOptions): Pro
       ? assets.loadModel(`${SHARED_ASSET_ROOT}models/archive-sofa.glb`).then((model) => model.root).catch(() => null)
       : Promise.resolve(null),
   ])
+  refineSofaFabric(archiveSofa, materials.sofaWeave)
   const shell = buildShell(materials, budget)
   scene.add(shell)
   const heroPlants = [leftHeroPlant, rightHeroPlant].filter((plant): plant is THREE.Object3D => plant !== null)
   const hero = buildGamesHero(scene, budget, materials, heroPlants, { keyboardMouse, archiveSofa })
   renderer.domElement.dataset.heroModels = keyboardMouse && archiveSofa ? 'desktop-ready' : 'procedural-fallback'
-  const originals = swapGamesMaterials(scene, current, materials)
+  const originals = swapStudioMaterials(scene, current, materials, desktop)
 
   const previousEnvironment = scene.environment
   const previousEnvironmentIntensity = scene.environmentIntensity
@@ -352,11 +409,7 @@ export async function createGamesPhotorealProof(options: GamesProofOptions): Pro
     fill.visible = active
     hero.setActive(active)
     for (const [object, originalVisibility] of legacyWindowLayers) object.visible = active ? false : originalVisibility
-    for (const [mesh, original] of originals) mesh.material = active ? (
-      original === current.concreteDark ? materials.concrete
-        : original === current.oakDark ? materials.walnut
-          : materials.graphite
-    ) : original
+    for (const [mesh, swap] of originals) mesh.material = active ? swap.replacement : swap.original
     if (active && environment) {
       scene.environment = environment.texture
       scene.environmentIntensity = 0.18

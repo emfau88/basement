@@ -84,7 +84,8 @@ export function buildWebZone(materials: StudioMaterials, tools: SceneTools, budg
   const webSideScreen = screen(web, 1.48, .84, [1.48, 2.82, .285], 'INDEX', 'choose product', '#78a8b9')
 
   // The floating credenza grounds the installation and hides its service route.
-  addBox(web, [4.18, .30, .64], [0, 1.18, .43], credenzaWalnut, [0, 0, 0], .065)
+  const credenza = addBox(web, [4.18, .30, .64], [0, 1.18, .43], credenzaWalnut, [0, 0, 0], .065)
+  credenza.userData.surfaceMaterial = 'walnut'
   addBox(web, [3.92, .065, .52], [0, 1.00, .42], materials.graphite, [0, 0, 0], .025)
   addBox(web, [1.12, .075, .30], [-1.32, 1.38, .49], materials.black, [0, .03, 0], .025)
   addBox(web, [.62, .055, .26], [.15, 1.37, .51], materials.concreteDark, [0, -.05, 0], .022)
