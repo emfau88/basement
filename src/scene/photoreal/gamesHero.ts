@@ -170,6 +170,45 @@ function placeFittedModel(root: THREE.Group, model: THREE.Object3D, placement: M
   })
 }
 
+function placeKeyboard(root: THREE.Group, keyboard: THREE.Object3D): void {
+  keyboard.position.set(0, 0, 0)
+  keyboard.rotation.set(0, 0, 0)
+  keyboard.scale.setScalar(1)
+  root.add(keyboard)
+  keyboard.updateWorldMatrix(true, true)
+
+  const initialBounds = new THREE.Box3().setFromObject(keyboard)
+  const initialSize = initialBounds.getSize(new THREE.Vector3())
+  if (initialSize.z > initialSize.x) keyboard.rotation.y = Math.PI / 2
+  keyboard.updateWorldMatrix(true, true)
+
+  const alignedBounds = new THREE.Box3().setFromObject(keyboard)
+  const alignedWidth = alignedBounds.getSize(new THREE.Vector3()).x
+  // Match the 1.72 m authored desk-relative width of the replaced keyboard.
+  // (The studio uses deliberately enlarged furniture units for readability.)
+  keyboard.scale.setScalar(alignedWidth > 0 ? 1.72 / alignedWidth : 1)
+  keyboard.updateWorldMatrix(true, true)
+
+  const bounds = new THREE.Box3().setFromObject(keyboard)
+  const center = bounds.getCenter(new THREE.Vector3())
+  keyboard.position.x += -0.62 - center.x
+  keyboard.position.y += 1.228 - bounds.min.y
+  keyboard.position.z += -3.08 - center.z
+  keyboard.traverse((object) => {
+    if (!(object instanceof THREE.Mesh)) return
+    object.castShadow = true
+    object.receiveShadow = true
+    object.userData.assetManagedGeometry = true
+    const materials = Array.isArray(object.material) ? object.material : [object.material]
+    for (const material of materials) {
+      if (!(material instanceof THREE.MeshStandardMaterial)) continue
+      material.color.set(/Keys/i.test(object.name) ? 0x505754 : 0x333937)
+      material.roughness = 0.5
+      material.metalness = 0.08
+    }
+  })
+}
+
 function prepareKeyboardMouse(model: THREE.Object3D): void {
   model.traverse((object) => {
     if (/USB (?:Cable|Connector)/i.test(object.name)) {
@@ -187,35 +226,49 @@ function prepareKeyboardMouse(model: THREE.Object3D): void {
   })
 }
 
-function placeMouse(root: THREE.Group, model: THREE.Object3D): void {
-  const parts: THREE.Mesh[] = []
+function placeInputDevices(root: THREE.Group, model: THREE.Object3D): void {
+  const keyboardParts: THREE.Mesh[] = []
+  const mouseParts: THREE.Mesh[] = []
   model.traverse((object) => {
-    if (object instanceof THREE.Mesh && /Mouse/i.test(object.name)) parts.push(object)
+    if (!(object instanceof THREE.Mesh)) return
+    if (/Mouse/i.test(object.name)) mouseParts.push(object)
+    else if (/Keyboard (?:Frame|Keys)/i.test(object.name)) keyboardParts.push(object)
   })
-  if (parts.length === 0) return
+  if (keyboardParts.length === 0 || mouseParts.length === 0) {
+    placeFittedModel(root, model, {
+      name: 'HeroKeyboardMouse',
+      center: [-0.52, -3.15],
+      floorY: 1.228,
+      maxWidth: 2.22,
+      maxDepth: 0.68,
+    })
+    return
+  }
 
+  // The source asset is authored as one keyboard/mouse scene. Splitting the
+  // meshes before fitting prevents the empty space between both products (and
+  // the hidden USB cable) from shrinking the keyboard's physical scale.
+  root.add(model)
+  model.updateWorldMatrix(true, true)
+  const keyboard = new THREE.Group()
+  keyboard.name = 'HeroKeyboard'
   const mouse = new THREE.Group()
   mouse.name = 'HeroMouse'
-  root.add(mouse)
-  root.updateWorldMatrix(true, true)
-  for (const part of parts) mouse.attach(part)
+  root.add(keyboard, mouse)
+  for (const part of keyboardParts) keyboard.attach(part)
+  for (const part of mouseParts) mouse.attach(part)
+  model.removeFromParent()
 
-  const initialBounds = new THREE.Box3().setFromObject(mouse)
-  const initialSize = initialBounds.getSize(new THREE.Vector3())
-  const scale = Math.min(
-    initialSize.x > 0 ? 0.34 / initialSize.x : 1,
-    initialSize.z > 0 ? 0.44 / initialSize.z : 1,
-  )
-  mouse.scale.setScalar(scale)
-  mouse.updateWorldMatrix(true, true)
+  placeKeyboard(root, keyboard)
+  placeFittedModel(root, mouse, {
+    name: 'HeroMouse',
+    center: [0.94, -2.98],
+    floorY: 1.23,
+    maxWidth: 0.34,
+    maxDepth: 0.44,
+  })
 
-  const bounds = new THREE.Box3().setFromObject(mouse)
-  const center = bounds.getCenter(new THREE.Vector3())
-  mouse.position.x += 0.94 - center.x
-  mouse.position.y += 1.23 - bounds.min.y
-  mouse.position.z += -2.98 - center.z
-
-  for (const part of parts) {
+  for (const part of mouseParts) {
     if (!/Mouse Body/i.test(part.name)) continue
     const materials = Array.isArray(part.material) ? part.material : [part.material]
     for (const material of materials) {
@@ -281,17 +334,7 @@ function buildDeskDetails(root: THREE.Group, materials: GamesHeroMaterials, segm
   if (keyboardMouse) {
     roundedBox(root, 'HeroMousePad', [0.58, 0.008, 0.56], [0.94, 1.224, -2.98], materials.graphite, 0.025, 3)
     prepareKeyboardMouse(keyboardMouse)
-    placeFittedModel(root, keyboardMouse, {
-      name: 'HeroKeyboardMouse',
-      // Offset the keyboard slightly left of the chair sightline. This keeps
-      // the real desk scale while making the input pair readable: keyboard on
-      // the left, mouse and pad on the right.
-      center: [-0.52, -3.15],
-      floorY: 1.228,
-      maxWidth: 2.22,
-      maxDepth: 0.68,
-    })
-    placeMouse(root, keyboardMouse)
+    placeInputDevices(root, keyboardMouse)
   } else {
     const keyboard = new THREE.Group()
     keyboard.name = 'HeroKeyboard'
