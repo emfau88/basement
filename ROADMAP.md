@@ -2,7 +2,7 @@
 
 Last updated: 2026-09-14
 Current phase: Phase F — Mobile adaptation and production release
-Current bulk: Bulk 24.1 complete — Mobile endpoints and composition; Bulk 24.2 visual asset parity next
+Current bulk: Bulk 24.2 complete — Mobile Standard visual asset parity; Bulk 24.3 safe transition routes next
 
 ## Status legend
 
@@ -439,14 +439,16 @@ Decision: the result added only minimal local grounding. Although it remained sh
 - [ ] Route long cross-room transitions through a safe central pull-back waypoint instead of a single straight interpolation.
 - [x] Keep collapsed/expanded sheet reframing on the same area axis and out of the scene's focal content.
 - [x] Reframe every completed zone for portrait, landscape, collapsed sheet and expanded sheet states.
-- [ ] Create explicit Desktop, Mobile standard and Mobile low asset/texture tiers.
+- [x] Create explicit Desktop, Mobile standard and Mobile low asset/texture tiers.
 - [ ] Validate scene visibility, information density, tap targets and project selection on a physical phone.
 - [ ] Measure deferred transfer, triangles, draw calls, memory and p95 transition/render frame time against the documented budgets.
 - [ ] Verify asset failure, slow loading, WebGL recovery and reduced-motion behavior.
 
 Acceptance: Mobile presents the same finished studio with deliberate framing and production-safe detail levels, not a separate or visually reduced website.
 
-Bulk 24.1 verification: portrait `390 × 844` and landscape `740 × 430` A/B captures cover Studio plus collapsed and expanded Games, Web, Projects and Archive states. The approved Desktop presets were not changed. Mobile Standard visual asset parity is next in Bulk 24.2; camera motion routing remains isolated for Bulk 24.3.
+Bulk 24.1 verification: portrait `390 × 844` and landscape `740 × 430` A/B captures cover Studio plus collapsed and expanded Games, Web, Projects and Archive states. The approved Desktop presets were not changed. Camera motion routing remains isolated for Bulk 24.3.
+
+Bulk 24.2 verification: Mobile Standard now uses the licensed sofa, plants, keyboard and mouse throughout the studio, matching Desktop's key object set. Mobile Low keeps the procedural replacements and does not eagerly load the hero models. Portrait captures cover Studio, Games and Archive; automated QA asserts both quality tiers.
 
 ### Bulk 25 — Release candidate, deployment and documentation
 

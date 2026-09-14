@@ -346,18 +346,17 @@ function refineSofaFabric(sofa: THREE.Object3D | null, weave: THREE.Texture): vo
 export async function createGamesPhotorealProof(options: GamesProofOptions): Promise<GamesProofController> {
   const { scene, renderer, materials: current, budget, quality, assets } = options
   const desktop = quality.name === 'desktop'
-  // Window width controls the compact HUD, not the fidelity of a desktop
-  // workstation. Fine-pointer PCs keep the authored hero models even when the
-  // browser is docked in a narrow panel; touch devices retain the lightweight
-  // procedural fallbacks.
-  const enhancedModels = desktop || window.matchMedia('(pointer: fine)').matches
+  // Mobile Standard is visually equivalent to Desktop for the small set of
+  // authored hero props. Only the explicit low-end tier keeps procedural
+  // replacements; viewport width or touch input must not lower scene quality.
+  const enhancedModels = quality.name !== 'mobile-low'
   const legacyWindowLayers = collectLegacyWindowLayers(scene)
   const [materials, leftHeroPlant, rightHeroPlant, keyboardMouse, archiveSofa] = await Promise.all([
     loadMaterialSet(assets, budget.textureAnisotropy, desktop),
-    desktop
+    enhancedModels
       ? assets.loadModel(`${ASSET_ROOT}models/potted-plant-02.glb`).then((model) => model.root).catch(() => null)
       : Promise.resolve(null),
-    desktop
+    enhancedModels
       ? assets.loadModel(`${ASSET_ROOT}models/potted-plant-02.glb`).then((model) => model.root).catch(() => null)
       : Promise.resolve(null),
     enhancedModels
@@ -372,7 +371,7 @@ export async function createGamesPhotorealProof(options: GamesProofOptions): Pro
   scene.add(shell)
   const heroPlants = [leftHeroPlant, rightHeroPlant].filter((plant): plant is THREE.Object3D => plant !== null)
   const hero = buildGamesHero(scene, budget, materials, heroPlants, { keyboardMouse, archiveSofa })
-  renderer.domElement.dataset.heroModels = keyboardMouse && archiveSofa ? 'desktop-ready' : 'procedural-fallback'
+  renderer.domElement.dataset.heroModels = keyboardMouse && archiveSofa && heroPlants.length === 2 ? 'desktop-ready' : 'procedural-fallback'
   const originals = swapStudioMaterials(scene, current, materials, desktop)
 
   const previousEnvironment = scene.environment

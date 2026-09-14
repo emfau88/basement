@@ -126,7 +126,9 @@ try {
     return gamesProofPromise
   }
 
-  const usesGamesProof = (view: StudioView): boolean => rendering.quality.name === 'desktop' || view === 'games'
+  // Desktop and Mobile Standard share the finished studio continuously. The
+  // low-end tier still defers its lightweight Games proof until Games opens.
+  const usesGamesProof = (view: StudioView): boolean => rendering.quality.name !== 'mobile-low' || view === 'games'
 
   const setInspectLabels = (mode: InspectMode) => {
     meshes.gameLeftScreen.userData.detailLabel = mode === 'gameSelector' ? 'Select project' : 'Zoom into selector'

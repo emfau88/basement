@@ -137,7 +137,8 @@ try {
 
   await mobile.locator('.nav button[data-view="games"]').click()
   await mobile.waitForFunction(() => ['ready', 'fallback'].includes(document.querySelector('canvas')?.dataset.gamesProof ?? ''))
-  assert(await mobile.locator('canvas').getAttribute('data-hero-models') === 'procedural-fallback', 'Mobile loaded Desktop-only hero models')
+  await mobile.waitForFunction(() => document.querySelector('canvas')?.dataset.heroModels === 'desktop-ready')
+  assert(await mobile.locator('canvas').getAttribute('data-hero-models') === 'desktop-ready', 'Mobile Standard did not load the finished hero models')
   const mobileResolution = await readScreenResolutions(mobile)
   assert(hasScale(mobileResolution, ['games', 'gamepan', 'terminal', 'apps', 'appticker', 'archive'], 1), 'Mobile live-screen resolution policy changed')
   assert(mobileResolution.projects?.scale === 1, 'Mobile project-card resolution policy changed')
@@ -208,6 +209,10 @@ try {
   await constrainedMobile.waitForFunction(() => document.querySelector('#loader')?.classList.contains('done'))
   assert(await constrainedMobile.locator('canvas').getAttribute('data-quality') === 'mobile-low', 'Constrained mobile render profile is incorrect')
   assert(await constrainedMobile.locator('canvas').getAttribute('data-scene-detail') === '48', 'Constrained mobile scene detail budget is incorrect')
+  assert(await constrainedMobile.locator('canvas').getAttribute('data-hero-models') === null, 'Mobile Low eagerly loaded hero models')
+  await constrainedMobile.locator('.nav button[data-view="games"]').click()
+  await constrainedMobile.waitForFunction(() => ['ready', 'fallback'].includes(document.querySelector('canvas')?.dataset.gamesProof ?? ''))
+  assert(await constrainedMobile.locator('canvas').getAttribute('data-hero-models') === 'procedural-fallback', 'Mobile Low did not retain lightweight hero replacements')
   await constrainedMobile.close()
 
   const landscape = await browser.newPage({ viewport: { width: 740, height: 430 }, reducedMotion: 'reduce' })
