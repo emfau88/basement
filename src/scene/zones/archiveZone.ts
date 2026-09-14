@@ -78,7 +78,10 @@ export function buildArchiveZone(materials: StudioMaterials, tools: SceneTools, 
   const shelves = group('ArchiveShelves', [-7.04, 0, -3.9], [0, Math.PI / 2, 0])
   addBox(shelves, [3.26, 3.55, .08], [0, 2.05, -.27], materials.concreteDark, [0, 0, 0], .035)
   for (const x of [-1.55, 0, 1.55]) addBox(shelves, [.075, 3.68, .52], [x, 2.02, 0], darkMetal, [0, 0, 0], .018)
-  for (const y of [.42, 1.12, 1.82, 2.52, 3.22]) addBox(shelves, [3.18, .075, .56], [0, y, 0], wood, [0, 0, 0], .022)
+  for (const y of [.42, 1.12, 1.82, 2.52, 3.22]) {
+    const shelf = addBox(shelves, [3.18, .075, .56], [0, y, 0], wood, [0, 0, 0], .022)
+    shelf.userData.surfaceMaterial = 'walnut'
+  }
   // Wall-mounted header, separated from the cabinet rather than embedded in it.
   addBox(shelves, [2.72, .43, .065], [0, 4.24, -.23], plaqueMaterial(tools, 'shelf', 'DEAD BUILDS.', 'LIVE LESSONS  /  ARCHIVE 04'), [0, 0, 0], .025)
 
@@ -117,11 +120,14 @@ export function buildArchiveZone(materials: StudioMaterials, tools: SceneTools, 
   // A flush wall memorial replaces the freestanding CRT box. The sideboard may project;
   // the display itself remains a shallow architectural layer on the left wall.
   const memorial = group('ArchiveMemorial', [-7.28, 0, -1.08], [0, Math.PI / 2, 0])
-  addBox(memorial, [2.46, .72, .58], [0, .5, .22], wood, [0, 0, 0], .065)
-  addBox(memorial, [2.22, .09, .66], [0, .9, .22], wood, [0, 0, 0], .035)
+  const memorialCabinet = addBox(memorial, [2.46, .72, .58], [0, .5, .22], wood, [0, 0, 0], .065)
+  memorialCabinet.userData.surfaceMaterial = 'walnut'
+  const memorialTop = addBox(memorial, [2.22, .09, .66], [0, .9, .22], wood, [0, 0, 0], .035)
+  memorialTop.userData.surfaceMaterial = 'walnut'
   for (const x of [-.98, .98]) for (const z of [.04, .4]) addCylinder(memorial, .035, .045, .28, [x, .16, z], darkMetal, [0, 0, 0], 16)
   addBox(memorial, [2.44, 2.34, .1], [0, 2.02, -.02], darkMetal, [0, 0, 0], .055)
-  addBox(memorial, [2.22, 1.34, .075], [0, 2.15, .075], wood, [0, 0, 0], .045)
+  const memorialFrame = addBox(memorial, [2.22, 1.34, .075], [0, 2.15, .075], wood, [0, 0, 0], .045)
+  memorialFrame.userData.surfaceMaterial = 'walnut'
   addBox(memorial, [2.1, 1.22, .04], [0, 2.15, .135], materials.black, [0, 0, 0], .028)
   const archiveScreen = addBox(memorial, [2.02, 1.14, .018], [0, 2.15, .168], materials.black, [0, 0, 0], .02)
   archiveScreen.castShadow = false; archiveScreen.receiveShadow = false
@@ -144,7 +150,8 @@ export function buildArchiveZone(materials: StudioMaterials, tools: SceneTools, 
   addBox(sofa, [.018, .15, .66], [0, .75, .08], sofaFrame, [0, 0, 0], .006)
 
   const coffee = group('ArchiveCoffee', [-5.18, 0, .78], [0, -.05, 0])
-  addBox(coffee, [1.42, .1, .74], [0, .43, 0], wood, [0, 0, 0], .075)
+  const coffeeTop = addBox(coffee, [1.42, .1, .74], [0, .43, 0], wood, [0, 0, 0], .075)
+  coffeeTop.userData.surfaceMaterial = 'walnut'
   for (const x of [-.52, .52]) for (const z of [-.25, .25]) addBox(coffee, [.052, .39, .052], [x, .2, z], darkMetal, [0, 0, 0], .014)
   addBox(coffee, [.42, .028, .26], [-.2, .5, .01], materials.white2, [0, .1, 0], .014)
   addCylinder(coffee, .085, .105, .15, [.32, .52, .02], materials.white, [0, 0, 0], 20)

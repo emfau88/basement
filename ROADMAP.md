@@ -1,8 +1,8 @@
 # EMFAU Virtual Studio roadmap
 
-Last updated: 2026-09-13
+Last updated: 2026-09-14
 Current phase: Phase E — Photorealistic Desktop rollout
-Current bulk: Bulk 23.3 — Photoreal hero models — complete; Decision gate E pending
+Current bulk: Bulk 23.4 — Desktop material refinement — complete; Decision gate E pending
 
 ## Status legend
 
@@ -388,6 +388,20 @@ Acceptance: the most visually exposed furniture and desk-input primitives read a
 Commit boundary: optimized model assets, Desktop placement/fallback logic, attribution, fixed captures and regressions.
 
 Verification: targeted 1280 × 800 and 1440 × 900 Games/Archive reviews, full-width and docked Desktop model-load assertions, Mobile fallback assertion, complete interaction/responsive suite, asset runtime QA, production build and GitHub Pages `/basement/` subpath QA passed on 2026-09-13.
+
+### Bulk 23.4 — Desktop material refinement
+
+- [x] Refine the studio-wide cement floor with clearer surface relief and a less uniformly matte response.
+- [x] Unify the exposed Games, Web, Projects and Archive joinery with the licensed walnut PBR set.
+- [x] Add restrained woven micro-relief to the Archive hero sofa without increasing the production asset payload.
+- [x] Preserve geometry, lighting, camera composition, interactions and Mobile fallbacks for an isolated material comparison.
+- [x] Review all five Desktop views at 1440 × 900 and run the complete build/interaction/Pages QA set.
+
+Acceptance: the major floor, wood and fabric surfaces react believably to the existing light and read as one coherent material palette without changing the approved composition.
+
+Commit boundary: Desktop PBR material calibration, cross-zone material roles, sofa weave treatment, fixed visual review and regressions.
+
+Verification: Studio, Games, Web, Projects and Archive reviewed at a fixed 1440 × 900 Desktop viewport; typecheck, production build, asset foundation, complete responsive interaction suite and GitHub Pages `/basement/` subpath QA passed on 2026-09-14.
 
 ### Decision gate E — Complete Desktop approval
 

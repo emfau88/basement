@@ -55,7 +55,8 @@ export function buildProjectsZone(materials: StudioMaterials, tools: SceneTools,
   })
 
   const bench = group('Projects', [6.82, 0, zoneZ], [0, -Math.PI / 2, 0])
-  addBox(bench, [3.35, .16, .92], [0, .9, 0], materials.oakDark, [0, 0, 0], .055)
+  const benchTop = addBox(bench, [3.35, .16, .92], [0, .9, 0], materials.oakDark, [0, 0, 0], .055)
+  benchTop.userData.surfaceMaterial = 'walnut'
   addBox(bench, [3.12, .09, .76], [0, .79, 0], materials.graphite, [0, 0, 0], .03)
   for (const x of [-1.42, 1.42]) addBox(bench, [.1, .85, .1], [x, .42, -.29], materials.graphite, [0, 0, x < 0 ? -.035 : .035], .018)
   const processBlocks = [
