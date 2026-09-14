@@ -20,35 +20,37 @@ export const desktopCameraPresets: Record<StudioView, CameraPreset> = {
 }
 
 export const mobilePortraitCameraPresets: Record<StudioView, CameraPreset> = {
-  studio: { position: [0.26, 4, 12.3], target: [0.5, 1.72, -1.7], fov: 54 },
-  games: { position: [-0.08, 3.1, 5.25], target: [-0.04, 1.76, -3.46], fov: 62 },
-  web: { position: [1.4, 3, 1.6], target: [5.62, 1.82, -3.06], fov: 64 },
-  projects: { position: [2.2, 2.38, 1.65], target: [7.02, 2.42, 1.65], fov: 64 },
-  archive: { position: [-3.05, 2.26, 1.36], target: [-5.5, 1.56, -4.02], fov: 35 },
+  studio: { position: [0.18, 3.45, 10.4], target: [0.3, 1.9, -2], fov: 50 },
+  games: { position: [-0.12, 3.15, 6.9], target: [-0.05, 1.82, -3.5], fov: 52 },
+  // Stay in front of the central workstation. Portrait framing is widened via
+  // FOV instead of pulling the camera through foreground geometry.
+  web: { position: [1.7, 2.82, -3.88], target: [7.02, 1.95, -3.88], fov: 88 },
+  projects: { position: [-1, 2.8, 2.05], target: [7.02, 2.55, 2.05], fov: 58 },
+  archive: { position: [-0.2, 3.2, 5.4], target: [-6.42, 1.48, -1.18], fov: 58 },
 }
 
 export const mobilePortraitExpandedCameraPresets: Record<StudioView, CameraPreset> = {
   studio: mobilePortraitCameraPresets.studio,
-  games: { position: [-0.08, 3.1, 5.25], target: [-0.04, 1.08, -3.46], fov: 64 },
-  web: { position: [1.4, 3, 1.6], target: [5.62, 1.04, -3.06], fov: 66 },
-  projects: { position: [2.2, 2.38, 1.65], target: [7.02, 1.62, 1.65], fov: 68 },
-  archive: { position: [-3.05, 2.26, 1.36], target: [-5.5, 0.58, -4.02], fov: 40 },
+  games: { ...mobilePortraitCameraPresets.games, target: [-0.05, 1.25, -3.5], fov: 54 },
+  web: { ...mobilePortraitCameraPresets.web, target: [7.02, 1.5, -3.88], fov: 90 },
+  projects: { ...mobilePortraitCameraPresets.projects, target: [7.02, 1.85, 2.05], fov: 60 },
+  archive: { ...mobilePortraitCameraPresets.archive, target: [-6.42, .9, -1.18], fov: 60 },
 }
 
 export const mobileLandscapeCameraPresets: Record<StudioView, CameraPreset> = {
-  studio: { position: [0.2, 3.62, 10.7], target: [0.35, 1.54, -1.82], fov: 51 },
-  games: { position: [-0.05, 2.84, 3.72], target: [-0.18, 1.78, -3.48], fov: 44 },
-  web: { position: [1.9, 2.82, .35], target: [5.58, 1.82, -3.06], fov: 48 },
-  projects: { position: [2.42, 2.4, 1.65], target: [7.02, 2.34, 1.65], fov: 46 },
-  archive: { position: [-2.8, 2.4, 1.82], target: [-5.45, 1.54, -4.03], fov: 45 },
+  studio: { position: [0.2, 3.55, 10.7], target: [0.3, 1.7, -1.9], fov: 50 },
+  games: { position: [-0.05, 3.05, 4.5], target: [-0.05, 1.8, -3.5], fov: 44 },
+  web: { position: [1.7, 2.72, -3.88], target: [7.02, 2.52, -3.88], fov: 50 },
+  projects: { position: [2.18, 2.72, 2.65], target: [7.02, 2.52, 2.65], fov: 43 },
+  archive: { position: [-2, 2.65, 3.7], target: [-6.42, 1.48, -1.18], fov: 50 },
 }
 
 export const mobileLandscapeExpandedCameraPresets: Record<StudioView, CameraPreset> = {
   studio: mobileLandscapeCameraPresets.studio,
-  games: { ...mobileLandscapeCameraPresets.games, target: [-0.65, 1.2, -3.48], fov: 46 },
-  web: { ...mobileLandscapeCameraPresets.web, target: [5.58, 1.16, -3.06], fov: 51 },
-  projects: { ...mobileLandscapeCameraPresets.projects, target: [7.02, 1.58, 1.65], fov: 51 },
-  archive: { ...mobileLandscapeCameraPresets.archive, target: [-5.45, 0.62, -4.03], fov: 50 },
+  games: { ...mobileLandscapeCameraPresets.games, position: [-.05, 3.05, 5.05], target: [-.05, 1.25, -3.5], fov: 46 },
+  web: { ...mobileLandscapeCameraPresets.web, position: [1.7, 2.72, -3.25], target: [7.02, 1.85, -3.25], fov: 52 },
+  projects: { ...mobileLandscapeCameraPresets.projects, target: [7.02, 1.82, 2.65], fov: 46 },
+  archive: { ...mobileLandscapeCameraPresets.archive, position: [-1.72, 2.72, 4.02], target: [-6.2, .95, -.72], fov: 52 },
 }
 
 export const inspectCameraPresets = {
