@@ -53,6 +53,12 @@ export const mobileLandscapeExpandedCameraPresets: Record<StudioView, CameraPres
   archive: { ...mobileLandscapeCameraPresets.archive, position: [-1.72, 2.72, 4.02], target: [-6.2, .95, -.72], fov: 52 },
 }
 
+export function getMobileTransitionWaypoint(): CameraPreset {
+  return isLandscapeViewport()
+    ? { position: [0.2, 3.55, 8.5], target: [0.2, 1.75, -1.8], fov: 52 }
+    : { position: [0.2, 3.5, 9.5], target: [0.2, 1.9, -1.9], fov: 54 }
+}
+
 export const inspectCameraPresets = {
   gameSelector: {
     desktop: { position: [-1.34, 2.12, -0.56], target: [-1.77, 1.91, -3.28], fov: 28 },
@@ -66,7 +72,7 @@ export const inspectCameraPresets = {
   },
   archiveCemetery: {
     desktop: { position: [-3.82, 2.15, -1.08], target: [-7.28, 2.15, -1.08], fov: 34 },
-    portrait: { position: [-3.4, 2.15, -1.08], target: [-7.28, 2.15, -1.08], fov: 50 },
+    portrait: { position: [-3.4, 2.15, -1.08], target: [-7.28, 2.15, -1.08], fov: 72 },
     landscape: { position: [-3.7, 2.15, -1.08], target: [-7.28, 2.15, -1.08], fov: 36 },
   },
 } as const

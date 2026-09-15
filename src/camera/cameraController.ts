@@ -1,6 +1,7 @@
 import * as THREE from 'three'
-import { getInspectPreset, getViewPreset, type CameraPreset } from './presets'
+import { getInspectPreset, getMobileTransitionWaypoint, getViewPreset, type CameraPreset } from './presets'
 import type { InspectMode, MobileSheetState, StudioView } from '../state/studioState'
+import { isMobileViewport } from '../config/responsive'
 
 const cubicEaseInOut = (value: number) => value < 0.5
   ? 4 * value * value * value
@@ -17,6 +18,7 @@ export class CameraController {
   private startedAt = performance.now()
   private duration = 0
   private moving = false
+  private queuedMoves: Array<{ preset: CameraPreset; duration: number }> = []
 
   constructor(private readonly camera: THREE.PerspectiveCamera) {
     const preset = getViewPreset('studio')
@@ -24,7 +26,17 @@ export class CameraController {
   }
 
   moveToView(view: StudioView, sheet: MobileSheetState = 'collapsed'): void {
-    this.moveTo(getViewPreset(view, sheet), view === 'studio' ? 950 : 1080)
+    const destination = getViewPreset(view, sheet)
+    const distance = this.camera.position.distanceTo(new THREE.Vector3().fromArray(destination.position))
+    const needsWaypoint = isMobileViewport() && view !== 'studio' && distance > 7
+    if (needsWaypoint && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      this.moveSequence([
+        { preset: getMobileTransitionWaypoint(), duration: 480 },
+        { preset: destination, duration: 720 },
+      ])
+      return
+    }
+    this.moveTo(destination, view === 'studio' ? 950 : 1080)
   }
 
   adaptToSheet(view: StudioView, sheet: MobileSheetState): void {
@@ -53,6 +65,10 @@ export class CameraController {
     this.camera.updateProjectionMatrix()
     this.camera.lookAt(this.lookTarget)
     this.moving = progress < 1
+    if (!this.moving && this.queuedMoves.length > 0) {
+      const next = this.queuedMoves.shift()
+      if (next) this.startMove(next.preset, next.duration, now)
+    }
     return this.moving
   }
 
@@ -61,13 +77,25 @@ export class CameraController {
   }
 
   private moveTo(preset: CameraPreset, duration: number): void {
+    this.queuedMoves = []
+    this.startMove(preset, duration, performance.now())
+  }
+
+  private moveSequence(moves: Array<{ preset: CameraPreset; duration: number }>): void {
+    const [first, ...rest] = moves
+    if (!first) return
+    this.queuedMoves = rest
+    this.startMove(first.preset, first.duration, performance.now())
+  }
+
+  private startMove(preset: CameraPreset, duration: number, startedAt: number): void {
     this.startPosition.copy(this.camera.position)
     this.endPosition.fromArray(preset.position)
     this.startTarget.copy(this.lookTarget)
     this.endTarget.fromArray(preset.target)
     this.startFov = this.camera.fov
     this.endFov = preset.fov
-    this.startedAt = performance.now()
+    this.startedAt = startedAt
     this.duration = matchMedia('(prefers-reduced-motion: reduce)').matches ? 1 : duration
     this.moving = true
   }
@@ -82,6 +110,7 @@ export class CameraController {
     this.startPosition.copy(this.camera.position)
     this.endTarget.copy(this.lookTarget)
     this.startTarget.copy(this.lookTarget)
+    this.queuedMoves = []
     this.moving = false
   }
 }

@@ -166,7 +166,11 @@ try {
     const view = store.get().view
     if (((mode === 'gameSelector' || mode === 'gamePreview') && view !== 'games') || (mode === 'archiveCemetery' && view !== 'archive')) return
     const archiveKey = mode === 'archiveCemetery' ? screens.getArchiveProject() : undefined
-    store.set({ inspectMode: mode, ...(archiveKey ? { selectedArchiveId: archiveKey } : {}) }); setInspectLabels(mode)
+    store.set({
+      inspectMode: mode,
+      ...(isMobileViewport() ? { mobileSheet: 'collapsed' as const } : {}),
+      ...(archiveKey ? { selectedArchiveId: archiveKey } : {}),
+    }); setInspectLabels(mode)
     syncScreenFidelity()
     cameraController.enterInspect(mode); scheduler.startTransition()
   }
@@ -204,6 +208,7 @@ try {
   const mobileControls = createMobileControls({
     store,
     enterGameInspect,
+    enterArchiveInspect,
     openProject: modal.open,
     setFeaturedSelection: (key) => { if (projectWall.setSelected(key)) scheduler.requestRender() },
     requestRender: scheduler.requestRender,

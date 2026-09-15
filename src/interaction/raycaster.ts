@@ -96,7 +96,7 @@ export function createRaycaster(options: Options): void {
           if (key) modal.open(key)
           options.requestRender(); return
         }
-        if (!isMobileViewport()) { options.enterArchiveInspect(); return }
+        options.enterArchiveInspect(); return
       }
       if (mesh === meshes.webSideScreen) { screens.selectWebFromHit(hit); options.requestRender(); return }
       const key = (typeof mesh.userData.getProjectKey === 'function' ? mesh.userData.getProjectKey() : mesh.userData.projectKey) as ProjectKey | undefined

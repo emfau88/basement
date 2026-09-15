@@ -23,7 +23,7 @@
   position:fixed;inset:0;z-index:100;background:#ece7db;display:grid;place-items:center;
   transition:opacity .55s ease,visibility .55s ease
 }
-.loader.done{opacity:0;visibility:hidden}
+.loader.done{opacity:0;visibility:hidden;pointer-events:none}
 .loadinner{width:min(360px,74vw)}
 .loadtop{display:flex;justify-content:space-between;align-items:end;margin-bottom:13px}
 .loadmark{font-size:19px;font-weight:900;letter-spacing:-.07em}
