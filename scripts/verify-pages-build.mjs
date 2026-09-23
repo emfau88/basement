@@ -19,6 +19,14 @@ try {
   page.on('pageerror', (error) => problems.push(`pageerror: ${error.message}`))
   await page.goto(`${server.url}?assetSmoke=ok`, { waitUntil: 'domcontentloaded' })
   await page.waitForFunction(() => document.querySelector('#loader')?.classList.contains('done'))
+  const startupState = await page.evaluate(() => ({
+    progress: document.querySelector('#loader')?.getAttribute('aria-valuenow'),
+    status: document.querySelector('#loader')?.getAttribute('data-status'),
+    proof: document.querySelector('canvas')?.dataset.gamesProof,
+  }))
+  if (startupState.progress !== '100' || startupState.status !== 'ready' || !['ready', 'fallback'].includes(startupState.proof ?? '')) {
+    throw new Error(`Loader completed before the studio was ready: ${JSON.stringify(startupState)}`)
+  }
   await page.waitForFunction(() => document.querySelector('canvas')?.dataset.assetSmoke === 'asset')
   const result = await page.evaluate(() => ({
     canvasCount: document.querySelectorAll('canvas').length,

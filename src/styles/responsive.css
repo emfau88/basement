@@ -28,7 +28,7 @@
 .loadtop{display:flex;justify-content:space-between;align-items:end;margin-bottom:13px}
 .loadmark{font-size:19px;font-weight:900;letter-spacing:-.07em}
 .loadlabel{font-size:8px;letter-spacing:.18em;text-transform:uppercase;color:#7b807d}
-.loadbar{height:1px;background:#cbc6bb;overflow:hidden}.loadbar i{display:block;width:0;height:100%;background:#212624;transition:width .35s ease}
+.loadbar{height:2px;background:#cbc6bb;overflow:hidden;border-radius:2px}.loadbar i{display:block;width:0;height:100%;background:#212624;transition:width .2s ease-out}
 
 @media(max-width:760px){
   .top{top:var(--mobile-safe-top);left:var(--mobile-edge);right:var(--mobile-edge)}

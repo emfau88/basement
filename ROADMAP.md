@@ -2,7 +2,7 @@
 
 Last updated: 2026-09-24
 Current phase: Phase F — Mobile adaptation and production release
-Current bulk: Bulk 24.5 complete — deferred project media; further performance work paused for review
+Current bulk: Bulk 24.6 complete — truthful startup progress; model optimization paused for approval
 
 ## Status legend
 
@@ -477,6 +477,17 @@ Bulk 24.4 verification: Desktop and Mobile navigation, selection, inspect transi
 Acceptance: startup project-media transfer drops from 2.12 MB to 0.85 MB and estimated decoded bitmap memory drops from roughly 87 MB to 34 MB, while the completed Desktop composition, active Projects wall, Mobile cards and detail modals retain their approved appearance.
 
 Bulk 24.5 verification: production build, TypeScript validation, complete responsive/interaction QA and GitHub Pages subpath QA pass on 2026-09-24. Fixed-camera browser review confirms the final studio and active Projects wall remain visually intact. Remaining model, material, HDR and deployment optimizations are intentionally paused until separately approved.
+
+### Bulk 24.6 — Truthful startup progress
+
+- [x] Replace the timer-driven loader with initialization and asset progress.
+- [x] Keep the loading surface visible until the selected quality tier is actually ready.
+- [x] Report a visible percentage and expose accessible progress semantics.
+- [x] Preserve the existing restrained visual language and all fallback paths.
+
+Acceptance: the loader no longer claims that the studio is ready while the photoreal assets are still arriving. Desktop and Mobile Standard wait for their authored asset set; Mobile Low completes after its intentionally lightweight scene is ready.
+
+Bulk 24.6 verification: production build, complete responsive/interaction QA and GitHub Pages subpath QA pass on 2026-09-24. Plant, keyboard and mouse optimization remains deliberately untouched until separately approved.
 
 ### Bulk 25 — Release candidate, deployment and documentation
 
