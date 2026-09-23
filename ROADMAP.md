@@ -452,6 +452,19 @@ Bulk 24.2 verification: Mobile Standard now uses the licensed sofa, plants, keyb
 
 Bulk 24.3 verification: Mobile cross-room moves longer than seven scene units now use a central pull-back waypoint, while reduced-motion users retain an effectively immediate direct transition. The Archive sheet and physical terminal both open the frontal Cemetery inspection, collapse the sheet automatically and provide a working return to the lounge. Portrait and landscape captures verify the waypoint, endpoint, inspection and return states; Desktop camera behavior is unchanged.
 
+### Bulk 24.4 — Curated portfolio expansion
+
+- [x] Add Rooster Rage, More Than Wombat, Terra Divina, Galalaxy and Strategy Galalaxy to the Games station.
+- [x] Add MewTrack to the Web Lab and MarschLegenden to the featured Projects wall.
+- [x] Promote More Than Wombat out of Archive and move Voidline: Farhaven into its cemetery slot.
+- [x] Rebuild the Games selector as a readable nine-project two-column grid with matching hit regions.
+- [x] Produce local high-quality WebP and AVIF derivatives from the approved project-owned captures.
+- [x] Keep the four-card Projects wall deliberately curated instead of expanding its physical layout.
+
+Acceptance: the wider EMFAU catalog is represented without overcrowding the approved room composition, every new entry is selectable and opens the correct detail, and no runtime project image depends on a remote host.
+
+Bulk 24.4 verification: Desktop and Mobile navigation, selection, inspect transitions and modal hand-off pass the full browser matrix; the GitHub Pages subpath check confirms all project media remains local and loadable. Production build and TypeScript validation pass on 2026-09-23.
+
 ### Bulk 25 — Release candidate, deployment and documentation
 
 - [ ] Run the complete Desktop/Mobile/browser regression matrix and dependency audit.

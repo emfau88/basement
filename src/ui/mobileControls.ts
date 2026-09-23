@@ -32,7 +32,8 @@ const projectKeys: Record<Exclude<StudioView, 'studio'>, readonly ProjectKey[]> 
   archive: archiveProjectKeys,
 }
 const viewCount: Record<Exclude<StudioView, 'studio'>, string> = {
-  games: '4 projects', web: '4 projects', projects: '4 featured', archive: '4 entries',
+  games: `${gameProjectKeys.length} projects`, web: `${webProjectKeys.length} projects`,
+  projects: `${featuredProjectKeys.length} featured`, archive: `${archiveProjectKeys.length} entries`,
 }
 
 const selectedKeyFor = (state: Readonly<StudioState>): ProjectKey | null => {

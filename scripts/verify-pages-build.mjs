@@ -47,6 +47,7 @@ try {
   }
   await page.locator('.nav button[data-view="games"]').click()
   await page.locator('#mobileSheetToggle').click()
+  await page.locator('.mobile-project-card img').evaluateAll((images) => images.forEach((image) => { image.loading = 'eager' }))
   await page.waitForFunction(() => [...document.querySelectorAll('.mobile-project-card img')].every((image) => image.complete && image.naturalWidth > 0))
   const projectImages = await page.locator('.mobile-project-card img').evaluateAll((images) => images.map((image) => ({
     path: new URL(image.src).pathname,

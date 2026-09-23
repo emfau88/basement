@@ -4,6 +4,8 @@ EMFAU Virtual Studio is an interactive 3D portfolio for games, apps and archived
 
 The interaction model takes conceptual inspiration from [Basement Studio](https://basement.studio/), especially its separation of scenes, camera state and inspectable objects. This repository remains an independent, deliberately smaller Three.js implementation without React, Next.js or React Three Fiber.
 
+The current curated catalog contains nine selectable games, five Web Lab apps, four featured Projects-wall entries and four retired Archive projects. Featured additions from the wider EMFAU catalog include Rooster Rage, More Than Wombat, Terra Divina, Galalaxy, Strategy Galalaxy, MewTrack and MarschLegenden; Voidline: Farhaven is intentionally presented as an archived prototype.
+
 ## Stack
 
 - Vite 8
@@ -47,6 +49,8 @@ The static build is written to `dist/`. `vite.config.ts` uses a relative base pa
 Edit `src/data/projects.ts`. A project entry contains its text, image URL, links, screen label and `display` calibration. Add its ID to the appropriate ordered list (`gameProjectKeys`, `webProjectKeys`, `archiveProjectKeys` or `featuredProjectKeys`) to place it on a physical screen.
 
 Bright screenshots should be calibrated per project with `brightness`, `saturation` and `contrast`; do not compensate by changing global room lighting.
+
+Project media is stored locally under `public/assets/projects/`. New hero captures are retained as high-quality WebP and AVIF derivatives; WebP is the compatibility-safe runtime source used by the CanvasTexture screens.
 
 ## Change a camera view
 
