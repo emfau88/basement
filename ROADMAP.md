@@ -1,8 +1,8 @@
 # EMFAU Virtual Studio roadmap
 
-Last updated: 2026-09-15
+Last updated: 2026-09-24
 Current phase: Phase F — Mobile adaptation and production release
-Current bulk: Bulk 24.3 complete — Mobile transition routes and Archive inspect; Bulk 24 device/performance validation next
+Current bulk: Bulk 24.5 complete — deferred project media; further performance work paused for review
 
 ## Status legend
 
@@ -464,6 +464,19 @@ Bulk 24.3 verification: Mobile cross-room moves longer than seven scene units no
 Acceptance: the wider EMFAU catalog is represented without overcrowding the approved room composition, every new entry is selectable and opens the correct detail, and no runtime project image depends on a remote host.
 
 Bulk 24.4 verification: Desktop and Mobile navigation, selection, inspect transitions and modal hand-off pass the full browser matrix; the GitHub Pages subpath check confirms all project media remains local and loadable. Production build and TypeScript validation pass on 2026-09-23.
+
+### Bulk 24.5 — Deferred project media
+
+- [x] Load only the currently visible Games and Web artwork during startup.
+- [x] Keep all four Archive graves immediately complete and interactive.
+- [x] Use dedicated 768 × 432 previews for the distant Projects wall and Mobile cards.
+- [x] Upgrade the Projects wall to its existing full-resolution artwork when that area becomes active.
+- [x] Delay background slideshow prefetch until the photoreal studio proof is ready.
+- [x] Preserve full-resolution artwork in every project modal.
+
+Acceptance: startup project-media transfer drops from 2.12 MB to 0.85 MB and estimated decoded bitmap memory drops from roughly 87 MB to 34 MB, while the completed Desktop composition, active Projects wall, Mobile cards and detail modals retain their approved appearance.
+
+Bulk 24.5 verification: production build, TypeScript validation, complete responsive/interaction QA and GitHub Pages subpath QA pass on 2026-09-24. Fixed-camera browser review confirms the final studio and active Projects wall remain visually intact. Remaining model, material, HDR and deployment optimizations are intentionally paused until separately approved.
 
 ### Bulk 25 — Release candidate, deployment and documentation
 

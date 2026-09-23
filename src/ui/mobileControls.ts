@@ -2,6 +2,7 @@ import {
   archiveProjectKeys,
   featuredProjectKeys,
   gameProjectKeys,
+  projectPreviewImage,
   projects,
   webProjectKeys,
   type ProjectKey,
@@ -82,7 +83,7 @@ export function createMobileControls(options: MobileControlOptions): MobileContr
       card.type = 'button'; card.className = 'mobile-project-card'; card.dataset.project = key
       card.setAttribute('role', 'option'); card.setAttribute('aria-label', `Select ${project.title}`)
       const image = document.createElement('img')
-      image.src = project.image; image.alt = ''; image.loading = 'lazy'; image.decoding = 'async'
+      image.src = projectPreviewImage(project); image.alt = ''; image.loading = 'lazy'; image.decoding = 'async'
       image.addEventListener('error', () => card.classList.add('image-fallback'), { once: true })
       const text = document.createElement('span'); text.className = 'mobile-project-card-copy'
       const tag = document.createElement('small'); tag.textContent = project.category

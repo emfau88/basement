@@ -113,11 +113,13 @@ try {
         gamesProof = proof
         proof.setActive(rendering.quality.name === 'desktop' || store.get().view === 'games')
         rendering.renderer.domElement.dataset.gamesProof = 'ready'
+        screens.enableBackgroundPrefetch()
         scheduler.requestRender()
         return proof
       }).catch((error) => {
         console.warn('[games photoreal proof]', error)
         rendering.renderer.domElement.dataset.gamesProof = 'fallback'
+        screens.enableBackgroundPrefetch()
         gamesProofPromise = null
         scheduler.requestRender()
         throw error
@@ -150,6 +152,7 @@ try {
     tooltip.classList.remove('show'); document.body.style.cursor = 'default'
     fade.style.opacity = '.13'; window.setTimeout(() => { fade.style.opacity = '0' }, 150)
     store.set({ view, inspectMode: null, mobileSheet: 'collapsed' })
+    screens.activate(view)
     syncScreenFidelity()
     if (usesGamesProof(view)) {
       void ensureGamesProof().then((proof) => {

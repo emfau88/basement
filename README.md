@@ -52,6 +52,8 @@ Bright screenshots should be calibrated per project with `brightness`, `saturati
 
 Project media is stored locally under `public/assets/projects/`. New hero captures are retained as high-quality WebP and AVIF derivatives; WebP is the compatibility-safe runtime source used by the CanvasTexture screens.
 
+Each project also has a 768 × 432 `-preview.webp` derivative for distant wall cards and Mobile selectors. Full artwork is loaded for active room screens and project details; the remaining room catalog is fetched only when its area is opened or after the photoreal startup pass has completed.
+
 ## Change a camera view
 
 Edit `src/camera/presets.ts`. Desktop, portrait, landscape, Games-selector and Archive-Cemetery views are kept separate. `src/camera/cameraController.ts` applies direct or safe staged transitions and respects `prefers-reduced-motion`.

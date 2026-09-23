@@ -47,6 +47,8 @@ const DEFAULT_DISPLAY: DisplayCalibration = {
 
 const projectImage = (filename: string) => `${import.meta.env.BASE_URL}assets/projects/${filename}`
 
+export const projectPreviewImage = (project: Project): string => project.image.replace(/\.webp$/, '-preview.webp')
+
 export const projects: Record<ProjectKey, Project> = {
   territory_tide: {
     id: 'territory_tide',

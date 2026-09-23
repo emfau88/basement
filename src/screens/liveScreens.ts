@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 import { archiveProjectKeys, gameProjectKeys, projects, webProjectKeys, type ProjectKey } from '../data/projects'
-import type { StudioStore } from '../state/studioState'
+import type { StudioStore, StudioView } from '../state/studioState'
 import { isMobileViewport } from '../config/responsive'
 import {
   LIVE_CANVAS_HEIGHT,
@@ -28,6 +28,9 @@ interface LiveScreen {
   last: number
   currentKey?: ProjectKey
   apps?: readonly string[]
+  keys?: readonly ProjectKey[]
+  requestedKeys?: Set<ProjectKey>
+  nextPrefetchAt?: number
 }
 
 const GAME_SELECTOR_COLUMNS = 2
@@ -68,6 +71,8 @@ export interface LiveScreenSystem {
   registerApps(mesh: THREE.Mesh): void
   registerAppSelector(mesh: THREE.Mesh): void
   registerArchive(mesh: THREE.Mesh): void
+  activate(view: StudioView): void
+  enableBackgroundPrefetch(): void
   selectGameFromHit(hit: THREE.Intersection): void
   selectWebFromHit(hit: THREE.Intersection): void
   selectArchiveFromHit(hit: THREE.Intersection): ProjectKey | undefined
@@ -79,6 +84,32 @@ export interface LiveScreenSystem {
 
 export function createLiveScreenSystem(store: StudioStore, textureAnisotropy = 4): LiveScreenSystem {
   const screens: LiveScreen[] = []
+  let backgroundPrefetchEnabled = false
+
+  const selectedKeyForScreen = (screen: LiveScreen): ProjectKey | undefined => {
+    const state = store.get()
+    if (screen.type === 'games' || screen.type === 'gamepan') return state.selectedGameId
+    if (screen.type === 'apps') return state.selectedWebId
+    if (screen.type === 'archive') return state.selectedArchiveId
+    return undefined
+  }
+
+  const requestScreenKeys = (screen: LiveScreen, keys: readonly ProjectKey[]) => {
+    const requested = screen.requestedKeys
+    if (!requested || !screen.keys) return
+    const pending = keys.filter((key) => !requested.has(key))
+    if (!pending.length) return
+    pending.forEach((key) => requested.add(key))
+    void loadProjectImages(pending).then((items) => {
+      const loaded = new Map(screen.items.map((item) => [item.key, item]))
+      items.forEach((item) => loaded.set(item.key, item))
+      screen.items = screen.keys?.flatMap((key) => {
+        const item = loaded.get(key)
+        return item ? [item] : []
+      }) ?? items
+      screen.last = 0
+    })
+  }
 
   const sectionForScreen = (type: ScreenType) => {
     if (type === 'games' || type === 'gamepan' || type === 'terminal') return 'games'
@@ -110,9 +141,15 @@ export function createLiveScreenSystem(store: StudioStore, textureAnisotropy = 4
   const registerImageScreen = (mesh: THREE.Mesh, type: ScreenType, keys: readonly ProjectKey[], emissive: number) => {
     const live = createLiveCanvas(textureAnisotropy); attachLiveTexture(mesh, live, emissive)
     mesh.userData.liveScreenResolution = `${LIVE_CANVAS_WIDTH}x${LIVE_CANVAS_HEIGHT}`
-    const screen: LiveScreen = { type, mesh, live, items: [], last: 0 }
-    void loadProjectImages(keys).then((items) => { screen.items = items; screen.last = 0 })
+    const screen: LiveScreen = {
+      type, mesh, live, items: [], last: 0, keys, requestedKeys: new Set(),
+      nextPrefetchAt: Number.POSITIVE_INFINITY,
+    }
     screens.push(screen)
+    const selected = selectedKeyForScreen(screen)
+    // The cemetery needs all four gravestones immediately; the other screens
+    // start with only the image that is actually visible.
+    requestScreenKeys(screen, type === 'archive' ? keys : selected ? [selected] : [])
   }
 
   const drawGames = (screen: LiveScreen, ms: number) => {
@@ -266,6 +303,18 @@ export function createLiveScreenSystem(store: StudioStore, textureAnisotropy = 4
     registerApps: (mesh) => registerImageScreen(mesh, 'apps', webProjectKeys, 0.24),
     registerAppSelector: (mesh) => { const live = createLiveCanvas(textureAnisotropy); attachLiveTexture(mesh, live, 0.36); mesh.userData.liveScreenResolution = `${LIVE_CANVAS_WIDTH}x${LIVE_CANVAS_HEIGHT}`; screens.push({ type: 'appticker', mesh, live, items: [], last: 0, apps: webProjectKeys.map((key) => projects[key].title.toUpperCase()) }) },
     registerArchive: (mesh) => registerImageScreen(mesh, 'archive', archiveProjectKeys, 0.52),
+    activate: (view) => {
+      if (view === 'studio' || view === 'projects') return
+      screens.forEach((screen) => {
+        if (screen.keys && sectionForScreen(screen.type) === view) requestScreenKeys(screen, screen.keys)
+      })
+    },
+    enableBackgroundPrefetch: () => {
+      if (backgroundPrefetchEnabled) return
+      backgroundPrefetchEnabled = true
+      const now = performance.now()
+      screens.forEach((screen, index) => { screen.nextPrefetchAt = now + 1_800 + index * 650 })
+    },
     selectGameFromHit: (hit) => { const x = (hit.uv?.x ?? -1) * 768; const y = (1 - (hit.uv?.y ?? -1)) * 432; const key = gameKeyFromSelectorPoint(x, y); if (key) store.set({ selectedGameId: key }) },
     selectWebFromHit: (hit) => { const y = (1 - (hit.uv?.y ?? -1)) * 432; if (y < 92 || y > 92 + webProjectKeys.length * 56) return; const key = webProjectKeys[Math.floor((y - 92) / 56)]; if (key) store.set({ selectedWebId: key }) },
     selectArchiveFromHit: (hit) => {
@@ -285,6 +334,26 @@ export function createLiveScreenSystem(store: StudioStore, textureAnisotropy = 4
       height: screen.live.canvas.height,
       scale: screen.live.resolutionScale,
     })),
-    update: (now) => { let changed = syncResolution(); for (const screen of screens) { if (now - screen.last < 90) continue; screen.last = now; changed = true; if (screen.type === 'games') drawGames(screen, now); else if (screen.type === 'gamepan') drawGamePan(screen, now); else if (screen.type === 'terminal') drawGameSelector(screen); else if (screen.type === 'apps') drawApps(screen, now); else if (screen.type === 'appticker') drawAppSelector(screen, now); else drawArchive(screen, now) } return changed },
+    update: (now) => {
+      let changed = syncResolution()
+      for (const screen of screens) {
+        const selected = selectedKeyForScreen(screen)
+        if (selected) requestScreenKeys(screen, [selected])
+        if (backgroundPrefetchEnabled && store.get().view === 'studio' && screen.keys && screen.nextPrefetchAt !== undefined && now >= screen.nextPrefetchAt) {
+          const next = screen.keys.find((key) => !screen.requestedKeys?.has(key))
+          if (next) requestScreenKeys(screen, [next])
+          screen.nextPrefetchAt = now + 3_500
+        }
+        if (now - screen.last < 90) continue
+        screen.last = now; changed = true
+        if (screen.type === 'games') drawGames(screen, now)
+        else if (screen.type === 'gamepan') drawGamePan(screen, now)
+        else if (screen.type === 'terminal') drawGameSelector(screen)
+        else if (screen.type === 'apps') drawApps(screen, now)
+        else if (screen.type === 'appticker') drawAppSelector(screen, now)
+        else drawArchive(screen, now)
+      }
+      return changed
+    },
   }
 }

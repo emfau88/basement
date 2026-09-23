@@ -26,7 +26,7 @@ export interface StudioStore {
 export function createStudioStore(): StudioStore {
   let state: StudioState = {
     view: 'studio', inspectMode: null, mobileSheet: 'collapsed', selectedGameId: 'territory_tide', selectedWebId: 'mirror',
-    selectedFeaturedId: 'territory_tide', selectedArchiveId: 'cozy_bunker', openProjectId: null,
+    selectedFeaturedId: 'rooster_rage', selectedArchiveId: 'cozy_bunker', openProjectId: null,
   }
   const listeners = new Set<Listener>()
   return {
