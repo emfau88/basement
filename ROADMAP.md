@@ -1,8 +1,8 @@
 # EMFAU Virtual Studio roadmap
 
-Last updated: 2026-09-24
+Last updated: 2026-09-27
 Current phase: Phase F — Mobile adaptation and production release
-Current bulk: Bulk 24.7 complete — lossless-looking hero asset optimization
+Current bulk: Bulk 24.8 complete — Mobile portrait camera correction
 
 ## Status legend
 
@@ -500,6 +500,19 @@ Bulk 24.6 verification: production build, complete responsive/interaction QA and
 Acceptance: the two deployed GLBs drop from 1.53 MB to 1.01 MB and their estimated GPU texture allocation drops from roughly 112 MB to 19.6 MB. Fixed-camera comparisons retain the approved appearance, with mean absolute channel differences below 0.25/255.
 
 Bulk 24.7 verification: input-device GPU texture allocation falls by roughly 86% and plant texture allocation by 75%. The full-scene headless startup metric remains software-GPU-sensitive and is not presented as a stable speed percentage; exact transfer/VRAM reductions, unchanged vertex counts, fixed-camera captures, GLB validation and the complete QA matrix are the acceptance evidence.
+
+### Bulk 24.8 — Mobile camera audit and portrait correction
+
+- [x] Audit all current portrait overview, expanded-sheet and inspect states against the finished room.
+- [x] Centralize Mobile route decisions while preserving Desktop behavior and the verified landscape baseline.
+- [x] Reframe Games, Web and Projects for stronger portrait subject priority.
+- [x] Reduce avoidable wide-angle distortion in Projects, Games inspect and Archive cemetery inspect.
+- [x] Route long and semantically separated portrait moves through the safe studio hub.
+- [x] Capture matching portrait before/after evidence and rerun the complete interaction and deployment-path QA.
+
+Acceptance: portrait uses the same rooms, subjects and interaction hierarchy as Desktop with device-appropriate composition; no Desktop preset, Desktop behavior, landscape endpoint or scene geometry changes.
+
+Bulk 24.8 verification: `390 × 844` captures cover all five collapsed states, every expanded content sheet, Games selector and Archive cemetery inspection. TypeScript, production build, complete responsive interaction QA and GitHub Pages subpath QA pass on 2026-09-27. Desktop and landscape preset values are unchanged; landscape rotation/choreography remains a separate later step.
 
 ### Bulk 25 — Release candidate, deployment and documentation
 

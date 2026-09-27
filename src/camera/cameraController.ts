@@ -1,7 +1,8 @@
 import * as THREE from 'three'
 import { getInspectPreset, getMobileTransitionWaypoint, getViewPreset, type CameraPreset } from './presets'
+import { shouldUseMobileHub } from './mobileRoutes'
 import type { InspectMode, MobileSheetState, StudioView } from '../state/studioState'
-import { isMobileViewport } from '../config/responsive'
+import { isLandscapeViewport, isMobileViewport } from '../config/responsive'
 
 const cubicEaseInOut = (value: number) => value < 0.5
   ? 4 * value * value * value
@@ -19,6 +20,7 @@ export class CameraController {
   private duration = 0
   private moving = false
   private queuedMoves: Array<{ preset: CameraPreset; duration: number }> = []
+  private currentView: StudioView = 'studio'
 
   constructor(private readonly camera: THREE.PerspectiveCamera) {
     const preset = getViewPreset('studio')
@@ -28,7 +30,13 @@ export class CameraController {
   moveToView(view: StudioView, sheet: MobileSheetState = 'collapsed'): void {
     const destination = getViewPreset(view, sheet)
     const distance = this.camera.position.distanceTo(new THREE.Vector3().fromArray(destination.position))
-    const needsWaypoint = isMobileViewport() && view !== 'studio' && distance > 7
+    const needsWaypoint = isMobileViewport() && shouldUseMobileHub(
+      this.currentView,
+      view,
+      distance,
+      isLandscapeViewport() ? 'landscape' : 'portrait',
+    )
+    this.currentView = view
     if (needsWaypoint && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
       this.moveSequence([
         { preset: getMobileTransitionWaypoint(), duration: 480 },
@@ -48,10 +56,12 @@ export class CameraController {
   }
 
   exitInspect(view: StudioView, sheet: MobileSheetState = 'collapsed'): void {
+    this.currentView = view
     this.moveTo(getViewPreset(view, sheet), 720)
   }
 
   resize(view: StudioView, inspectMode: InspectMode, sheet: MobileSheetState = 'collapsed'): void {
+    this.currentView = view
     this.snapTo(inspectMode ? getInspectPreset(inspectMode) : getViewPreset(view, sheet))
   }
 
