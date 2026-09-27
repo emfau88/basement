@@ -106,6 +106,12 @@ body.focus .info{opacity:1;pointer-events:auto;transform:translateY(-50%) transl
   border:1px solid rgba(26,31,29,.075);border-radius:10px;background:rgba(255,255,255,.38)
 }
 .row b{font-size:8px;letter-spacing:.1em;text-transform:uppercase}.row span{font-size:9px;color:#7d837f}
+.archive-enter{
+  display:none;width:100%;margin-top:12px;padding:11px 12px;border:1px solid rgba(27,32,30,.14);border-radius:10px;
+  background:#19201d;color:#f4f0e7;font:700 8px/1 Arial;letter-spacing:.11em;text-transform:uppercase;
+  cursor:pointer;transition:background .2s ease,transform .2s ease
+}
+.archive-enter span{float:right}.archive-enter:hover{background:#29332f;transform:translateY(-1px)}
 .mobile-context-actions{display:none}
 .mobile-sheet{display:none}
 .close{
@@ -163,6 +169,7 @@ body.view-archive .card .eyebrow{font-size:7px;margin-bottom:7px}
 body.view-archive .card h2{font-size:23px;line-height:1;margin:0 0 8px;padding-right:20px}
 body.view-archive .card p{margin:0;line-height:1.48}
 body.view-archive .rows{display:none}
+body.view-archive .archive-enter{display:block}
 body.view-archive .close{width:26px;height:26px;right:5px;top:5px;font-size:16px}
 
 body.inspect-selector .info{opacity:0!important;pointer-events:none!important}

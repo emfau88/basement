@@ -195,7 +195,7 @@ try {
     cameraController.enterInspect('gameSelector'); scheduler.startTransition()
   }
 
-  const navigation = createNavigationUI(store, navigate)
+  const navigation = createNavigationUI(store, navigate, enterArchiveInspect)
   inspectBack.addEventListener('click', backFromInspect)
   createAmbientAudio()
 

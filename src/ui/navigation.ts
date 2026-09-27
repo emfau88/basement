@@ -26,12 +26,13 @@ export interface NavigationUI {
   destroy(): void
 }
 
-export function createNavigationUI(store: StudioStore, navigate: (view: StudioView) => void): NavigationUI {
+export function createNavigationUI(store: StudioStore, navigate: (view: StudioView) => void, enterArchiveInspect: () => void): NavigationUI {
   const eyebrow = requiredElement<HTMLElement>('eyebrow')
   const title = requiredElement<HTMLElement>('title')
   const copy = requiredElement<HTMLElement>('copy')
   const rows = requiredElement<HTMLElement>('rows')
   const close = requiredElement<HTMLButtonElement>('close')
+  const archiveEnter = requiredElement<HTMLButtonElement>('archiveEnter')
   const buttons = [...document.querySelectorAll<HTMLButtonElement>('.nav button[data-view]')]
 
   const render = () => {
@@ -63,8 +64,9 @@ export function createNavigationUI(store: StudioStore, navigate: (view: StudioVi
   buttons.forEach((button) => button.addEventListener('click', onButtonClick))
   const onClose = () => navigate('studio')
   close.addEventListener('click', onClose)
+  archiveEnter.addEventListener('click', enterArchiveInspect)
   const unsubscribe = store.subscribe(render)
   render()
 
-  return { render, destroy: () => { unsubscribe(); buttons.forEach((button) => button.removeEventListener('click', onButtonClick)); close.removeEventListener('click', onClose) } }
+  return { render, destroy: () => { unsubscribe(); buttons.forEach((button) => button.removeEventListener('click', onButtonClick)); close.removeEventListener('click', onClose); archiveEnter.removeEventListener('click', enterArchiveInspect) } }
 }
