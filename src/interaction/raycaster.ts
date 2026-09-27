@@ -84,9 +84,15 @@ export function createRaycaster(options: Options): void {
       if (mesh === meshes.gameLeftScreen) {
         if (state.inspectMode !== 'gameSelector') options.enterGameInspect()
         else {
-          screens.selectGameFromHit(hit)
-          if (isMobileViewport()) options.requestRender()
-          else options.enterGamePreview()
+          const selectedKey = screens.selectGameFromHit(hit)
+          if (!selectedKey) return
+          if (isMobileViewport()) {
+            options.requestRender()
+            window.setTimeout(() => {
+              const latest = store.get()
+              if (latest.view === 'games' && latest.inspectMode === 'gameSelector' && latest.selectedGameId === selectedKey) options.enterGamePreview()
+            }, 180)
+          } else options.enterGamePreview()
         }
         return
       }

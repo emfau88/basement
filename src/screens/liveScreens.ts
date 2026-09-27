@@ -73,7 +73,7 @@ export interface LiveScreenSystem {
   registerArchive(mesh: THREE.Mesh): void
   activate(view: StudioView): void
   enableBackgroundPrefetch(): void
-  selectGameFromHit(hit: THREE.Intersection): void
+  selectGameFromHit(hit: THREE.Intersection): ProjectKey | undefined
   selectWebFromHit(hit: THREE.Intersection): void
   selectArchiveFromHit(hit: THREE.Intersection): ProjectKey | undefined
   getArchiveProject(): ProjectKey | undefined
@@ -173,7 +173,10 @@ export function createLiveScreenSystem(store: StudioStore, textureAnisotropy = 4
     context.fillStyle = gradient; context.fillRect(0, 220, 768, 212); topChrome(context, state.view === 'games' ? 'SELECTED GAME' : 'GAMES', '#a9c58b')
     context.fillStyle = '#f4f5ef'; context.font = '800 31px Arial'; context.fillText(item.name, 28, 364)
     context.fillStyle = 'rgba(244,245,239,.66)'; context.font = '600 14px monospace'; context.fillText(item.tag ?? 'PLAYABLE PROJECT', 29, 391)
-    if (state.view === 'games') { context.fillStyle = 'rgba(255,255,255,.12)'; context.fillRect(528, 18, 210, 20); context.fillStyle = '#eef3e8'; context.font = '700 12px monospace'; context.fillText('CLICK IMAGE FOR DETAILS', 544, 32) }
+    if (state.view === 'games') {
+      const detailPrompt = isMobileViewport() ? 'TAP IMAGE FOR DETAILS' : 'CLICK IMAGE FOR DETAILS'
+      context.fillStyle = 'rgba(255,255,255,.12)'; context.fillRect(528, 18, 210, 20); context.fillStyle = '#eef3e8'; context.font = '700 12px monospace'; context.fillText(detailPrompt, 544, 32)
+    }
     texture.needsUpdate = true
   }
 
@@ -318,7 +321,12 @@ export function createLiveScreenSystem(store: StudioStore, textureAnisotropy = 4
       const now = performance.now()
       screens.forEach((screen, index) => { screen.nextPrefetchAt = now + 1_800 + index * 650 })
     },
-    selectGameFromHit: (hit) => { const x = (hit.uv?.x ?? -1) * 768; const y = (1 - (hit.uv?.y ?? -1)) * 432; const key = gameKeyFromSelectorPoint(x, y); if (key) store.set({ selectedGameId: key }) },
+    selectGameFromHit: (hit) => {
+      const x = (hit.uv?.x ?? -1) * 768; const y = (1 - (hit.uv?.y ?? -1)) * 432
+      const key = gameKeyFromSelectorPoint(x, y)
+      if (key) store.set({ selectedGameId: key })
+      return key
+    },
     selectWebFromHit: (hit) => { const y = (1 - (hit.uv?.y ?? -1)) * 432; if (y < 92 || y > 92 + webProjectKeys.length * 56) return; const key = webProjectKeys[Math.floor((y - 92) / 56)]; if (key) store.set({ selectedWebId: key }) },
     selectArchiveFromHit: (hit) => {
       const screen = screens.find((candidate) => candidate.type === 'archive')
