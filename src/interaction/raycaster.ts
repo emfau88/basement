@@ -22,6 +22,7 @@ interface Options {
   enterGameInspect(): void
   enterGamePreview(): void
   enterArchiveInspect(): void
+  isCameraMoving(): boolean
   requestRender(): void
 }
 
@@ -35,6 +36,13 @@ export function createRaycaster(options: Options): void {
   meshes.webMainScreen.userData = { ...meshes.webMainScreen.userData, section: 'web', detailLabel: 'Open project', getProjectKey: () => store.get().selectedWebId }
   meshes.webSideScreen.userData = { ...meshes.webSideScreen.userData, section: 'web', detailLabel: 'Select app' }
   meshes.archiveScreen.userData = { ...meshes.archiveScreen.userData, section: 'archive', detailLabel: 'Zoom into cemetery', getProjectKey: () => screens.getArchiveProject() }
+
+  const clearPointerFeedback = () => {
+    const changed = projectWall.setHover(null)
+    document.body.style.cursor = 'default'
+    tooltip.classList.remove('show')
+    if (changed) options.requestRender()
+  }
 
   const updatePointer = (event: PointerEvent) => {
     const rect = canvas.getBoundingClientRect()
@@ -54,6 +62,7 @@ export function createRaycaster(options: Options): void {
 
   window.addEventListener('pointermove', (event) => {
     if (event.pointerType === 'touch') return
+    if (options.isCameraMoving()) { clearPointerFeedback(); return }
     updatePointer(event); raycaster.setFromCamera(pointer, camera)
     const hit = detailHit()
     if (hit) {
@@ -77,6 +86,7 @@ export function createRaycaster(options: Options): void {
       store.set({ mobileSheet: 'collapsed' })
       return
     }
+    if (options.isCameraMoving()) { clearPointerFeedback(); return }
     updatePointer(event); raycaster.setFromCamera(pointer, camera)
     const hit = detailHit()
     if (hit) {
@@ -99,14 +109,14 @@ export function createRaycaster(options: Options): void {
       if (mesh === meshes.archiveScreen) {
         if (state.inspectMode === 'archiveCemetery') {
           const key = screens.selectArchiveFromHit(hit)
-          if (key) modal.open(key)
+          if (key) { clearPointerFeedback(); modal.open(key) }
           options.requestRender(); return
         }
         options.enterArchiveInspect(); return
       }
       if (mesh === meshes.webSideScreen) { screens.selectWebFromHit(hit); options.requestRender(); return }
       const key = (typeof mesh.userData.getProjectKey === 'function' ? mesh.userData.getProjectKey() : mesh.userData.projectKey) as ProjectKey | undefined
-      if (key) { projectWall.setHover(null); modal.open(key) }
+      if (key) { clearPointerFeedback(); modal.open(key) }
       return
     }
     const hotspot = raycaster.intersectObjects(hotspots, false)[0]?.object as Hotspot | undefined

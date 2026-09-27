@@ -183,6 +183,7 @@ body.inspect-selector .info{opacity:0!important;pointer-events:none!important}
   transition:opacity .22s ease,transform .3s var(--ease)
 }
 body.inspect-selector .inspect-back{opacity:1;transform:translateY(0);pointer-events:auto}
+body.camera-moving .inspect-back{pointer-events:none}
 .inspect-back:hover{background:#fbfaf6;color:#151918}
 
 /* nav */
