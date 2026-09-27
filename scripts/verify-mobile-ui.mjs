@@ -232,10 +232,10 @@ try {
   await waitForStudioReady(constrainedMobile)
   assert(await constrainedMobile.locator('canvas').getAttribute('data-quality') === 'mobile-low', 'Constrained mobile render profile is incorrect')
   assert(await constrainedMobile.locator('canvas').getAttribute('data-scene-detail') === '48', 'Constrained mobile scene detail budget is incorrect')
-  assert(await constrainedMobile.locator('canvas').getAttribute('data-hero-models') === null, 'Mobile Low eagerly loaded hero models')
-  await constrainedMobile.locator('.nav button[data-view="games"]').click()
   await constrainedMobile.waitForFunction(() => ['ready', 'fallback'].includes(document.querySelector('canvas')?.dataset.gamesProof ?? ''))
-  assert(await constrainedMobile.locator('canvas').getAttribute('data-hero-models') === 'procedural-fallback', 'Mobile Low did not retain lightweight hero replacements')
+  assert(await constrainedMobile.locator('canvas').getAttribute('data-hero-models') === 'desktop-ready', 'Mobile Low did not load the authored studio models')
+  await constrainedMobile.locator('.nav button[data-view="games"]').click()
+  assert(await constrainedMobile.locator('canvas').getAttribute('data-hero-models') === 'desktop-ready', 'Mobile Low swapped the authored studio models after navigation')
   await constrainedMobile.close()
 
   const landscape = await browser.newPage({ viewport: { width: 740, height: 430 }, reducedMotion: 'reduce' })

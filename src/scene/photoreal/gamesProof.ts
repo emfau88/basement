@@ -346,25 +346,16 @@ function refineSofaFabric(sofa: THREE.Object3D | null, weave: THREE.Texture): vo
 export async function createGamesPhotorealProof(options: GamesProofOptions): Promise<GamesProofController> {
   const { scene, renderer, materials: current, budget, quality, assets } = options
   const desktop = quality.name === 'desktop'
-  // Mobile Standard is visually equivalent to Desktop for the small set of
-  // authored hero props. Only the explicit low-end tier keeps procedural
-  // replacements; viewport width or touch input must not lower scene quality.
-  const enhancedModels = quality.name !== 'mobile-low'
+  // Content remains identical across quality tiers. Mobile profiles reduce
+  // lighting, pixel density and geometry budgets rather than replacing the
+  // authored hero props with visibly different stand-ins.
   const legacyWindowLayers = collectLegacyWindowLayers(scene)
   const [materials, leftHeroPlant, rightHeroPlant, keyboardMouse, archiveSofa] = await Promise.all([
     loadMaterialSet(assets, budget.textureAnisotropy, desktop),
-    enhancedModels
-      ? assets.loadModel(`${ASSET_ROOT}models/potted-plant-02.glb`).then((model) => model.root).catch(() => null)
-      : Promise.resolve(null),
-    enhancedModels
-      ? assets.loadModel(`${ASSET_ROOT}models/potted-plant-02.glb`).then((model) => model.root).catch(() => null)
-      : Promise.resolve(null),
-    enhancedModels
-      ? assets.loadModel(`${ASSET_ROOT}models/keyboard-mouse.glb`).then((model) => model.root).catch(() => null)
-      : Promise.resolve(null),
-    enhancedModels
-      ? assets.loadModel(`${SHARED_ASSET_ROOT}models/archive-sofa.glb`).then((model) => model.root).catch(() => null)
-      : Promise.resolve(null),
+    assets.loadModel(`${ASSET_ROOT}models/potted-plant-02.glb`).then((model) => model.root).catch(() => null),
+    assets.loadModel(`${ASSET_ROOT}models/potted-plant-02.glb`).then((model) => model.root).catch(() => null),
+    assets.loadModel(`${ASSET_ROOT}models/keyboard-mouse.glb`).then((model) => model.root).catch(() => null),
+    assets.loadModel(`${SHARED_ASSET_ROOT}models/archive-sofa.glb`).then((model) => model.root).catch(() => null),
   ])
   refineSofaFabric(archiveSofa, materials.sofaWeave)
   const shell = buildShell(materials, budget)

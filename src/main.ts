@@ -113,7 +113,7 @@ try {
         assets,
       })).then((proof) => {
         gamesProof = proof
-        proof.setActive(rendering.quality.name === 'desktop' || store.get().view === 'games')
+        proof.setActive(true)
         rendering.renderer.domElement.dataset.gamesProof = 'ready'
         screens.enableBackgroundPrefetch()
         scheduler.requestRender()
@@ -130,9 +130,10 @@ try {
     return gamesProofPromise
   }
 
-  // Desktop and Mobile Standard share the finished studio continuously. The
-  // low-end tier still defers its lightweight Games proof until Games opens.
-  const usesGamesProof = (view: StudioView): boolean => rendering.quality.name !== 'mobile-low' || view === 'games'
+  // Every quality tier keeps the same authored room composition. Lower tiers
+  // save GPU work through resolution, effects and geometry budgets instead of
+  // swapping visible furniture, plants or the window environment.
+  const usesGamesProof = (_view: StudioView): boolean => true
 
   const setInspectLabels = (mode: InspectMode) => {
     meshes.gameLeftScreen.userData.detailLabel = mode === 'gameSelector' ? 'Select project' : 'Zoom into selector'
