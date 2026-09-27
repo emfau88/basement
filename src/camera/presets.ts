@@ -69,8 +69,10 @@ export const inspectCameraPresets = {
   },
   gamePreview: {
     desktop: { position: [0, 2.82, -.46], target: [0, 2.15, -3.73], fov: 33 },
-    portrait: { position: [0, 2.15, .95], target: [0, 2.15, -3.73], fov: 46 },
-    landscape: { position: [0, 2.15, -.08], target: [0, 2.15, -3.73], fov: 39 },
+    // The elevated mobile sightline keeps the complete 16:9 display readable
+    // while pushing the chair back below the interactive screen surface.
+    portrait: { position: [0, 3, .95], target: [0, 2.15, -3.73], fov: 58 },
+    landscape: { position: [0, 2.78, -.08], target: [0, 2.15, -3.73], fov: 39 },
   },
   archiveCemetery: {
     desktop: { position: [-3.82, 2.15, -1.08], target: [-7.28, 2.15, -1.08], fov: 34 },
