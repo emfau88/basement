@@ -2,6 +2,7 @@ import {
   archiveProjectKeys,
   featuredProjectKeys,
   gameProjectKeys,
+  projectPreviewImage,
   projects,
   webProjectKeys,
   type ProjectKey,
@@ -18,6 +19,7 @@ export interface MobileControls {
 interface MobileControlOptions {
   store: StudioStore
   enterGameInspect(): void
+  enterArchiveInspect(): void
   openProject(key: ProjectKey): void
   setFeaturedSelection(key: ProjectKey | null): void
   requestRender(): void
@@ -31,7 +33,8 @@ const projectKeys: Record<Exclude<StudioView, 'studio'>, readonly ProjectKey[]> 
   archive: archiveProjectKeys,
 }
 const viewCount: Record<Exclude<StudioView, 'studio'>, string> = {
-  games: '4 projects', web: '4 projects', projects: '4 featured', archive: '4 entries',
+  games: `${gameProjectKeys.length} projects`, web: `${webProjectKeys.length} projects`,
+  projects: `${featuredProjectKeys.length} featured`, archive: `${archiveProjectKeys.length} entries`,
 }
 
 const selectedKeyFor = (state: Readonly<StudioState>): ProjectKey | null => {
@@ -80,7 +83,7 @@ export function createMobileControls(options: MobileControlOptions): MobileContr
       card.type = 'button'; card.className = 'mobile-project-card'; card.dataset.project = key
       card.setAttribute('role', 'option'); card.setAttribute('aria-label', `Select ${project.title}`)
       const image = document.createElement('img')
-      image.src = project.image; image.alt = ''; image.loading = 'lazy'; image.decoding = 'async'
+      image.src = projectPreviewImage(project); image.alt = ''; image.loading = 'lazy'; image.decoding = 'async'
       image.addEventListener('error', () => card.classList.add('image-fallback'), { once: true })
       const text = document.createElement('span'); text.className = 'mobile-project-card-copy'
       const tag = document.createElement('small'); tag.textContent = project.category
@@ -130,7 +133,13 @@ export function createMobileControls(options: MobileControlOptions): MobileContr
   }
   const onOpen = () => { const key = selectedKeyFor(store.get()); if (key) options.openProject(key) }
 
-  gameButton.addEventListener('click', options.enterGameInspect)
+  const enterInspect = () => {
+    const view = store.get().view
+    if (view === 'games') options.enterGameInspect()
+    else if (view === 'archive') options.enterArchiveInspect()
+  }
+
+  gameButton.addEventListener('click', enterInspect)
   openButton.addEventListener('click', onOpen)
   toggle.addEventListener('click', toggleSheet)
   toggle.addEventListener('pointerdown', onPointerDown)
@@ -165,7 +174,9 @@ export function createMobileControls(options: MobileControlOptions): MobileContr
       })
       if (enabled && state.view === 'projects' && selectedKey) options.setFeaturedSelection(selectedKey)
       openButton.setAttribute('aria-label', `Open details for ${selectedKey ? projects[selectedKey].title : 'project'}`)
-      gameButton.hidden = state.view !== 'games'
+      gameButton.hidden = state.view !== 'games' && state.view !== 'archive'
+      gameButton.textContent = state.view === 'archive' ? 'View project cemetery' : 'View room selector'
+      gameButton.setAttribute('aria-label', state.view === 'archive' ? 'Zoom into project cemetery' : 'View game room selector')
     }
   }
   const unsubscribe = store.subscribe(render)
@@ -175,7 +186,7 @@ export function createMobileControls(options: MobileControlOptions): MobileContr
   return {
     destroy: () => {
       window.clearTimeout(scrollTimer); unsubscribe(); mediaQuery.removeEventListener('change', render)
-      gameButton.removeEventListener('click', options.enterGameInspect); openButton.removeEventListener('click', onOpen)
+      gameButton.removeEventListener('click', enterInspect); openButton.removeEventListener('click', onOpen)
       toggle.removeEventListener('click', toggleSheet); toggle.removeEventListener('pointerdown', onPointerDown); toggle.removeEventListener('pointerup', onPointerUp)
       track.removeEventListener('scroll', onTrackScroll); track.removeEventListener('keydown', onTrackKeyDown); track.replaceChildren()
     },

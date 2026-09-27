@@ -21,6 +21,7 @@ import { createProjectModal } from './ui/projectModal'
 import { createViewportController } from './ui/viewport'
 import { isMobileViewport } from './config/responsive'
 import { createWebGLRecoveryUI } from './ui/webglRecovery'
+import { createStartupLoader } from './ui/startupLoader'
 
 const app = requiredElement<HTMLElement>('app')
 const loader = requiredElement<HTMLElement>('loader')
@@ -29,6 +30,7 @@ const loadlabel = requiredElement<HTMLElement>('loadlabel')
 const tooltip = requiredElement<HTMLElement>('tooltip')
 const fade = requiredElement<HTMLElement>('fade')
 const inspectBack = requiredElement<HTMLButtonElement>('inspectBack')
+const startupLoader = createStartupLoader(loader, loadbar, loadlabel)
 
 function showFallback(error: unknown): void {
   console.error('[studio initialization]', error)
@@ -40,7 +42,6 @@ function showFallback(error: unknown): void {
 }
 
 try {
-  loadbar.style.width = '18%'
   const store = createStudioStore()
   const rendering = createRenderingContext(app)
   const detailBudget = resolveSceneDetailBudget(rendering.quality)
@@ -53,8 +54,10 @@ try {
     if (!assetManagerPromise) {
       assetManagerPromise = import('./scene/assets/assetManager').then(({ createAssetManager }) => {
         assetManager = createAssetManager(rendering.renderer, {
-          onProgress: ({ ratio }) => {
+          onProgress: (progress) => {
+            const { ratio } = progress
             rendering.renderer.domElement.dataset.assetProgress = ratio === null ? 'indeterminate' : ratio.toFixed(3)
+            startupLoader.updateAssetProgress(progress)
           },
         })
         return assetManager
@@ -65,7 +68,6 @@ try {
     }
     return assetManagerPromise
   }
-  loadbar.style.width = '36%'
   const cameraController = new CameraController(rendering.camera)
   const materials = createStudioMaterials()
   const tools = createSceneTools(rendering.scene, materials, detailBudget)
@@ -113,11 +115,13 @@ try {
         gamesProof = proof
         proof.setActive(rendering.quality.name === 'desktop' || store.get().view === 'games')
         rendering.renderer.domElement.dataset.gamesProof = 'ready'
+        screens.enableBackgroundPrefetch()
         scheduler.requestRender()
         return proof
       }).catch((error) => {
         console.warn('[games photoreal proof]', error)
         rendering.renderer.domElement.dataset.gamesProof = 'fallback'
+        screens.enableBackgroundPrefetch()
         gamesProofPromise = null
         scheduler.requestRender()
         throw error
@@ -126,7 +130,9 @@ try {
     return gamesProofPromise
   }
 
-  const usesGamesProof = (view: StudioView): boolean => rendering.quality.name === 'desktop' || view === 'games'
+  // Desktop and Mobile Standard share the finished studio continuously. The
+  // low-end tier still defers its lightweight Games proof until Games opens.
+  const usesGamesProof = (view: StudioView): boolean => rendering.quality.name !== 'mobile-low' || view === 'games'
 
   const setInspectLabels = (mode: InspectMode) => {
     meshes.gameLeftScreen.userData.detailLabel = mode === 'gameSelector' ? 'Select project' : 'Zoom into selector'
@@ -148,6 +154,7 @@ try {
     tooltip.classList.remove('show'); document.body.style.cursor = 'default'
     fade.style.opacity = '.13'; window.setTimeout(() => { fade.style.opacity = '0' }, 150)
     store.set({ view, inspectMode: null, mobileSheet: 'collapsed' })
+    screens.activate(view)
     syncScreenFidelity()
     if (usesGamesProof(view)) {
       void ensureGamesProof().then((proof) => {
@@ -164,7 +171,11 @@ try {
     const view = store.get().view
     if (((mode === 'gameSelector' || mode === 'gamePreview') && view !== 'games') || (mode === 'archiveCemetery' && view !== 'archive')) return
     const archiveKey = mode === 'archiveCemetery' ? screens.getArchiveProject() : undefined
-    store.set({ inspectMode: mode, ...(archiveKey ? { selectedArchiveId: archiveKey } : {}) }); setInspectLabels(mode)
+    store.set({
+      inspectMode: mode,
+      ...(isMobileViewport() ? { mobileSheet: 'collapsed' as const } : {}),
+      ...(archiveKey ? { selectedArchiveId: archiveKey } : {}),
+    }); setInspectLabels(mode)
     syncScreenFidelity()
     cameraController.enterInspect(mode); scheduler.startTransition()
   }
@@ -202,6 +213,7 @@ try {
   const mobileControls = createMobileControls({
     store,
     enterGameInspect,
+    enterArchiveInspect,
     openProject: modal.open,
     setFeaturedSelection: (key) => { if (projectWall.setSelected(key)) scheduler.requestRender() },
     requestRender: scheduler.requestRender,
@@ -265,18 +277,17 @@ try {
     if (object instanceof THREE.Mesh && Array.isArray(object.material)) object.material = object.material[0] ?? materials.white
   })
   screens.update(performance.now()); scheduler.requestRender()
+  startupLoader.setFoundationReady()
   if (usesGamesProof(store.get().view)) {
-    window.setTimeout(() => {
+    startupLoader.beginAssetLoading(rendering.quality.name === 'desktop' ? 14 : 7)
+    window.requestAnimationFrame(() => {
       void ensureGamesProof().then((proof) => {
-        if (!usesGamesProof(store.get().view)) return
-        proof.setActive(true)
+        if (usesGamesProof(store.get().view)) proof.setActive(true)
         scheduler.requestRender()
-      }).catch(() => undefined)
-    }, 820)
+      }).catch(() => undefined).finally(() => startupLoader.complete())
+    })
   }
-  loadbar.style.width = '74%'
-  window.setTimeout(() => { loadbar.style.width = '100%'; loadlabel.textContent = 'studio ready' }, 280)
-  window.setTimeout(() => loader.classList.add('done'), 760)
+  else window.requestAnimationFrame(() => startupLoader.complete())
 } catch (error) {
   showFallback(error)
 }

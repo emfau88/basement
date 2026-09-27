@@ -47,7 +47,11 @@ try {
 
     const started = performance.now()
     await page.goto(server.url, { waitUntil: 'domcontentloaded' })
-    await page.waitForFunction(() => document.querySelector('#loader')?.classList.contains('done'))
+    await page.waitForFunction(
+      () => document.querySelector('#loader')?.classList.contains('done'),
+      undefined,
+      { timeout: 120_000 },
+    )
     const readyMs = Math.round(performance.now() - started)
     // Warm assets, shaders and the complete camera path before measuring the
     // steady-state transition. First-use compilation is tracked by readyMs.

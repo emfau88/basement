@@ -1,5 +1,5 @@
 import * as THREE from 'three'
-import { featuredProjectKeys, projects, type ProjectKey } from '../data/projects'
+import { featuredProjectKeys, projectPreviewImage, projects, type ProjectKey } from '../data/projects'
 import {
   attachLiveTexture,
   calibratedCoverCrop,
@@ -23,6 +23,7 @@ interface ProjectCardScreen {
   live: LiveCanvas
   image?: HTMLImageElement
   failed: boolean
+  requestedFull: boolean
 }
 
 export function createProjectWall(cards: THREE.Mesh[], frames: THREE.Mesh[], textureAnisotropy = 4): ProjectWall {
@@ -55,10 +56,10 @@ export function createProjectWall(cards: THREE.Mesh[], frames: THREE.Mesh[], tex
     card.userData.detailLabel = 'Open project'
     const project = projects[key]
     const live = createLiveCanvas(textureAnisotropy); attachLiveTexture(card, live, 0.28)
-    const screen: ProjectCardScreen = { key, live, failed: false }
+    const screen: ProjectCardScreen = { key, live, failed: false, requestedFull: false }
     cardScreens.push(screen)
     drawCard(screen)
-    void loadRemoteImage(project.image).then((image) => {
+    void loadRemoteImage(projectPreviewImage(project)).then((image) => {
       screen.image = image
       drawCard(screen)
     }).catch((error: unknown) => {
@@ -97,6 +98,13 @@ export function createProjectWall(cards: THREE.Mesh[], frames: THREE.Mesh[], tex
       const resolutionScale: LiveCanvasResolutionScale = active ? 2 : 1
       let changed = false
       cardScreens.forEach((screen) => {
+        if (active && !screen.requestedFull) {
+          screen.requestedFull = true
+          void loadRemoteImage(projects[screen.key].image).then((image) => {
+            screen.image = image
+            drawCard(screen)
+          }).catch((error: unknown) => console.warn('[project card full asset]', error))
+        }
         if (!setLiveCanvasResolution(screen.live, resolutionScale)) return
         drawCard(screen)
         changed = true

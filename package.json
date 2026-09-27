@@ -8,6 +8,8 @@
     "assets:inspect": "gltf-transform inspect",
     "assets:validate": "gltf-transform validate",
     "assets:optimize": "gltf-transform optimize",
+    "assets:optimize-input": "node scripts/optimize-input-device-asset.mjs",
+    "assets:optimize-plant": "node scripts/optimize-plant-asset.mjs",
     "predev": "npm run assets:prepare",
     "dev": "vite",
     "prebuild": "npm run assets:prepare",

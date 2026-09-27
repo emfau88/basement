@@ -46,7 +46,11 @@ try {
     })
     page.on('pageerror', (error) => runtimeProblems.push(`pageerror: ${error.message}`))
     await page.goto(baselineUrl, { waitUntil: 'domcontentloaded' })
-    await page.waitForFunction(() => document.querySelector('#loader')?.classList.contains('done'))
+    await page.waitForFunction(
+      () => document.querySelector('#loader')?.classList.contains('done'),
+      undefined,
+      { timeout: 120_000 },
+    )
     await page.waitForTimeout(1200)
 
     for (const view of viewNames) {

@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 import { archiveProjectKeys, gameProjectKeys, projects, webProjectKeys, type ProjectKey } from '../data/projects'
-import type { StudioStore } from '../state/studioState'
+import type { StudioStore, StudioView } from '../state/studioState'
 import { isMobileViewport } from '../config/responsive'
 import {
   LIVE_CANVAS_HEIGHT,
@@ -28,6 +28,40 @@ interface LiveScreen {
   last: number
   currentKey?: ProjectKey
   apps?: readonly string[]
+  keys?: readonly ProjectKey[]
+  requestedKeys?: Set<ProjectKey>
+  nextPrefetchAt?: number
+}
+
+const GAME_SELECTOR_COLUMNS = 2
+const GAME_SELECTOR_TOP = 84
+const GAME_SELECTOR_LEFT = 22
+const GAME_SELECTOR_COLUMN_WIDTH = 354
+const GAME_SELECTOR_COLUMN_GAP = 16
+const GAME_SELECTOR_ROW_HEIGHT = 58
+const GAME_SELECTOR_CARD_HEIGHT = 46
+
+const gameSelectorRect = (index: number) => {
+  const column = index % GAME_SELECTOR_COLUMNS
+  const row = Math.floor(index / GAME_SELECTOR_COLUMNS)
+  return {
+    x: GAME_SELECTOR_LEFT + column * (GAME_SELECTOR_COLUMN_WIDTH + GAME_SELECTOR_COLUMN_GAP),
+    y: GAME_SELECTOR_TOP + row * GAME_SELECTOR_ROW_HEIGHT,
+    width: GAME_SELECTOR_COLUMN_WIDTH,
+    height: GAME_SELECTOR_CARD_HEIGHT,
+  }
+}
+
+const gameKeyFromSelectorPoint = (x: number, y: number): ProjectKey | undefined => {
+  const localX = x - GAME_SELECTOR_LEFT
+  const localY = y - GAME_SELECTOR_TOP
+  if (localX < 0 || localY < 0) return undefined
+  const columnSpan = GAME_SELECTOR_COLUMN_WIDTH + GAME_SELECTOR_COLUMN_GAP
+  const column = Math.floor(localX / columnSpan)
+  const row = Math.floor(localY / GAME_SELECTOR_ROW_HEIGHT)
+  if (column < 0 || column >= GAME_SELECTOR_COLUMNS) return undefined
+  if (localX - column * columnSpan > GAME_SELECTOR_COLUMN_WIDTH || localY - row * GAME_SELECTOR_ROW_HEIGHT > GAME_SELECTOR_CARD_HEIGHT) return undefined
+  return gameProjectKeys[row * GAME_SELECTOR_COLUMNS + column]
 }
 
 export interface LiveScreenSystem {
@@ -37,6 +71,8 @@ export interface LiveScreenSystem {
   registerApps(mesh: THREE.Mesh): void
   registerAppSelector(mesh: THREE.Mesh): void
   registerArchive(mesh: THREE.Mesh): void
+  activate(view: StudioView): void
+  enableBackgroundPrefetch(): void
   selectGameFromHit(hit: THREE.Intersection): void
   selectWebFromHit(hit: THREE.Intersection): void
   selectArchiveFromHit(hit: THREE.Intersection): ProjectKey | undefined
@@ -48,6 +84,32 @@ export interface LiveScreenSystem {
 
 export function createLiveScreenSystem(store: StudioStore, textureAnisotropy = 4): LiveScreenSystem {
   const screens: LiveScreen[] = []
+  let backgroundPrefetchEnabled = false
+
+  const selectedKeyForScreen = (screen: LiveScreen): ProjectKey | undefined => {
+    const state = store.get()
+    if (screen.type === 'games' || screen.type === 'gamepan') return state.selectedGameId
+    if (screen.type === 'apps') return state.selectedWebId
+    if (screen.type === 'archive') return state.selectedArchiveId
+    return undefined
+  }
+
+  const requestScreenKeys = (screen: LiveScreen, keys: readonly ProjectKey[]) => {
+    const requested = screen.requestedKeys
+    if (!requested || !screen.keys) return
+    const pending = keys.filter((key) => !requested.has(key))
+    if (!pending.length) return
+    pending.forEach((key) => requested.add(key))
+    void loadProjectImages(pending).then((items) => {
+      const loaded = new Map(screen.items.map((item) => [item.key, item]))
+      items.forEach((item) => loaded.set(item.key, item))
+      screen.items = screen.keys?.flatMap((key) => {
+        const item = loaded.get(key)
+        return item ? [item] : []
+      }) ?? items
+      screen.last = 0
+    })
+  }
 
   const sectionForScreen = (type: ScreenType) => {
     if (type === 'games' || type === 'gamepan' || type === 'terminal') return 'games'
@@ -79,9 +141,15 @@ export function createLiveScreenSystem(store: StudioStore, textureAnisotropy = 4
   const registerImageScreen = (mesh: THREE.Mesh, type: ScreenType, keys: readonly ProjectKey[], emissive: number) => {
     const live = createLiveCanvas(textureAnisotropy); attachLiveTexture(mesh, live, emissive)
     mesh.userData.liveScreenResolution = `${LIVE_CANVAS_WIDTH}x${LIVE_CANVAS_HEIGHT}`
-    const screen: LiveScreen = { type, mesh, live, items: [], last: 0 }
-    void loadProjectImages(keys).then((items) => { screen.items = items; screen.last = 0 })
+    const screen: LiveScreen = {
+      type, mesh, live, items: [], last: 0, keys, requestedKeys: new Set(),
+      nextPrefetchAt: Number.POSITIVE_INFINITY,
+    }
     screens.push(screen)
+    const selected = selectedKeyForScreen(screen)
+    // The cemetery needs all four gravestones immediately; the other screens
+    // start with only the image that is actually visible.
+    requestScreenKeys(screen, type === 'archive' ? keys : selected ? [selected] : [])
   }
 
   const drawGames = (screen: LiveScreen, ms: number) => {
@@ -138,12 +206,12 @@ export function createLiveScreenSystem(store: StudioStore, textureAnisotropy = 4
     context.fillStyle = 'rgba(126,180,130,.06)'; for (let y = 48; y < 432; y += 24) context.fillRect(0, y, 768, 1)
     context.fillStyle = 'rgba(218,235,214,.56)'; context.font = '600 13px monospace'; context.fillText('Choose a project. The center screen updates instantly.', 24, 72)
     gameProjectKeys.forEach((key, index) => {
-      const y = 86 + index * 58; const selected = key === state.selectedGameId; const project = projects[key]
-      context.fillStyle = selected ? 'rgba(156,197,138,.22)' : 'rgba(255,255,255,.04)'; context.fillRect(22, y, 724, 46)
-      context.fillStyle = selected ? '#a9c58b' : 'rgba(166,209,163,.56)'; context.font = '700 12px monospace'; context.fillText(String(index + 1).padStart(2, '0'), 38, y + 29)
-      context.fillStyle = selected ? '#eef4ea' : '#d8ebd4'; context.font = '800 20px Arial'; context.fillText(project.title.toUpperCase(), 94, y + 28)
-      context.fillStyle = 'rgba(218,235,214,.58)'; context.font = '500 12px monospace'; context.fillText(project.category.toUpperCase(), 96, y + 41)
-      if (selected) { context.fillStyle = '#9cc58a'; context.fillRect(704, y + 12, 14, 22) }
+      const rect = gameSelectorRect(index); const selected = key === state.selectedGameId; const project = projects[key]
+      context.fillStyle = selected ? 'rgba(156,197,138,.22)' : 'rgba(255,255,255,.04)'; context.fillRect(rect.x, rect.y, rect.width, rect.height)
+      context.fillStyle = selected ? '#a9c58b' : 'rgba(166,209,163,.56)'; context.font = '700 11px monospace'; context.fillText(String(index + 1).padStart(2, '0'), rect.x + 14, rect.y + 27)
+      context.fillStyle = selected ? '#eef4ea' : '#d8ebd4'; context.font = '800 16px Arial'; context.fillText(project.title.toUpperCase(), rect.x + 56, rect.y + 23)
+      context.fillStyle = 'rgba(218,235,214,.58)'; context.font = '500 9px monospace'; context.fillText(project.category.toUpperCase(), rect.x + 57, rect.y + 37)
+      if (selected) { context.fillStyle = '#9cc58a'; context.fillRect(rect.x + rect.width - 22, rect.y + 12, 10, 22) }
     })
     context.fillStyle = 'rgba(218,235,214,.58)'; context.font = '600 12px monospace'
     context.fillText(state.inspectMode === 'gameSelector' ? 'TAP / CLICK A TITLE' : state.view === 'games' ? 'CLICK SCREEN TO ZOOM' : 'AUTO PLAY FROM DISTANCE', 24, 410)
@@ -230,12 +298,24 @@ export function createLiveScreenSystem(store: StudioStore, textureAnisotropy = 4
 
   return {
     registerGameSlideshow: (mesh) => registerImageScreen(mesh, 'games', gameProjectKeys, 0.5),
-    registerGamePan: (mesh) => registerImageScreen(mesh, 'gamepan', ['territory_tide', 'pocket_pier', 'core_arena'], 0.46),
+    registerGamePan: (mesh) => registerImageScreen(mesh, 'gamepan', gameProjectKeys, 0.46),
     registerGameSelector: (mesh) => { const live = createLiveCanvas(textureAnisotropy); attachLiveTexture(mesh, live, 0.38); mesh.userData.liveScreenResolution = `${LIVE_CANVAS_WIDTH}x${LIVE_CANVAS_HEIGHT}`; screens.push({ type: 'terminal', mesh, live, items: [], last: 0 }) },
-    registerApps: (mesh) => registerImageScreen(mesh, 'apps', ['between', 'zerohero', 'mirror', 'chargegeist'], 0.24),
-    registerAppSelector: (mesh) => { const live = createLiveCanvas(textureAnisotropy); attachLiveTexture(mesh, live, 0.36); mesh.userData.liveScreenResolution = `${LIVE_CANVAS_WIDTH}x${LIVE_CANVAS_HEIGHT}`; screens.push({ type: 'appticker', mesh, live, items: [], last: 0, apps: ['MIRROR', 'ZEROHERO', 'BETWEEN', 'CHARGEGEIST', 'MEWTRACK', 'MARSCHLEGENDEN'] }) },
+    registerApps: (mesh) => registerImageScreen(mesh, 'apps', webProjectKeys, 0.24),
+    registerAppSelector: (mesh) => { const live = createLiveCanvas(textureAnisotropy); attachLiveTexture(mesh, live, 0.36); mesh.userData.liveScreenResolution = `${LIVE_CANVAS_WIDTH}x${LIVE_CANVAS_HEIGHT}`; screens.push({ type: 'appticker', mesh, live, items: [], last: 0, apps: webProjectKeys.map((key) => projects[key].title.toUpperCase()) }) },
     registerArchive: (mesh) => registerImageScreen(mesh, 'archive', archiveProjectKeys, 0.52),
-    selectGameFromHit: (hit) => { const y = (1 - (hit.uv?.y ?? -1)) * 432; if (y < 86 || y > 86 + gameProjectKeys.length * 58) return; const key = gameProjectKeys[Math.floor((y - 86) / 58)]; if (key) store.set({ selectedGameId: key }) },
+    activate: (view) => {
+      if (view === 'studio' || view === 'projects') return
+      screens.forEach((screen) => {
+        if (screen.keys && sectionForScreen(screen.type) === view) requestScreenKeys(screen, screen.keys)
+      })
+    },
+    enableBackgroundPrefetch: () => {
+      if (backgroundPrefetchEnabled) return
+      backgroundPrefetchEnabled = true
+      const now = performance.now()
+      screens.forEach((screen, index) => { screen.nextPrefetchAt = now + 1_800 + index * 650 })
+    },
+    selectGameFromHit: (hit) => { const x = (hit.uv?.x ?? -1) * 768; const y = (1 - (hit.uv?.y ?? -1)) * 432; const key = gameKeyFromSelectorPoint(x, y); if (key) store.set({ selectedGameId: key }) },
     selectWebFromHit: (hit) => { const y = (1 - (hit.uv?.y ?? -1)) * 432; if (y < 92 || y > 92 + webProjectKeys.length * 56) return; const key = webProjectKeys[Math.floor((y - 92) / 56)]; if (key) store.set({ selectedWebId: key }) },
     selectArchiveFromHit: (hit) => {
       const screen = screens.find((candidate) => candidate.type === 'archive')
@@ -254,6 +334,26 @@ export function createLiveScreenSystem(store: StudioStore, textureAnisotropy = 4
       height: screen.live.canvas.height,
       scale: screen.live.resolutionScale,
     })),
-    update: (now) => { let changed = syncResolution(); for (const screen of screens) { if (now - screen.last < 90) continue; screen.last = now; changed = true; if (screen.type === 'games') drawGames(screen, now); else if (screen.type === 'gamepan') drawGamePan(screen, now); else if (screen.type === 'terminal') drawGameSelector(screen); else if (screen.type === 'apps') drawApps(screen, now); else if (screen.type === 'appticker') drawAppSelector(screen, now); else drawArchive(screen, now) } return changed },
+    update: (now) => {
+      let changed = syncResolution()
+      for (const screen of screens) {
+        const selected = selectedKeyForScreen(screen)
+        if (selected) requestScreenKeys(screen, [selected])
+        if (backgroundPrefetchEnabled && store.get().view === 'studio' && screen.keys && screen.nextPrefetchAt !== undefined && now >= screen.nextPrefetchAt) {
+          const next = screen.keys.find((key) => !screen.requestedKeys?.has(key))
+          if (next) requestScreenKeys(screen, [next])
+          screen.nextPrefetchAt = now + 3_500
+        }
+        if (now - screen.last < 90) continue
+        screen.last = now; changed = true
+        if (screen.type === 'games') drawGames(screen, now)
+        else if (screen.type === 'gamepan') drawGamePan(screen, now)
+        else if (screen.type === 'terminal') drawGameSelector(screen)
+        else if (screen.type === 'apps') drawApps(screen, now)
+        else if (screen.type === 'appticker') drawAppSelector(screen, now)
+        else drawArchive(screen, now)
+      }
+      return changed
+    },
   }
 }

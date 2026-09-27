@@ -19,6 +19,14 @@ try {
   page.on('pageerror', (error) => problems.push(`pageerror: ${error.message}`))
   await page.goto(`${server.url}?assetSmoke=ok`, { waitUntil: 'domcontentloaded' })
   await page.waitForFunction(() => document.querySelector('#loader')?.classList.contains('done'))
+  const startupState = await page.evaluate(() => ({
+    progress: document.querySelector('#loader')?.getAttribute('aria-valuenow'),
+    status: document.querySelector('#loader')?.getAttribute('data-status'),
+    proof: document.querySelector('canvas')?.dataset.gamesProof,
+  }))
+  if (startupState.progress !== '100' || startupState.status !== 'ready' || !['ready', 'fallback'].includes(startupState.proof ?? '')) {
+    throw new Error(`Loader completed before the studio was ready: ${JSON.stringify(startupState)}`)
+  }
   await page.waitForFunction(() => document.querySelector('canvas')?.dataset.assetSmoke === 'asset')
   const result = await page.evaluate(() => ({
     canvasCount: document.querySelectorAll('canvas').length,
@@ -47,6 +55,7 @@ try {
   }
   await page.locator('.nav button[data-view="games"]').click()
   await page.locator('#mobileSheetToggle').click()
+  await page.locator('.mobile-project-card img').evaluateAll((images) => images.forEach((image) => { image.loading = 'eager' }))
   await page.waitForFunction(() => [...document.querySelectorAll('.mobile-project-card img')].every((image) => image.complete && image.naturalWidth > 0))
   const projectImages = await page.locator('.mobile-project-card img').evaluateAll((images) => images.map((image) => ({
     path: new URL(image.src).pathname,

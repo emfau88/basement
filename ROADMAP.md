@@ -1,8 +1,8 @@
 # EMFAU Virtual Studio roadmap
 
-Last updated: 2026-09-14
+Last updated: 2026-09-24
 Current phase: Phase F — Mobile adaptation and production release
-Current bulk: Bulk 24.1 complete — Mobile endpoints and composition; Bulk 24.2 visual asset parity next
+Current bulk: Bulk 24.7 complete — lossless-looking hero asset optimization
 
 ## Status legend
 
@@ -436,17 +436,70 @@ Decision: the result added only minimal local grounding. Although it remained sh
 
 - [x] Correct the outdated Web and Archive camera endpoints against the approved Desktop subject axes.
 - [x] Reframe Studio, Games and Projects with Mobile-specific distance/FOV while preserving their Desktop visual hierarchy.
-- [ ] Route long cross-room transitions through a safe central pull-back waypoint instead of a single straight interpolation.
+- [x] Route long cross-room transitions through a safe central pull-back waypoint instead of a single straight interpolation.
 - [x] Keep collapsed/expanded sheet reframing on the same area axis and out of the scene's focal content.
 - [x] Reframe every completed zone for portrait, landscape, collapsed sheet and expanded sheet states.
-- [ ] Create explicit Desktop, Mobile standard and Mobile low asset/texture tiers.
+- [x] Create explicit Desktop, Mobile standard and Mobile low asset/texture tiers.
 - [ ] Validate scene visibility, information density, tap targets and project selection on a physical phone.
 - [ ] Measure deferred transfer, triangles, draw calls, memory and p95 transition/render frame time against the documented budgets.
 - [ ] Verify asset failure, slow loading, WebGL recovery and reduced-motion behavior.
 
 Acceptance: Mobile presents the same finished studio with deliberate framing and production-safe detail levels, not a separate or visually reduced website.
 
-Bulk 24.1 verification: portrait `390 × 844` and landscape `740 × 430` A/B captures cover Studio plus collapsed and expanded Games, Web, Projects and Archive states. The approved Desktop presets were not changed. Mobile Standard visual asset parity is next in Bulk 24.2; camera motion routing remains isolated for Bulk 24.3.
+Bulk 24.1 verification: portrait `390 × 844` and landscape `740 × 430` A/B captures cover Studio plus collapsed and expanded Games, Web, Projects and Archive states. The approved Desktop presets were not changed. Camera motion routing remains isolated for Bulk 24.3.
+
+Bulk 24.2 verification: Mobile Standard now uses the licensed sofa, plants, keyboard and mouse throughout the studio, matching Desktop's key object set. Mobile Low keeps the procedural replacements and does not eagerly load the hero models. Portrait captures cover Studio, Games and Archive; automated QA asserts both quality tiers.
+
+Bulk 24.3 verification: Mobile cross-room moves longer than seven scene units now use a central pull-back waypoint, while reduced-motion users retain an effectively immediate direct transition. The Archive sheet and physical terminal both open the frontal Cemetery inspection, collapse the sheet automatically and provide a working return to the lounge. Portrait and landscape captures verify the waypoint, endpoint, inspection and return states; Desktop camera behavior is unchanged.
+
+### Bulk 24.4 — Curated portfolio expansion
+
+- [x] Add Rooster Rage, More Than Wombat, Terra Divina, Galalaxy and Strategy Galalaxy to the Games station.
+- [x] Add MewTrack to the Web Lab and MarschLegenden to the featured Projects wall.
+- [x] Promote More Than Wombat out of Archive and move Voidline: Farhaven into its cemetery slot.
+- [x] Rebuild the Games selector as a readable nine-project two-column grid with matching hit regions.
+- [x] Produce local high-quality WebP and AVIF derivatives from the approved project-owned captures.
+- [x] Keep the four-card Projects wall deliberately curated instead of expanding its physical layout.
+
+Acceptance: the wider EMFAU catalog is represented without overcrowding the approved room composition, every new entry is selectable and opens the correct detail, and no runtime project image depends on a remote host.
+
+Bulk 24.4 verification: Desktop and Mobile navigation, selection, inspect transitions and modal hand-off pass the full browser matrix; the GitHub Pages subpath check confirms all project media remains local and loadable. Production build and TypeScript validation pass on 2026-09-23.
+
+### Bulk 24.5 — Deferred project media
+
+- [x] Load only the currently visible Games and Web artwork during startup.
+- [x] Keep all four Archive graves immediately complete and interactive.
+- [x] Use dedicated 768 × 432 previews for the distant Projects wall and Mobile cards.
+- [x] Upgrade the Projects wall to its existing full-resolution artwork when that area becomes active.
+- [x] Delay background slideshow prefetch until the photoreal studio proof is ready.
+- [x] Preserve full-resolution artwork in every project modal.
+
+Acceptance: startup project-media transfer drops from 2.12 MB to 0.85 MB and estimated decoded bitmap memory drops from roughly 87 MB to 34 MB, while the completed Desktop composition, active Projects wall, Mobile cards and detail modals retain their approved appearance.
+
+Bulk 24.5 verification: production build, TypeScript validation, complete responsive/interaction QA and GitHub Pages subpath QA pass on 2026-09-24. Fixed-camera browser review confirms the final studio and active Projects wall remain visually intact. Remaining model, material, HDR and deployment optimizations are intentionally paused until separately approved.
+
+### Bulk 24.6 — Truthful startup progress
+
+- [x] Replace the timer-driven loader with initialization and asset progress.
+- [x] Keep the loading surface visible until the selected quality tier is actually ready.
+- [x] Report a visible percentage and expose accessible progress semantics.
+- [x] Preserve the existing restrained visual language and all fallback paths.
+
+Acceptance: the loader no longer claims that the studio is ready while the photoreal assets are still arriving. Desktop and Mobile Standard wait for their authored asset set; Mobile Low completes after its intentionally lightweight scene is ready.
+
+Bulk 24.6 verification: production build, complete responsive/interaction QA and GitHub Pages subpath QA pass on 2026-09-24. Plant, keyboard and mouse optimization remains deliberately untouched until separately approved.
+
+### Bulk 24.7 — Hero asset optimization
+
+- [x] Preserve reproducible source GLBs outside the deployed `public` directory.
+- [x] Optimize keyboard/mouse textures without changing geometry, scale, placement or the hidden cable.
+- [x] Accept the input-device pilot only after fixed-camera pixel comparison.
+- [x] Optimize plant textures without changing their 208,035-vertex geometry or silhouette.
+- [x] Validate both GLBs and rerun production, asset, Pages and responsive interaction QA.
+
+Acceptance: the two deployed GLBs drop from 1.53 MB to 1.01 MB and their estimated GPU texture allocation drops from roughly 112 MB to 19.6 MB. Fixed-camera comparisons retain the approved appearance, with mean absolute channel differences below 0.25/255.
+
+Bulk 24.7 verification: input-device GPU texture allocation falls by roughly 86% and plant texture allocation by 75%. The full-scene headless startup metric remains software-GPU-sensitive and is not presented as a stable speed percentage; exact transfer/VRAM reductions, unchanged vertex counts, fixed-camera captures, GLB validation and the complete QA matrix are the acceptance evidence.
 
 ### Bulk 25 — Release candidate, deployment and documentation
 
