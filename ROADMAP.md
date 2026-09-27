@@ -2,7 +2,7 @@
 
 Last updated: 2026-09-24
 Current phase: Phase F — Mobile adaptation and production release
-Current bulk: Bulk 24.6 complete — truthful startup progress; model optimization paused for approval
+Current bulk: Bulk 24.7 complete — lossless-looking hero asset optimization
 
 ## Status legend
 
@@ -488,6 +488,18 @@ Bulk 24.5 verification: production build, TypeScript validation, complete respon
 Acceptance: the loader no longer claims that the studio is ready while the photoreal assets are still arriving. Desktop and Mobile Standard wait for their authored asset set; Mobile Low completes after its intentionally lightweight scene is ready.
 
 Bulk 24.6 verification: production build, complete responsive/interaction QA and GitHub Pages subpath QA pass on 2026-09-24. Plant, keyboard and mouse optimization remains deliberately untouched until separately approved.
+
+### Bulk 24.7 — Hero asset optimization
+
+- [x] Preserve reproducible source GLBs outside the deployed `public` directory.
+- [x] Optimize keyboard/mouse textures without changing geometry, scale, placement or the hidden cable.
+- [x] Accept the input-device pilot only after fixed-camera pixel comparison.
+- [x] Optimize plant textures without changing their 208,035-vertex geometry or silhouette.
+- [x] Validate both GLBs and rerun production, asset, Pages and responsive interaction QA.
+
+Acceptance: the two deployed GLBs drop from 1.53 MB to 1.01 MB and their estimated GPU texture allocation drops from roughly 112 MB to 19.6 MB. Fixed-camera comparisons retain the approved appearance, with mean absolute channel differences below 0.25/255.
+
+Bulk 24.7 verification: input-device GPU texture allocation falls by roughly 86% and plant texture allocation by 75%. The full-scene headless startup metric remains software-GPU-sensitive and is not presented as a stable speed percentage; exact transfer/VRAM reductions, unchanged vertex counts, fixed-camera captures, GLB validation and the complete QA matrix are the acceptance evidence.
 
 ### Bulk 25 — Release candidate, deployment and documentation
 

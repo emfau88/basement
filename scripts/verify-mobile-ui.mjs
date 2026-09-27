@@ -9,6 +9,11 @@ const assert = (condition, message) => {
 const readScreenResolutions = async (page) => JSON.parse(await page.locator('canvas').getAttribute('data-screen-resolutions') ?? '{}')
 const hasScale = (snapshot, types, scale) => types.every((type) => snapshot.live?.find((screen) => screen.type === type)?.scale === scale)
 const isBenignRendererWarning = (message) => message.text().startsWith('THREE.WebGLProgram: Program Info Log:') && message.text().includes('warning X4122')
+const waitForStudioReady = (page) => page.waitForFunction(
+  () => document.querySelector('#loader')?.classList.contains('done'),
+  undefined,
+  { timeout: 120_000 },
+)
 const outputDirectory = path.resolve('docs/qa/current')
 await mkdir(outputDirectory, { recursive: true })
 
@@ -24,7 +29,7 @@ try {
 
   const desktop = await browser.newPage({ viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce' })
   await desktop.goto(baseUrl, { waitUntil: 'domcontentloaded' })
-  await desktop.waitForFunction(() => document.querySelector('#loader')?.classList.contains('done'))
+  await waitForStudioReady(desktop)
   await desktop.locator('.nav button[data-view="games"]').click()
   await desktop.waitForFunction(() => ['ready', 'fallback'].includes(document.querySelector('canvas')?.dataset.gamesProof ?? ''))
   assert(await desktop.locator('canvas').getAttribute('data-hero-models') === 'desktop-ready', 'Desktop hero models did not load')
@@ -101,7 +106,7 @@ try {
 
   const dockedDesktop = await browser.newPage({ viewport: { width: 520, height: 900 }, reducedMotion: 'reduce' })
   await dockedDesktop.goto(baseUrl, { waitUntil: 'domcontentloaded' })
-  await dockedDesktop.waitForFunction(() => document.querySelector('#loader')?.classList.contains('done'))
+  await waitForStudioReady(dockedDesktop)
   await dockedDesktop.locator('.nav button[data-view="games"]').click()
   await dockedDesktop.waitForFunction(() => ['ready', 'fallback'].includes(document.querySelector('canvas')?.dataset.gamesProof ?? ''))
   assert(await dockedDesktop.locator('canvas').getAttribute('data-hero-models') === 'desktop-ready', 'Docked fine-pointer Desktop downgraded the hero input models')
@@ -124,7 +129,7 @@ try {
   })
   mobile.on('pageerror', (error) => runtimeProblems.push(`pageerror: ${error.message}`))
   await mobile.goto(baseUrl, { waitUntil: 'domcontentloaded' })
-  await mobile.waitForFunction(() => document.querySelector('#loader')?.classList.contains('done'))
+  await waitForStudioReady(mobile)
   assert(await mobile.locator('body').evaluate((body) => body.classList.contains('mobile-ui')), 'Mobile UI class is missing')
   assert(await mobile.locator('canvas').getAttribute('data-quality') === 'mobile-standard', 'Standard mobile render profile is incorrect')
   assert(await mobile.locator('canvas').getAttribute('data-scene-detail') === '96', 'Standard mobile scene detail budget is incorrect')
@@ -217,7 +222,7 @@ try {
     Object.defineProperty(navigator, 'hardwareConcurrency', { configurable: true, value: 4 })
   })
   await constrainedMobile.goto(baseUrl, { waitUntil: 'domcontentloaded' })
-  await constrainedMobile.waitForFunction(() => document.querySelector('#loader')?.classList.contains('done'))
+  await waitForStudioReady(constrainedMobile)
   assert(await constrainedMobile.locator('canvas').getAttribute('data-quality') === 'mobile-low', 'Constrained mobile render profile is incorrect')
   assert(await constrainedMobile.locator('canvas').getAttribute('data-scene-detail') === '48', 'Constrained mobile scene detail budget is incorrect')
   assert(await constrainedMobile.locator('canvas').getAttribute('data-hero-models') === null, 'Mobile Low eagerly loaded hero models')
@@ -228,7 +233,7 @@ try {
 
   const landscape = await browser.newPage({ viewport: { width: 740, height: 430 }, reducedMotion: 'reduce' })
   await landscape.goto(baseUrl, { waitUntil: 'domcontentloaded' })
-  await landscape.waitForFunction(() => document.querySelector('#loader')?.classList.contains('done'))
+  await waitForStudioReady(landscape)
   assert(await landscape.locator('body').evaluate((body) => body.classList.contains('mobile-landscape')), 'Landscape class is missing')
   for (const view of ['games', 'web', 'projects', 'archive']) {
     await landscape.locator(`.nav button[data-view="${view}"]`).click()
@@ -261,7 +266,7 @@ try {
   for (const profile of matrix) {
     const page = await browser.newPage({ viewport: { width: profile.width, height: profile.height }, reducedMotion: 'reduce' })
     await page.goto(baseUrl, { waitUntil: 'domcontentloaded' })
-    await page.waitForFunction(() => document.querySelector('#loader')?.classList.contains('done'))
+    await waitForStudioReady(page)
     for (const view of ['games', 'web', 'projects', 'archive']) {
       await page.locator(`.nav button[data-view="${view}"]`).click()
       const layout = await page.evaluate(() => ({
@@ -289,7 +294,7 @@ try {
   const failedImagePage = await browser.newPage({ viewport: { width: 390, height: 844 }, reducedMotion: 'reduce' })
   await failedImagePage.route('**/territory-tide.webp', (route) => route.abort())
   await failedImagePage.goto(baseUrl, { waitUntil: 'domcontentloaded' })
-  await failedImagePage.waitForFunction(() => document.querySelector('#loader')?.classList.contains('done'))
+  await waitForStudioReady(failedImagePage)
   await failedImagePage.locator('.nav button[data-view="games"]').click()
   await failedImagePage.locator('#mobileSheetToggle').click()
   await failedImagePage.locator('#mobileOpenProject').click()

@@ -23,6 +23,8 @@ The approved target is now a hybrid asset pipeline: optimized GLB/PBR assets for
 - Source models are cached, instances are cloned and GPU resources are disposed centrally on teardown.
 - `pbrMaterials.ts` owns semantic presets, texture color-space rules and second-UV fallback handling.
 - `npm run assets:prepare` creates and Meshopt-compresses a deterministic GLB smoke fixture.
+- Authored source copies for the input device and hero plant live outside `public` under `assets/source/photoreal`; only their optimized derivatives are deployed.
+- `npm run assets:optimize-input` and `npm run assets:optimize-plant` reproduce the approved 512px WebP derivatives without changing geometry.
 - `npm run assets:inspect -- <file>`, `npm run assets:validate -- <file>` and `npm run assets:optimize -- <input> <output>` expose the production asset checks.
 - `npm run qa:assets` verifies model success, model fallback, HDR fallback, teardown and runtime support assets in a browser.
 
