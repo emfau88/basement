@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 import { getInspectPreset, getMobileTransitionWaypoint, getViewPreset, type CameraPreset } from './presets'
-import { shouldUseMobileHub } from './mobileRoutes'
+import { getMobileRoutePlan, type MobileRouteFamily } from './mobileRoutes'
 import type { InspectMode, MobileSheetState, StudioView } from '../state/studioState'
 import { isLandscapeViewport, isMobileViewport } from '../config/responsive'
 
@@ -21,6 +21,7 @@ export class CameraController {
   private moving = false
   private queuedMoves: Array<{ preset: CameraPreset; duration: number }> = []
   private currentView: StudioView = 'studio'
+  private activeRouteFamily: MobileRouteFamily = 'direct'
 
   constructor(private readonly camera: THREE.PerspectiveCamera) {
     const preset = getViewPreset('studio')
@@ -30,14 +31,12 @@ export class CameraController {
   moveToView(view: StudioView, sheet: MobileSheetState = 'collapsed'): void {
     const destination = getViewPreset(view, sheet)
     const distance = this.camera.position.distanceTo(new THREE.Vector3().fromArray(destination.position))
-    const needsWaypoint = isMobileViewport() && shouldUseMobileHub(
-      this.currentView,
-      view,
-      distance,
-      isLandscapeViewport() ? 'landscape' : 'portrait',
-    )
+    const route = isMobileViewport()
+      ? getMobileRoutePlan(this.currentView, view, distance, isLandscapeViewport() ? 'landscape' : 'portrait')
+      : { family: 'direct' as const, useLegacyWaypoint: false }
+    this.activeRouteFamily = route.family
     this.currentView = view
-    if (needsWaypoint && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    if (route.useLegacyWaypoint && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
       this.moveSequence([
         { preset: getMobileTransitionWaypoint(), duration: 480 },
         { preset: destination, duration: 720 },
@@ -48,20 +47,24 @@ export class CameraController {
   }
 
   adaptToSheet(view: StudioView, sheet: MobileSheetState): void {
+    this.activeRouteFamily = 'direct'
     this.moveTo(getViewPreset(view, sheet), 460)
   }
 
   enterInspect(mode: Exclude<InspectMode, null>): void {
+    this.activeRouteFamily = 'direct'
     this.moveTo(getInspectPreset(mode), 720)
   }
 
   exitInspect(view: StudioView, sheet: MobileSheetState = 'collapsed'): void {
     this.currentView = view
+    this.activeRouteFamily = 'direct'
     this.moveTo(getViewPreset(view, sheet), 720)
   }
 
   resize(view: StudioView, inspectMode: InspectMode, sheet: MobileSheetState = 'collapsed'): void {
     this.currentView = view
+    this.activeRouteFamily = 'direct'
     this.snapTo(inspectMode ? getInspectPreset(inspectMode) : getViewPreset(view, sheet))
   }
 
@@ -84,6 +87,10 @@ export class CameraController {
 
   isMoving(): boolean {
     return this.moving
+  }
+
+  getActiveRouteFamily(): MobileRouteFamily {
+    return this.activeRouteFamily
   }
 
   private moveTo(preset: CameraPreset, duration: number): void {

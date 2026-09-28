@@ -31,6 +31,7 @@ try {
   await desktop.goto(baseUrl, { waitUntil: 'domcontentloaded' })
   await waitForStudioReady(desktop)
   await desktop.locator('.nav button[data-view="games"]').click()
+  assert(await desktop.locator('canvas').getAttribute('data-camera-route') === 'direct', 'Desktop navigation unexpectedly used a Mobile route family')
   await desktop.waitForFunction(() => ['ready', 'fallback'].includes(document.querySelector('canvas')?.dataset.gamesProof ?? ''))
   assert(await desktop.locator('canvas').getAttribute('data-hero-models') === 'desktop-ready', 'Desktop hero models did not load')
   assert(await desktop.locator('body').evaluate((body) => !body.classList.contains('mobile-ui')), 'Desktop activated mobile UI')
@@ -144,6 +145,7 @@ try {
   assert(idleFrames <= 14, `Demand-driven rendering exceeded its idle budget: ${idleFrames} frames/sec`)
 
   await mobile.locator('.nav button[data-view="games"]').click()
+  assert(await mobile.locator('canvas').getAttribute('data-camera-route') === 'direct', 'Studio to Games should use the direct center route')
   await mobile.waitForFunction(() => ['ready', 'fallback'].includes(document.querySelector('canvas')?.dataset.gamesProof ?? ''))
   await mobile.waitForFunction(() => document.querySelector('canvas')?.dataset.heroModels === 'desktop-ready')
   assert(await mobile.locator('canvas').getAttribute('data-hero-models') === 'desktop-ready', 'Mobile Standard did not load the finished hero models')
@@ -194,6 +196,7 @@ try {
   assert(await mobile.locator('#mobileSheetToggle').getAttribute('aria-expanded') === 'false', 'Games sheet did not collapse after leaving the room selector')
 
   await mobile.locator('.nav button[data-view="archive"]').click()
+  assert(await mobile.locator('canvas').getAttribute('data-camera-route') === 'left-arc', 'Games to Archive did not select the left corridor')
   await mobile.locator('#mobileSheetToggle').click()
   assert(await mobile.locator('#mobileGameInspect').textContent() === 'Enter project cemetery', 'Archive inspect action is missing')
   await mobile.locator('#mobileGameInspect').click()
@@ -206,8 +209,9 @@ try {
   await mobile.locator('canvas').click({ position: { x: 380, y: 90 } })
   assert(await mobile.locator('#mobileSheetToggle').getAttribute('aria-expanded') === 'false', 'Tapping free 3D space did not collapse the sheet')
 
-  for (const [view, project, expectedCount] of [['web', 'mewtrack', 5], ['projects', 'terra_divina', 4], ['archive', 'voidline_farhaven', 4]]) {
+  for (const [view, project, expectedCount, expectedRoute] of [['web', 'mewtrack', 5, 'left-arc'], ['projects', 'terra_divina', 4, 'right-arc'], ['archive', 'voidline_farhaven', 4, 'direct']]) {
     await mobile.locator(`.nav button[data-view="${view}"]`).click()
+    assert(await mobile.locator('canvas').getAttribute('data-camera-route') === expectedRoute, `${view} selected the wrong semantic camera route`)
     await mobile.locator('#mobileSheetToggle').click()
     assert(await mobile.locator('.mobile-project-card').count() === expectedCount, `${view} carousel does not contain ${expectedCount} projects`)
     await mobile.locator(`.mobile-project-card[data-project="${project}"]`).click()
@@ -245,8 +249,9 @@ try {
   await landscape.goto(baseUrl, { waitUntil: 'domcontentloaded' })
   await waitForStudioReady(landscape)
   assert(await landscape.locator('body').evaluate((body) => body.classList.contains('mobile-landscape')), 'Landscape class is missing')
-  for (const view of ['games', 'web', 'projects', 'archive']) {
+  for (const [view, expectedRoute] of [['games', 'direct'], ['web', 'right-arc'], ['projects', 'direct'], ['archive', 'direct']]) {
     await landscape.locator(`.nav button[data-view="${view}"]`).click()
+    assert(await landscape.locator('canvas').getAttribute('data-camera-route') === expectedRoute, `${view} landscape selected the wrong semantic camera route`)
     await landscape.locator('#mobileSheetToggle').click()
     await landscape.waitForTimeout(50)
     const bounds = await landscape.evaluate(() => {

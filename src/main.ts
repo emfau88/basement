@@ -142,6 +142,7 @@ try {
   }
   const beginCameraTransition = () => {
     clearInteractionFeedback()
+    rendering.renderer.domElement.dataset.cameraRoute = cameraController.getActiveRouteFamily()
     document.body.classList.add('camera-moving')
     inspectBack.disabled = true
     scheduler.startTransition()
@@ -226,6 +227,7 @@ try {
     screenIntervalMs: rendering.quality.screenIntervalMs,
   })
   rendering.renderer.domElement.dataset.quality = rendering.quality.name
+  rendering.renderer.domElement.dataset.cameraRoute = cameraController.getActiveRouteFamily()
   rendering.renderer.domElement.dataset.sceneDetail = String(detailBudget.dustParticles)
   syncScreenFidelity()
   rendering.renderer.domElement.addEventListener('webglcontextlost', (event) => { event.preventDefault(); webglRecovery.show() })

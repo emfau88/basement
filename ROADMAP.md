@@ -1,8 +1,8 @@
 # EMFAU Virtual Studio roadmap
 
-Last updated: 2026-09-27
+Last updated: 2026-09-28
 Current phase: Phase G — Interaction polish and discoverability
-Current bulk: Bulk 25.1 complete — transition interaction hygiene
+Current bulk: Bulk 25.2 complete — continuous camera route model
 
 ## Status legend
 
@@ -530,11 +530,13 @@ Bulk 25.1 verification: production build and the complete Desktop/Mobile interac
 
 ### Bulk 25.2 — Continuous camera route model
 
-- [ ] Replace pair-specific hub decisions with a small shared set of safe room corridors.
-- [ ] Define direct-neighbor, left-arc and right-arc route families for portrait and landscape.
-- [ ] Preserve reduced-motion behavior and all approved camera endpoints.
+- [x] Replace pair-specific hub decisions with a small shared set of safe room corridors.
+- [x] Define direct-neighbor, left-arc and right-arc route families for portrait and landscape.
+- [x] Preserve reduced-motion behavior and all approved camera endpoints.
 
 Acceptance: route selection stays understandable and scalable without one handcrafted animation for every view combination.
+
+Bulk 25.2 verification: room topology now selects `direct`, `left-arc` or `right-arc` semantically in portrait and landscape, and exposes the active family for diagnostics. The already verified staged waypoint motion remains visually unchanged until Bulk 25.3. Production build, GitHub Pages subpath QA and the full Desktop/Mobile interaction matrix pass on 2026-09-28, including assertions for every route family.
 
 ### Bulk 25.3 — Continuous cross-room choreography
 
