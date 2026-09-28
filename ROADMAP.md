@@ -2,7 +2,7 @@
 
 Last updated: 2026-09-28
 Current phase: Phase G — Interaction polish and discoverability
-Current bulk: Bulk 25.2 complete — continuous camera route model
+Current bulk: Bulk 25.3 complete — continuous cross-room choreography
 
 ## Status legend
 
@@ -540,11 +540,13 @@ Bulk 25.2 verification: room topology now selects `direct`, `left-arc` or `right
 
 ### Bulk 25.3 — Continuous cross-room choreography
 
-- [ ] Replace the stop-and-restart hub sequence with one continuous curved movement.
-- [ ] Keep navigation interruptible and avoid furniture, walls and unfinished sightlines.
-- [ ] Verify every menu combination in portrait and landscape without changing Desktop endpoints.
+- [x] Replace the stop-and-restart hub sequence with one continuous curved movement.
+- [x] Keep navigation interruptible and avoid furniture, walls and unfinished sightlines.
+- [x] Verify every menu combination in portrait and landscape without changing Desktop endpoints.
 
 Acceptance: long navigation feels like one deliberate camera move rather than a return to the Studio overview followed by a second zoom.
+
+Bulk 25.3 verification: long Mobile routes now use one centripetal curve through the previously verified safe foreground corridor, with one shared ease instead of two stop-and-restart stages. Fast rerouting restarts from the live camera position, direct neighbors remain direct, and reduced-motion bypasses curved choreography. Production build, GitHub Pages subpath QA, local Browser review and the complete Desktop/Mobile interaction matrix pass on 2026-09-28, including normal-motion portrait/landscape corridor coverage and unchanged Desktop endpoints.
 
 ### Bulk 25.4 — Studio discoverability and constrained look-around
 

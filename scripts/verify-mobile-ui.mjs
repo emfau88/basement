@@ -32,6 +32,7 @@ try {
   await waitForStudioReady(desktop)
   await desktop.locator('.nav button[data-view="games"]').click()
   assert(await desktop.locator('canvas').getAttribute('data-camera-route') === 'direct', 'Desktop navigation unexpectedly used a Mobile route family')
+  assert(await desktop.locator('canvas').getAttribute('data-camera-motion') === 'direct', 'Desktop navigation unexpectedly used curved Mobile choreography')
   await desktop.waitForFunction(() => ['ready', 'fallback'].includes(document.querySelector('canvas')?.dataset.gamesProof ?? ''))
   assert(await desktop.locator('canvas').getAttribute('data-hero-models') === 'desktop-ready', 'Desktop hero models did not load')
   assert(await desktop.locator('body').evaluate((body) => !body.classList.contains('mobile-ui')), 'Desktop activated mobile UI')
@@ -146,6 +147,7 @@ try {
 
   await mobile.locator('.nav button[data-view="games"]').click()
   assert(await mobile.locator('canvas').getAttribute('data-camera-route') === 'direct', 'Studio to Games should use the direct center route')
+  assert(await mobile.locator('canvas').getAttribute('data-camera-motion') === 'direct', 'Studio to Games should keep direct choreography')
   await mobile.waitForFunction(() => ['ready', 'fallback'].includes(document.querySelector('canvas')?.dataset.gamesProof ?? ''))
   await mobile.waitForFunction(() => document.querySelector('canvas')?.dataset.heroModels === 'desktop-ready')
   assert(await mobile.locator('canvas').getAttribute('data-hero-models') === 'desktop-ready', 'Mobile Standard did not load the finished hero models')
@@ -197,6 +199,7 @@ try {
 
   await mobile.locator('.nav button[data-view="archive"]').click()
   assert(await mobile.locator('canvas').getAttribute('data-camera-route') === 'left-arc', 'Games to Archive did not select the left corridor')
+  assert(await mobile.locator('canvas').getAttribute('data-camera-motion') === 'direct', 'Reduced motion did not bypass curved choreography')
   await mobile.locator('#mobileSheetToggle').click()
   assert(await mobile.locator('#mobileGameInspect').textContent() === 'Enter project cemetery', 'Archive inspect action is missing')
   await mobile.locator('#mobileGameInspect').click()
@@ -212,6 +215,7 @@ try {
   for (const [view, project, expectedCount, expectedRoute] of [['web', 'mewtrack', 5, 'left-arc'], ['projects', 'terra_divina', 4, 'right-arc'], ['archive', 'voidline_farhaven', 4, 'direct']]) {
     await mobile.locator(`.nav button[data-view="${view}"]`).click()
     assert(await mobile.locator('canvas').getAttribute('data-camera-route') === expectedRoute, `${view} selected the wrong semantic camera route`)
+    assert(await mobile.locator('canvas').getAttribute('data-camera-motion') === 'direct', `${view} ignored the reduced-motion preference`)
     await mobile.locator('#mobileSheetToggle').click()
     assert(await mobile.locator('.mobile-project-card').count() === expectedCount, `${view} carousel does not contain ${expectedCount} projects`)
     await mobile.locator(`.mobile-project-card[data-project="${project}"]`).click()
@@ -252,6 +256,7 @@ try {
   for (const [view, expectedRoute] of [['games', 'direct'], ['web', 'right-arc'], ['projects', 'direct'], ['archive', 'direct']]) {
     await landscape.locator(`.nav button[data-view="${view}"]`).click()
     assert(await landscape.locator('canvas').getAttribute('data-camera-route') === expectedRoute, `${view} landscape selected the wrong semantic camera route`)
+    assert(await landscape.locator('canvas').getAttribute('data-camera-motion') === 'direct', `${view} landscape ignored the reduced-motion preference`)
     await landscape.locator('#mobileSheetToggle').click()
     await landscape.waitForTimeout(50)
     const bounds = await landscape.evaluate(() => {
@@ -269,6 +274,40 @@ try {
   await landscape.waitForTimeout(50)
   assert(!(await landscape.locator('body').evaluate((body) => body.classList.contains('mobile-landscape'))), 'Orientation change did not clear landscape class')
   await landscape.close()
+
+  const motionMobile = await browser.newPage({ viewport: { width: 390, height: 844 }, reducedMotion: 'no-preference', hasTouch: true, isMobile: true })
+  await motionMobile.goto(baseUrl, { waitUntil: 'domcontentloaded' })
+  await waitForStudioReady(motionMobile)
+  await motionMobile.locator('.nav button[data-view="games"]').click()
+  await motionMobile.waitForFunction(() => !document.body.classList.contains('camera-moving'))
+  await motionMobile.locator('.nav button[data-view="archive"]').click()
+  assert(await motionMobile.locator('canvas').getAttribute('data-camera-route') === 'left-arc', 'Portrait choreography missed the left corridor')
+  assert(await motionMobile.locator('canvas').getAttribute('data-camera-motion') === 'curve', 'Portrait left corridor did not use one continuous curve')
+  await motionMobile.waitForTimeout(450)
+  assert(await motionMobile.locator('body').evaluate((body) => body.classList.contains('camera-moving')), 'Portrait curve ended before traversing its safe corridor')
+  await motionMobile.waitForFunction(() => !document.body.classList.contains('camera-moving'))
+  await motionMobile.locator('.nav button[data-view="web"]').click()
+  assert(await motionMobile.locator('canvas').getAttribute('data-camera-route') === 'left-arc', 'Portrait return route missed the left corridor')
+  assert(await motionMobile.locator('canvas').getAttribute('data-camera-motion') === 'curve', 'Portrait return route did not use continuous choreography')
+  await motionMobile.waitForFunction(() => !document.body.classList.contains('camera-moving'))
+  await motionMobile.locator('.nav button[data-view="projects"]').click()
+  assert(await motionMobile.locator('canvas').getAttribute('data-camera-route') === 'right-arc', 'Portrait choreography missed the right corridor')
+  assert(await motionMobile.locator('canvas').getAttribute('data-camera-motion') === 'curve', 'Portrait right corridor did not use one continuous curve')
+  await motionMobile.waitForFunction(() => !document.body.classList.contains('camera-moving'))
+  await motionMobile.locator('.nav button[data-view="archive"]').click()
+  assert(await motionMobile.locator('canvas').getAttribute('data-camera-route') === 'direct', 'Portrait neighboring rooms did not retain direct choreography')
+  assert(await motionMobile.locator('canvas').getAttribute('data-camera-motion') === 'direct', 'Portrait neighboring rooms unexpectedly used a curve')
+  await motionMobile.close()
+
+  const motionLandscape = await browser.newPage({ viewport: { width: 740, height: 430 }, reducedMotion: 'no-preference', hasTouch: true, isMobile: true })
+  await motionLandscape.goto(baseUrl, { waitUntil: 'domcontentloaded' })
+  await waitForStudioReady(motionLandscape)
+  await motionLandscape.locator('.nav button[data-view="games"]').click()
+  await motionLandscape.waitForFunction(() => !document.body.classList.contains('camera-moving'))
+  await motionLandscape.locator('.nav button[data-view="web"]').click()
+  assert(await motionLandscape.locator('canvas').getAttribute('data-camera-route') === 'right-arc', 'Landscape choreography missed the right corridor')
+  assert(await motionLandscape.locator('canvas').getAttribute('data-camera-motion') === 'curve', 'Landscape right corridor did not use one continuous curve')
+  await motionLandscape.close()
 
   const matrix = [
     { width: 360, height: 800, mobile: true },

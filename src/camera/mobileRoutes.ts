@@ -1,12 +1,11 @@
 import type { StudioView } from '../state/studioState'
 
-export type MobileRouteProfile = 'portrait' | 'landscape'
 export type MobileRouteFamily = 'direct' | 'left-arc' | 'right-arc'
 
 export interface MobileRoutePlan {
   family: MobileRouteFamily
-  /** Preserve the verified waypoint choreography until Bulk 25.3. */
-  useLegacyWaypoint: boolean
+  /** Long routes stay inside the verified foreground corridor. */
+  usesSafeCorridor: boolean
 }
 
 type RoomLane = 'left' | 'center' | 'right'
@@ -37,19 +36,15 @@ const routeFamilyFor = (from: StudioView, to: StudioView, distance: number): Mob
 
 /**
  * Selects one of three reusable route families from room topology instead of
- * maintaining a growing list of view-pair exceptions. Bulk 25.2 intentionally
- * keeps the verified staged waypoint execution; Bulk 25.3 will consume the
- * arc family as a continuous curve.
+ * maintaining a growing list of view-pair exceptions. Arc families use one
+ * continuous curve through the verified foreground corridor.
  */
 export function getMobileRoutePlan(
   from: StudioView,
   to: StudioView,
   distance: number,
-  profile: MobileRouteProfile,
 ): MobileRoutePlan {
   const family = routeFamilyFor(from, to, distance)
-  const useLegacyWaypoint = profile === 'portrait'
-    ? family !== 'direct'
-    : to !== 'studio' && distance > 7
-  return { family, useLegacyWaypoint }
+  const usesSafeCorridor = family !== 'direct'
+  return { family, usesSafeCorridor }
 }

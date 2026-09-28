@@ -2,7 +2,7 @@ import * as THREE from 'three'
 import { getInspectPreset, getMobileTransitionWaypoint, getViewPreset, type CameraPreset } from './presets'
 import { getMobileRoutePlan, type MobileRouteFamily } from './mobileRoutes'
 import type { InspectMode, MobileSheetState, StudioView } from '../state/studioState'
-import { isLandscapeViewport, isMobileViewport } from '../config/responsive'
+import { isMobileViewport } from '../config/responsive'
 
 const cubicEaseInOut = (value: number) => value < 0.5
   ? 4 * value * value * value
@@ -19,9 +19,13 @@ export class CameraController {
   private startedAt = performance.now()
   private duration = 0
   private moving = false
-  private queuedMoves: Array<{ preset: CameraPreset; duration: number }> = []
+  private positionCurve: THREE.CatmullRomCurve3 | null = null
+  private targetCurve: THREE.CatmullRomCurve3 | null = null
+  private fovCurve: THREE.CatmullRomCurve3 | null = null
+  private readonly curveFov = new THREE.Vector3()
   private currentView: StudioView = 'studio'
   private activeRouteFamily: MobileRouteFamily = 'direct'
+  private activeMotion: 'direct' | 'curve' = 'direct'
 
   constructor(private readonly camera: THREE.PerspectiveCamera) {
     const preset = getViewPreset('studio')
@@ -32,15 +36,12 @@ export class CameraController {
     const destination = getViewPreset(view, sheet)
     const distance = this.camera.position.distanceTo(new THREE.Vector3().fromArray(destination.position))
     const route = isMobileViewport()
-      ? getMobileRoutePlan(this.currentView, view, distance, isLandscapeViewport() ? 'landscape' : 'portrait')
-      : { family: 'direct' as const, useLegacyWaypoint: false }
+      ? getMobileRoutePlan(this.currentView, view, distance)
+      : { family: 'direct' as const, usesSafeCorridor: false }
     this.activeRouteFamily = route.family
     this.currentView = view
-    if (route.useLegacyWaypoint && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      this.moveSequence([
-        { preset: getMobileTransitionWaypoint(), duration: 480 },
-        { preset: destination, duration: 720 },
-      ])
+    if (route.usesSafeCorridor && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      this.moveAlongCurve(destination, getMobileTransitionWaypoint(), 1_200)
       return
     }
     this.moveTo(destination, view === 'studio' ? 950 : 1080)
@@ -70,18 +71,23 @@ export class CameraController {
 
   update(now: number): boolean {
     if (!this.moving) return false
-    const progress = Math.min(1, (now - this.startedAt) / this.duration)
+    // An already queued animation frame can carry a timestamp from just before
+    // an interrupted route was restarted. Curves require a strict [0, 1] input.
+    const progress = THREE.MathUtils.clamp((now - this.startedAt) / this.duration, 0, 1)
     const eased = cubicEaseInOut(progress)
-    this.camera.position.lerpVectors(this.startPosition, this.endPosition, eased)
-    this.lookTarget.lerpVectors(this.startTarget, this.endTarget, eased)
-    this.camera.fov = THREE.MathUtils.lerp(this.startFov, this.endFov, eased)
+    if (this.positionCurve && this.targetCurve && this.fovCurve) {
+      this.positionCurve.getPoint(eased, this.camera.position)
+      this.targetCurve.getPoint(eased, this.lookTarget)
+      this.fovCurve.getPoint(eased, this.curveFov)
+      this.camera.fov = this.curveFov.x
+    } else {
+      this.camera.position.lerpVectors(this.startPosition, this.endPosition, eased)
+      this.lookTarget.lerpVectors(this.startTarget, this.endTarget, eased)
+      this.camera.fov = THREE.MathUtils.lerp(this.startFov, this.endFov, eased)
+    }
     this.camera.updateProjectionMatrix()
     this.camera.lookAt(this.lookTarget)
     this.moving = progress < 1
-    if (!this.moving && this.queuedMoves.length > 0) {
-      const next = this.queuedMoves.shift()
-      if (next) this.startMove(next.preset, next.duration, now)
-    }
     return this.moving
   }
 
@@ -93,19 +99,45 @@ export class CameraController {
     return this.activeRouteFamily
   }
 
+  getActiveMotion(): 'direct' | 'curve' {
+    return this.activeMotion
+  }
+
   private moveTo(preset: CameraPreset, duration: number): void {
-    this.queuedMoves = []
+    this.activeMotion = 'direct'
     this.startMove(preset, duration, performance.now())
   }
 
-  private moveSequence(moves: Array<{ preset: CameraPreset; duration: number }>): void {
-    const [first, ...rest] = moves
-    if (!first) return
-    this.queuedMoves = rest
-    this.startMove(first.preset, first.duration, performance.now())
+  private moveAlongCurve(destination: CameraPreset, corridor: CameraPreset, duration: number): void {
+    this.startMove(destination, duration, performance.now())
+    const corridorPosition = new THREE.Vector3().fromArray(corridor.position)
+    const corridorTarget = new THREE.Vector3().fromArray(corridor.target)
+    this.positionCurve = new THREE.CatmullRomCurve3(
+      [this.startPosition.clone(), corridorPosition, this.endPosition.clone()],
+      false,
+      'centripetal',
+    )
+    this.targetCurve = new THREE.CatmullRomCurve3(
+      [this.startTarget.clone(), corridorTarget, this.endTarget.clone()],
+      false,
+      'centripetal',
+    )
+    this.fovCurve = new THREE.CatmullRomCurve3(
+      [
+        new THREE.Vector3(this.startFov, 0, 0),
+        new THREE.Vector3(corridor.fov, 0, 0),
+        new THREE.Vector3(this.endFov, 0, 0),
+      ],
+      false,
+      'centripetal',
+    )
+    this.activeMotion = 'curve'
   }
 
   private startMove(preset: CameraPreset, duration: number, startedAt: number): void {
+    this.positionCurve = null
+    this.targetCurve = null
+    this.fovCurve = null
     this.startPosition.copy(this.camera.position)
     this.endPosition.fromArray(preset.position)
     this.startTarget.copy(this.lookTarget)
@@ -127,7 +159,10 @@ export class CameraController {
     this.startPosition.copy(this.camera.position)
     this.endTarget.copy(this.lookTarget)
     this.startTarget.copy(this.lookTarget)
-    this.queuedMoves = []
+    this.positionCurve = null
+    this.targetCurve = null
+    this.fovCurve = null
+    this.activeMotion = 'direct'
     this.moving = false
   }
 }
