@@ -563,6 +563,8 @@ Bulk 25.4 checkpoint 2: four accessible labels follow projected room anchors, wi
 
 ### Bulk 25.5 — Interaction polish regression and real-device review
 
+Pre-release navigation correction (2026-09-30): Web ↔ Projects now stays direct on the shared right wall regardless of the portrait camera-distance threshold. In Games preview the visible left monitor is raycastable again and returns directly to Game Select instead of falling through to the broad Games hotspot. Narrow portrait phones retain the explicit GAME SELECT return button when the left screen is outside the frame. `qa:navigation` verifies both directions, rapid reversal, two consecutive game selections and the correct project modal on Desktop, portrait, docked portrait, landscape and reduced motion; build, Pages and full responsive QA pass. Physical-device review below is still pending.
+
 - [ ] Run the full Desktop/Mobile matrix, rapid navigation, rotation, reduced-motion and modal tests.
 - [ ] Review portrait and landscape behavior on a physical phone.
 - [ ] Record final captures, performance measurements and remaining device-specific limitations.

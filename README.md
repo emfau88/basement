@@ -79,6 +79,7 @@ npm run typecheck
 npm run build
 npm run qa:mobile
 npm run qa:studio
+npm run qa:navigation
 npm run qa:pages
 npm run qa:capture-current
 ```

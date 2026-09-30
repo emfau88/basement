@@ -29,6 +29,10 @@ const routeFamilyFor = (from: StudioView, to: StudioView, distance: number): Mob
   const source = roomZones[from]
   const destination = roomZones[to]
   const sharesLane = source.lane === destination.lane
+  // Web and Projects share the right wall. Portrait framing puts their camera
+  // positions slightly farther apart than the generic distance threshold,
+  // but that must not turn a neighboring wall move into a Studio-hub detour.
+  if (sharesLane && source.lane === 'right') return 'direct'
   const sharesFrontCorridor = source.depth === 'front' && destination.depth === 'front' && distance <= 7
   if ((sharesLane || sharesFrontCorridor) && distance <= 7) return 'direct'
   return source.lane === 'left' || destination.lane === 'left' ? 'left-arc' : 'right-arc'

@@ -155,7 +155,7 @@ try {
   }
 
   const setInspectLabels = (mode: InspectMode) => {
-    meshes.gameLeftScreen.userData.detailLabel = mode === 'gameSelector' ? 'Select project' : 'Zoom into selector'
+    meshes.gameLeftScreen.userData.detailLabel = mode === 'gameSelector' ? 'Select project' : mode === 'gamePreview' ? 'Back to game select' : 'Zoom into selector'
     meshes.gameMainScreen.userData.detailLabel = mode === 'gamePreview' ? 'Open selected game' : 'Open project'
     meshes.archiveScreen.userData.detailLabel = mode === 'archiveCemetery' ? 'Open archived project' : 'Zoom into cemetery'
     inspectBack.textContent = mode === 'archiveCemetery'

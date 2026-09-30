@@ -56,7 +56,7 @@ export function createRaycaster(options: Options): { cancelGesture(): void; dest
     const candidates = state.inspectMode === 'gameSelector'
       ? [meshes.gameLeftScreen]
       : state.inspectMode === 'gamePreview'
-        ? [meshes.gameMainScreen]
+        ? [meshes.gameMainScreen, meshes.gameLeftScreen]
         : state.inspectMode === 'archiveCemetery'
           ? [meshes.archiveScreen]
           : detailMeshes

@@ -65,8 +65,10 @@ try {
   assert((await desktop.locator('#projectTitle').textContent()).includes('Rooster Rage'), 'The selected game was not carried into the main preview')
   await desktop.locator('#projectClose').click()
   await desktop.locator('#inspectBack').click()
+  await desktop.waitForFunction(() => !document.body.classList.contains('camera-moving'))
   assert(await desktop.locator('#inspectBack').textContent() === '← GAMES OVERVIEW', 'Game preview did not return to Game Select')
   await desktop.locator('#inspectBack').click()
+  await desktop.waitForFunction(() => !document.body.classList.contains('camera-moving'))
   assert(await desktop.locator('body').evaluate((body) => !body.classList.contains('inspect-selector')), 'Game Select did not return to Games overview')
   await desktop.locator('.nav button[data-view="web"]').click()
   const webResolution = await readScreenResolutions(desktop)
@@ -191,6 +193,7 @@ try {
   assert(await mobile.locator('#inspectBack').textContent() === '← GAME SELECT', 'Mobile Game Select did not hand off to the main preview')
   await mobile.screenshot({ path: path.join(outputDirectory, 'mobile-390x844-game-preview.jpg'), type: 'jpeg', quality: 84 })
   await mobile.locator('#inspectBack').click()
+  await mobile.waitForFunction(() => !document.body.classList.contains('camera-moving'))
   assert(await mobile.locator('#inspectBack').textContent() === '← GAMES OVERVIEW', 'Mobile game preview did not return to Game Select')
   await mobile.keyboard.press('Escape')
   assert(!(await mobile.locator('body').evaluate((body) => body.classList.contains('inspect-selector'))), 'Escape did not leave the Games room selector')
@@ -212,7 +215,7 @@ try {
   await mobile.locator('canvas').click({ position: { x: 380, y: 90 } })
   assert(await mobile.locator('#mobileSheetToggle').getAttribute('aria-expanded') === 'false', 'Tapping free 3D space did not collapse the sheet')
 
-  for (const [view, project, expectedCount, expectedRoute] of [['web', 'mewtrack', 5, 'left-arc'], ['projects', 'terra_divina', 4, 'right-arc'], ['archive', 'voidline_farhaven', 4, 'direct']]) {
+  for (const [view, project, expectedCount, expectedRoute] of [['web', 'mewtrack', 5, 'left-arc'], ['projects', 'terra_divina', 4, 'direct'], ['archive', 'voidline_farhaven', 4, 'direct']]) {
     await mobile.locator(`.nav button[data-view="${view}"]`).click()
     assert(await mobile.locator('canvas').getAttribute('data-camera-route') === expectedRoute, `${view} selected the wrong semantic camera route`)
     assert(await mobile.locator('canvas').getAttribute('data-camera-motion') === 'direct', `${view} ignored the reduced-motion preference`)
@@ -291,8 +294,8 @@ try {
   assert(await motionMobile.locator('canvas').getAttribute('data-camera-motion') === 'curve', 'Portrait return route did not use continuous choreography')
   await motionMobile.waitForFunction(() => !document.body.classList.contains('camera-moving'))
   await motionMobile.locator('.nav button[data-view="projects"]').click()
-  assert(await motionMobile.locator('canvas').getAttribute('data-camera-route') === 'right-arc', 'Portrait choreography missed the right corridor')
-  assert(await motionMobile.locator('canvas').getAttribute('data-camera-motion') === 'curve', 'Portrait right corridor did not use one continuous curve')
+  assert(await motionMobile.locator('canvas').getAttribute('data-camera-route') === 'direct', 'Portrait Web to Projects must stay on the neighboring right wall')
+  assert(await motionMobile.locator('canvas').getAttribute('data-camera-motion') === 'direct', 'Portrait neighboring wall move must not use a Studio corridor')
   await motionMobile.waitForFunction(() => !document.body.classList.contains('camera-moving'))
   await motionMobile.locator('.nav button[data-view="archive"]').click()
   assert(await motionMobile.locator('canvas').getAttribute('data-camera-route') === 'direct', 'Portrait neighboring rooms did not retain direct choreography')
