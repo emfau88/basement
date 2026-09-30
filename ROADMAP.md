@@ -552,12 +552,14 @@ Bulk 25.3 verification: long Mobile routes now use one centripetal curve through
 
 - [x] Add bounded horizontal press-drag camera panning to the Studio overview for mouse and touch.
 - [x] Distinguish taps from drags so existing work-area hotspots remain reliable.
-- [ ] Add restrained, room-integrated Desktop wayfinding markers for Games, Web, Projects and Archive.
-- [ ] Keep Mobile markers simplified or hidden when they would obscure the scene.
+- [x] Add restrained, room-integrated Desktop wayfinding markers for Games, Web, Projects and Archive.
+- [x] Keep Mobile markers simplified or hidden when they would obscure the scene.
 
 Acceptance: visitors can inspect the overview without exposing unfinished geometry and can immediately recognize which studio areas are interactive.
 
 Bulk 25.4 checkpoint 1: Studio-only yaw is bounded to ±16° Desktop, ±32° portrait and ±22° landscape; position, lens and every focus/inspect endpoint remain unchanged. An 8 px tap/drag threshold, pointer capture, cancellation on Escape/blur/rotation and Studio-button recenter keep navigation reliable. Production build, Pages subpath QA, the existing responsive matrix and mouse/native-touch-event Studio regression pass on 2026-09-30. Physical-device review remains in Bulk 25.5.
+
+Bulk 25.4 checkpoint 2: four accessible labels follow projected room anchors, with restrained static arrow glow and edge arrows for cropped areas. They open the existing navigation, avoid intro/label overlaps and hide during transitions, detail/modal states and touch-only use. Updates share the existing render scheduler; no added animation loop, asset download or scene-quality reduction. Build, Pages and full responsive QA pass; dedicated discovery tests cover Desktop (1440 × 900 and 900 × 600), portrait, landscape and wide touch, including keyboard activation and hidden-focus states. Captures are in `docs/qa/current/studio-discovery/`. Bulk 25.4 is complete; physical OnePlus review and final interaction acceptance remain in Bulk 25.5.
 
 ### Bulk 25.5 — Interaction polish regression and real-device review
 

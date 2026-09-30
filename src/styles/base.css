@@ -228,6 +228,25 @@ body.camera-moving .inspect-back{pointer-events:none}
   font-size:9px;letter-spacing:.06em;white-space:nowrap;pointer-events:none
 }
 body.focus .studio-look-hint,body.camera-moving .studio-look-hint,body.project-open .studio-look-hint{display:none}
+.studio-wayfinding{position:fixed;inset:0;z-index:13;pointer-events:none}
+.studio-wayfinding[hidden],body.focus .studio-wayfinding,body.camera-moving .studio-wayfinding,body.project-open .studio-wayfinding{display:none}
+.studio-marker{
+  position:absolute;display:flex;align-items:center;gap:7px;transform:translate(-50%,-50%);
+  min-height:36px;padding:7px 12px 7px 8px;border:1px solid rgba(248,246,240,.35);border-radius:10px;
+  background:rgba(26,31,29,.86);color:#f5f2e9;box-shadow:0 4px 14px rgba(20,24,21,.2);
+  font-size:9px;font-weight:750;letter-spacing:.12em;text-transform:uppercase;white-space:nowrap;
+  cursor:pointer;pointer-events:auto;transition:background .15s ease,box-shadow .15s ease
+}
+.studio-marker[hidden]{display:none}
+.studio-marker-arrow{
+  display:grid;place-items:center;width:20px;height:20px;border-radius:50%;
+  color:var(--marker-accent);background:rgba(248,246,240,.08);font-size:16px;
+  text-shadow:0 0 7px var(--marker-accent)
+}
+.studio-marker::after{content:"";position:absolute;left:50%;top:100%;height:12px;border-left:1px solid var(--marker-accent);opacity:.65;pointer-events:none}
+.studio-marker[data-edge="true"]::after{display:none}
+.studio-marker:hover{background:#1a1f1d;box-shadow:0 0 12px color-mix(in srgb,var(--marker-accent) 30%,transparent)}
+.studio-marker:focus-visible{outline:2px solid var(--marker-accent);outline-offset:4px}
 .sound{
   position:fixed;z-index:25;right:22px;bottom:22px;border:1px solid rgba(26,31,29,.14);
   background:rgba(248,246,240,.74);color:#7b827e;border-radius:10px;padding:8px 10px;

@@ -22,6 +22,7 @@ import { createViewportController } from './ui/viewport'
 import { isMobileViewport } from './config/responsive'
 import { createWebGLRecoveryUI } from './ui/webglRecovery'
 import { createStartupLoader } from './ui/startupLoader'
+import { createStudioWayfinding } from './ui/studioWayfinding'
 
 const app = requiredElement<HTMLElement>('app')
 const loader = requiredElement<HTMLElement>('loader')
@@ -148,6 +149,7 @@ try {
     rendering.renderer.domElement.dataset.cameraRoute = cameraController.getActiveRouteFamily()
     rendering.renderer.domElement.dataset.cameraMotion = cameraController.getActiveMotion()
     document.body.classList.add('camera-moving')
+    wayfinding.update()
     inspectBack.disabled = true
     scheduler.startTransition()
   }
@@ -218,11 +220,12 @@ try {
   }
 
   const navigation = createNavigationUI(store, navigate, enterArchiveInspect)
+  const wayfinding = createStudioWayfinding({ camera: rendering.camera, canvas: rendering.renderer.domElement, store, navigate, isCameraMoving: () => cameraController.isMoving() })
   inspectBack.addEventListener('click', backFromInspect)
   createAmbientAudio()
 
   scheduler = createRenderScheduler({
-    render: () => rendering.composer.render(),
+    render: () => { rendering.composer.render(); wayfinding.update() },
     updateCamera: (now) => {
       const moving = cameraController.update(now)
       if (!moving) {
@@ -311,7 +314,7 @@ try {
     rendering.resize(); syncScreenFidelity(); cameraController.resize(state.view, state.inspectMode, state.mobileSheet); scheduler.requestRender()
   })
   window.addEventListener('pagehide', () => {
-    interaction.destroy(); viewport.destroy(); mobileControls.destroy(); navigation.destroy(); unsubscribeCameraLayout(); scheduler.destroy(); gamesProof?.dispose(); assetManager?.dispose()
+    interaction.destroy(); wayfinding.destroy(); viewport.destroy(); mobileControls.destroy(); navigation.destroy(); unsubscribeCameraLayout(); scheduler.destroy(); gamesProof?.dispose(); assetManager?.dispose()
   }, { once: true })
 
   rendering.scene.traverse((object) => {

@@ -17,8 +17,10 @@ try {
   browser = await chromium.launch({ channel: 'msedge', headless: true })
   for (const profile of [
     { name: 'desktop', width: 1440, height: 900, touch: false, limit: 16 },
+    { name: 'desktop-compact', width: 900, height: 600, touch: false, limit: 16 },
     { name: 'portrait', width: 390, height: 844, touch: true, limit: 32 },
     { name: 'landscape', width: 740, height: 430, touch: true, limit: 22 },
+    { name: 'wide-touch', width: 1024, height: 600, touch: true, limit: 16 },
   ]) {
     const page = await browser.newPage({ viewport: { width: profile.width, height: profile.height }, hasTouch: profile.touch, isMobile: profile.touch, reducedMotion: 'reduce' })
     const errors = []
@@ -41,6 +43,27 @@ try {
     }
     const start = [profile.width * .8, profile.height * .52]
     const end = [profile.width * .1, profile.height * .52]
+    const markers = page.locator('.studio-marker:visible')
+    assert(await markers.count() === (profile.touch ? 0 : 4), `${profile.name}: unexpected marker visibility`)
+    if (!profile.touch) {
+      const boxes = await markers.evaluateAll((buttons) => buttons.map((button) => {
+        const { left, top, right, bottom } = button.getBoundingClientRect()
+        return { left, top, right, bottom }
+      }))
+      for (const [index, box] of boxes.entries()) {
+        assert(box.left >= 0 && box.right <= profile.width && box.top >= 0 && box.bottom < profile.height - 90, 'Desktop marker was clipped')
+        for (const other of boxes.slice(index + 1)) assert(box.right <= other.left || other.right <= box.left || box.bottom <= other.top || other.bottom <= box.top, 'Desktop markers overlap')
+      }
+      for (const view of ['games', 'web', 'projects', 'archive']) {
+        const marker = page.locator(`.studio-marker[data-view="${view}"]`)
+        if (view === 'archive') { await marker.focus(); await page.keyboard.press('Enter') }
+        else await marker.click()
+        await waitForCamera(page)
+        assert(await page.locator('body').evaluate((body, view) => body.classList.contains(`view-${view}`), view), `Desktop ${view} marker opened the wrong area`)
+        assert(await page.locator('.studio-marker:visible').count() === 0, 'Markers remained visible in focus view')
+        await page.locator('.nav button[data-view="studio"]').click(); await waitForCamera(page)
+      }
+    }
     await page.screenshot({ path: path.join(outputDirectory, `${profile.name}-center.png`) })
     await drag(start, end)
     assert(await page.locator('body').evaluate((body) => body.classList.contains('view-studio')), `${profile.name}: drag accidentally opened a room`)
@@ -84,4 +107,4 @@ try {
   await browser?.close()
   await server.close()
 }
-console.log('Studio discovery QA passed (mouse, real touch, bounds, taps, recenter, cancel and rotation)')
+console.log('Studio discovery QA passed (markers, mouse, real touch, bounds, taps, recenter, cancel and rotation)')

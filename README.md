@@ -36,7 +36,7 @@ The static build is written to `dist/`. `vite.config.ts` uses a relative base pa
 - `src/main.ts` composes the application and owns the top-level back hierarchy.
 - `src/data/projects.ts` is the single source of truth for titles, images, links, metadata and per-project display calibration.
 - `src/state/studioState.ts` stores the current view, inspect mode, project selections and open modal.
-- `src/camera/` contains separate desktop, mobile and inspect presets plus staged Mobile transition routes.
+- `src/camera/` contains separate desktop, mobile and inspect presets plus continuous Mobile corridor routes.
 - `src/scene/` contains the renderer, asset pipeline, PBR materials and modular procedural room zones.
 - `src/screens/` renders the animated CanvasTextures and the physical Projects wall.
 - `src/interaction/` contains hotspots and raycast behavior.
@@ -56,7 +56,9 @@ Each project also has a 768 × 432 `-preview.webp` derivative for distant wall c
 
 ## Change a camera view
 
-Edit `src/camera/presets.ts`. Desktop, portrait, landscape, Games-selector and Archive-Cemetery views are kept separate. `src/camera/cameraController.ts` applies direct or safe staged transitions and respects `prefers-reduced-motion`.
+Edit `src/camera/presets.ts`. Desktop, portrait, landscape, Games-selector, Games-preview and Archive-Cemetery views are kept separate. `src/camera/cameraController.ts` applies direct or continuous curved transitions and respects `prefers-reduced-motion`.
+
+In Studio, hold the left mouse button and drag horizontally, or swipe on touch, to look around within fixed limits. Click **Studio** or press **Escape** to recenter. Desktop room-anchored labels open the four work areas; they disappear during camera moves, in detail views and on touch-only screens.
 
 ## Desktop rendering quality
 
@@ -68,7 +70,7 @@ Third-party visual assets and their licenses are documented in [`public/assets/p
 
 Mobile uses the same studio and project data with dedicated portrait/landscape compositions, a compact project sheet and touch-friendly inspection controls. Long cross-room moves use a clear central waypoint, and Archive includes a frontal Project Cemetery view with a return to the lounge.
 
-`Mobile Standard` shares the licensed sofa, plants, keyboard and mouse used on Desktop, while reducing expensive rendering effects. Devices with at most 4 GB reported memory or four CPU cores switch to `Mobile Low`, which keeps the complete interaction model but uses lightweight procedural replacements and a lower rendering budget.
+Both Mobile tiers share the authored furniture, plants and window environment used on Desktop. Devices with at most 4 GB reported memory or four CPU cores switch to `Mobile Low`, which reduces resolution, effects and geometry budgets rather than swapping the visible room composition.
 
 ## Quality checks
 
@@ -76,6 +78,7 @@ Mobile uses the same studio and project data with dedicated portrait/landscape c
 npm run typecheck
 npm run build
 npm run qa:mobile
+npm run qa:studio
 npm run qa:pages
 npm run qa:capture-current
 ```
