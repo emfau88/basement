@@ -22,6 +22,7 @@ import { createViewportController } from './ui/viewport'
 import { isMobileViewport } from './config/responsive'
 import { createWebGLRecoveryUI } from './ui/webglRecovery'
 import { createStartupLoader } from './ui/startupLoader'
+import { createStudioWayfinding } from './ui/studioWayfinding'
 
 const app = requiredElement<HTMLElement>('app')
 const loader = requiredElement<HTMLElement>('loader')
@@ -69,6 +70,8 @@ try {
     return assetManagerPromise
   }
   const cameraController = new CameraController(rendering.camera)
+  const studioLookHint = requiredElement<HTMLElement>('studioLookHint')
+  studioLookHint.textContent = matchMedia('(pointer: coarse)').matches ? 'Swipe to look around · Tap an area' : 'Drag to look around · Click an area'
   const materials = createStudioMaterials()
   const tools = createSceneTools(rendering.scene, materials, detailBudget)
   const meshes = buildStudioRoom(rendering.scene, materials, tools, detailBudget)
@@ -113,7 +116,7 @@ try {
         assets,
       })).then((proof) => {
         gamesProof = proof
-        proof.setActive(rendering.quality.name === 'desktop' || store.get().view === 'games')
+        proof.setActive(true)
         rendering.renderer.domElement.dataset.gamesProof = 'ready'
         screens.enableBackgroundPrefetch()
         scheduler.requestRender()
@@ -130,12 +133,29 @@ try {
     return gamesProofPromise
   }
 
-  // Desktop and Mobile Standard share the finished studio continuously. The
-  // low-end tier still defers its lightweight Games proof until Games opens.
-  const usesGamesProof = (view: StudioView): boolean => rendering.quality.name !== 'mobile-low' || view === 'games'
+  // Every quality tier keeps the same authored room composition. Lower tiers
+  // save GPU work through resolution, effects and geometry budgets instead of
+  // swapping visible furniture, plants or the window environment.
+  const usesGamesProof = (_view: StudioView): boolean => true
+
+  const clearInteractionFeedback = () => {
+    projectWall.setHover(null)
+    tooltip.classList.remove('show')
+    document.body.style.cursor = 'default'
+  }
+  const beginCameraTransition = () => {
+    clearInteractionFeedback()
+    rendering.renderer.domElement.dataset.studioYaw = '0'
+    rendering.renderer.domElement.dataset.cameraRoute = cameraController.getActiveRouteFamily()
+    rendering.renderer.domElement.dataset.cameraMotion = cameraController.getActiveMotion()
+    document.body.classList.add('camera-moving')
+    wayfinding.update()
+    inspectBack.disabled = true
+    scheduler.startTransition()
+  }
 
   const setInspectLabels = (mode: InspectMode) => {
-    meshes.gameLeftScreen.userData.detailLabel = mode === 'gameSelector' ? 'Select project' : 'Zoom into selector'
+    meshes.gameLeftScreen.userData.detailLabel = mode === 'gameSelector' ? 'Select project' : mode === 'gamePreview' ? 'Back to game select' : 'Zoom into selector'
     meshes.gameMainScreen.userData.detailLabel = mode === 'gamePreview' ? 'Open selected game' : 'Open project'
     meshes.archiveScreen.userData.detailLabel = mode === 'archiveCemetery' ? 'Open archived project' : 'Zoom into cemetery'
     inspectBack.textContent = mode === 'archiveCemetery'
@@ -147,11 +167,14 @@ try {
   const navigate = (view: StudioView) => {
     const state = store.get()
     if (state.view === view && !state.inspectMode) {
+      if (view === 'studio' && cameraController.recenterStudio()) {
+        rendering.renderer.domElement.dataset.studioYaw = '0'
+        beginCameraTransition()
+      }
       if (state.mobileSheet === 'expanded') store.set({ mobileSheet: 'collapsed' })
       return
     }
-    projectWall.setHover(null); setInspectLabels(null)
-    tooltip.classList.remove('show'); document.body.style.cursor = 'default'
+    setInspectLabels(null)
     fade.style.opacity = '.13'; window.setTimeout(() => { fade.style.opacity = '0' }, 150)
     store.set({ view, inspectMode: null, mobileSheet: 'collapsed' })
     screens.activate(view)
@@ -165,7 +188,7 @@ try {
       }).catch(() => undefined)
     }
     else gamesProof?.setActive(false)
-    cameraController.moveToView(view, 'collapsed'); scheduler.startTransition()
+    cameraController.moveToView(view, 'collapsed'); beginCameraTransition()
   }
   const enterInspect = (mode: Exclude<InspectMode, null>) => {
     const view = store.get().view
@@ -177,7 +200,7 @@ try {
       ...(archiveKey ? { selectedArchiveId: archiveKey } : {}),
     }); setInspectLabels(mode)
     syncScreenFidelity()
-    cameraController.enterInspect(mode); scheduler.startTransition()
+    cameraController.enterInspect(mode); beginCameraTransition()
   }
   const enterGameInspect = () => enterInspect('gameSelector')
   const enterGamePreview = () => enterInspect('gamePreview')
@@ -186,26 +209,38 @@ try {
     const state = store.get(); if (!state.inspectMode) return
     store.set({ inspectMode: null }); setInspectLabels(null)
     syncScreenFidelity()
-    cameraController.exitInspect(state.view, state.mobileSheet); scheduler.startTransition()
+    cameraController.exitInspect(state.view, state.mobileSheet); beginCameraTransition()
   }
   const backFromInspect = () => {
+    if (cameraController.isMoving()) return
     if (store.get().inspectMode !== 'gamePreview') { exitInspect(); return }
     store.set({ inspectMode: 'gameSelector' }); setInspectLabels('gameSelector')
     syncScreenFidelity()
-    cameraController.enterInspect('gameSelector'); scheduler.startTransition()
+    cameraController.enterInspect('gameSelector'); beginCameraTransition()
   }
 
-  const navigation = createNavigationUI(store, navigate)
+  const navigation = createNavigationUI(store, navigate, enterArchiveInspect)
+  const wayfinding = createStudioWayfinding({ camera: rendering.camera, canvas: rendering.renderer.domElement, store, navigate, isCameraMoving: () => cameraController.isMoving() })
   inspectBack.addEventListener('click', backFromInspect)
   createAmbientAudio()
 
   scheduler = createRenderScheduler({
-    render: () => rendering.composer.render(),
-    updateCamera: (now) => cameraController.update(now),
+    render: () => { rendering.composer.render(); wayfinding.update() },
+    updateCamera: (now) => {
+      const moving = cameraController.update(now)
+      if (!moving) {
+        document.body.classList.remove('camera-moving')
+        inspectBack.disabled = false
+      }
+      return moving
+    },
     updateScreens: (now) => screens.update(now),
     screenIntervalMs: rendering.quality.screenIntervalMs,
   })
   rendering.renderer.domElement.dataset.quality = rendering.quality.name
+  rendering.renderer.domElement.dataset.cameraRoute = cameraController.getActiveRouteFamily()
+  rendering.renderer.domElement.dataset.cameraMotion = cameraController.getActiveMotion()
+  rendering.renderer.domElement.dataset.studioYaw = '0'
   rendering.renderer.domElement.dataset.sceneDetail = String(detailBudget.dustParticles)
   syncScreenFidelity()
   rendering.renderer.domElement.addEventListener('webglcontextlost', (event) => { event.preventDefault(); webglRecovery.show() })
@@ -254,12 +289,18 @@ try {
     if (state.mobileSheet === previousSheet) return
     previousSheet = state.mobileSheet
     if (!isMobileViewport() || state.inspectMode) return
-    cameraController.adaptToSheet(state.view, state.mobileSheet); scheduler.startTransition()
+    cameraController.adaptToSheet(state.view, state.mobileSheet); beginCameraTransition()
   })
-  createRaycaster({ canvas: rendering.renderer.domElement, camera: rendering.camera, meshes, hotspots, screens, projectWall, store, modal, tooltip, navigate, enterGameInspect, enterGamePreview, enterArchiveInspect, requestRender: scheduler.requestRender })
+  const interaction = createRaycaster({ canvas: rendering.renderer.domElement, camera: rendering.camera, meshes, hotspots, screens, projectWall, store, modal, tooltip, navigate, enterGameInspect, enterGamePreview, enterArchiveInspect, isCameraMoving: () => cameraController.isMoving(), requestRender: scheduler.requestRender,
+    panStudio: (horizontalFraction) => {
+      rendering.renderer.domElement.dataset.studioYaw = String(cameraController.panStudio(horizontalFraction))
+      clearInteractionFeedback(); scheduler.requestRender()
+    },
+  })
 
   window.addEventListener('keydown', (event) => {
     if (event.key !== 'Escape') return
+    interaction.cancelGesture()
     if (modal.isOpen()) modal.close()
     else if (store.get().inspectMode) backFromInspect()
     else if (store.get().mobileSheet === 'expanded') store.set({ mobileSheet: 'collapsed' })
@@ -267,10 +308,13 @@ try {
   })
   const viewport = createViewportController(() => {
     const state = store.get()
+    interaction.cancelGesture()
+    rendering.renderer.domElement.dataset.studioYaw = '0'
+    clearInteractionFeedback(); document.body.classList.remove('camera-moving'); inspectBack.disabled = false
     rendering.resize(); syncScreenFidelity(); cameraController.resize(state.view, state.inspectMode, state.mobileSheet); scheduler.requestRender()
   })
   window.addEventListener('pagehide', () => {
-    viewport.destroy(); mobileControls.destroy(); navigation.destroy(); unsubscribeCameraLayout(); scheduler.destroy(); gamesProof?.dispose(); assetManager?.dispose()
+    interaction.destroy(); wayfinding.destroy(); viewport.destroy(); mobileControls.destroy(); navigation.destroy(); unsubscribeCameraLayout(); scheduler.destroy(); gamesProof?.dispose(); assetManager?.dispose()
   }, { once: true })
 
   rendering.scene.traverse((object) => {

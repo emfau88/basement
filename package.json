@@ -21,6 +21,8 @@
     "qa:capture-current": "node scripts/capture-baseline.mjs",
     "qa:benchmark": "node scripts/benchmark-games.mjs",
     "qa:mobile": "node scripts/verify-mobile-ui.mjs",
+    "qa:studio": "node scripts/verify-studio-discovery.mjs",
+    "qa:navigation": "node scripts/verify-neighbor-navigation.mjs",
     "qa:pages": "node scripts/verify-pages-build.mjs",
     "preqa:assets": "npm run assets:prepare",
     "qa:assets": "node scripts/verify-asset-foundation.mjs"

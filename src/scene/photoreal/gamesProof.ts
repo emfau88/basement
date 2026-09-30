@@ -31,6 +31,7 @@ interface MaterialSet {
   chairMesh: THREE.MeshStandardMaterial
   mug: THREE.MeshStandardMaterial
   backdrop: THREE.MeshBasicMaterial
+  windowTrim: THREE.MeshBasicMaterial
   sofaWeave: THREE.Texture
   ownedTextures: THREE.Texture[]
 }
@@ -246,7 +247,11 @@ async function loadMaterialSet(assets: AssetManager, anisotropy: number, desktop
   }
 
   const backdrop = new THREE.MeshBasicMaterial({ map: backdropTexture, color: 0xffffff, toneMapped: false, fog: false })
-  return { concrete, walnut, graphite, floor, rug, upholstery, chairMesh, mug, backdrop, sofaWeave, ownedTextures }
+  // Narrow window profiles need a stable dark silhouette. Lit metallic sides
+  // caught the window fill and read as stray pale strips in the preview camera.
+  // Keep their authored geometry, but remove lighting/reflection highlights.
+  const windowTrim = new THREE.MeshBasicMaterial({ color: 0x111413, toneMapped: false })
+  return { concrete, walnut, graphite, floor, rug, upholstery, chairMesh, mug, backdrop, windowTrim, sofaWeave, ownedTextures }
 }
 
 function addRoundedBox(root: THREE.Group, name: string, size: readonly [number, number, number], position: readonly [number, number, number], material: THREE.Material, radius: number, segments: number): THREE.Mesh {
@@ -275,10 +280,10 @@ function buildShell(materials: MaterialSet, budget: SceneDetailBudget): THREE.Gr
   addRoundedBox(root, 'ConcreteSill', [7.35, 0.23, 0.66], [0, 0.94, -6.33], materials.concrete, 0.035, segments)
 
   for (const x of [-3.06, 0, 3.06]) {
-    addRoundedBox(root, 'DeepWindowMullion', [0.075, 3.48, 0.24], [x, 2.72, -5.94], materials.graphite, 0.012, 2)
+    addRoundedBox(root, 'DeepWindowMullion', [0.075, 3.48, 0.24], [x, 2.72, -5.94], materials.windowTrim, 0.012, 2)
   }
-  addRoundedBox(root, 'WindowHeadCasing', [6.2, 0.075, 0.24], [0, 4.43, -5.94], materials.graphite, 0.012, 2)
-  addRoundedBox(root, 'WindowSillCasing', [6.2, 0.075, 0.24], [0, 1.02, -5.94], materials.graphite, 0.012, 2)
+  addRoundedBox(root, 'WindowHeadCasing', [6.2, 0.075, 0.24], [0, 4.43, -5.94], materials.windowTrim, 0.012, 2)
+  addRoundedBox(root, 'WindowSillCasing', [6.2, 0.075, 0.24], [0, 1.02, -5.94], materials.windowTrim, 0.012, 2)
 
   const canopy = addRoundedBox(root, 'GamesCeilingCanopy', [7.1, 0.16, 2.0], [0, 5.0, -4.94], materials.graphite, 0.045, segments)
   canopy.castShadow = false
@@ -346,25 +351,16 @@ function refineSofaFabric(sofa: THREE.Object3D | null, weave: THREE.Texture): vo
 export async function createGamesPhotorealProof(options: GamesProofOptions): Promise<GamesProofController> {
   const { scene, renderer, materials: current, budget, quality, assets } = options
   const desktop = quality.name === 'desktop'
-  // Mobile Standard is visually equivalent to Desktop for the small set of
-  // authored hero props. Only the explicit low-end tier keeps procedural
-  // replacements; viewport width or touch input must not lower scene quality.
-  const enhancedModels = quality.name !== 'mobile-low'
+  // Content remains identical across quality tiers. Mobile profiles reduce
+  // lighting, pixel density and geometry budgets rather than replacing the
+  // authored hero props with visibly different stand-ins.
   const legacyWindowLayers = collectLegacyWindowLayers(scene)
   const [materials, leftHeroPlant, rightHeroPlant, keyboardMouse, archiveSofa] = await Promise.all([
     loadMaterialSet(assets, budget.textureAnisotropy, desktop),
-    enhancedModels
-      ? assets.loadModel(`${ASSET_ROOT}models/potted-plant-02.glb`).then((model) => model.root).catch(() => null)
-      : Promise.resolve(null),
-    enhancedModels
-      ? assets.loadModel(`${ASSET_ROOT}models/potted-plant-02.glb`).then((model) => model.root).catch(() => null)
-      : Promise.resolve(null),
-    enhancedModels
-      ? assets.loadModel(`${ASSET_ROOT}models/keyboard-mouse.glb`).then((model) => model.root).catch(() => null)
-      : Promise.resolve(null),
-    enhancedModels
-      ? assets.loadModel(`${SHARED_ASSET_ROOT}models/archive-sofa.glb`).then((model) => model.root).catch(() => null)
-      : Promise.resolve(null),
+    assets.loadModel(`${ASSET_ROOT}models/potted-plant-02.glb`).then((model) => model.root).catch(() => null),
+    assets.loadModel(`${ASSET_ROOT}models/potted-plant-02.glb`).then((model) => model.root).catch(() => null),
+    assets.loadModel(`${ASSET_ROOT}models/keyboard-mouse.glb`).then((model) => model.root).catch(() => null),
+    assets.loadModel(`${SHARED_ASSET_ROOT}models/archive-sofa.glb`).then((model) => model.root).catch(() => null),
   ])
   refineSofaFabric(archiveSofa, materials.sofaWeave)
   const shell = buildShell(materials, budget)
@@ -444,6 +440,7 @@ export async function createGamesPhotorealProof(options: GamesProofOptions): Pro
       materials.chairMesh.dispose()
       materials.mug.dispose()
       materials.backdrop.dispose()
+      materials.windowTrim.dispose()
       for (const texture of materials.ownedTextures) texture.dispose()
     },
   }

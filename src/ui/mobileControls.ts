@@ -175,8 +175,8 @@ export function createMobileControls(options: MobileControlOptions): MobileContr
       if (enabled && state.view === 'projects' && selectedKey) options.setFeaturedSelection(selectedKey)
       openButton.setAttribute('aria-label', `Open details for ${selectedKey ? projects[selectedKey].title : 'project'}`)
       gameButton.hidden = state.view !== 'games' && state.view !== 'archive'
-      gameButton.textContent = state.view === 'archive' ? 'View project cemetery' : 'View room selector'
-      gameButton.setAttribute('aria-label', state.view === 'archive' ? 'Zoom into project cemetery' : 'View game room selector')
+      gameButton.textContent = state.view === 'archive' ? 'Enter project cemetery' : 'View room selector'
+      gameButton.setAttribute('aria-label', state.view === 'archive' ? 'Enter project cemetery' : 'View game room selector')
     }
   }
   const unsubscribe = store.subscribe(render)

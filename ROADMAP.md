@@ -1,8 +1,8 @@
 # EMFAU Virtual Studio roadmap
 
-Last updated: 2026-09-24
-Current phase: Phase F — Mobile adaptation and production release
-Current bulk: Bulk 24.7 complete — lossless-looking hero asset optimization
+Last updated: 2026-09-28
+Current phase: Phase G — Interaction polish and discoverability
+Current bulk: Bulk 25.3 complete — continuous cross-room choreography
 
 ## Status legend
 
@@ -448,7 +448,7 @@ Acceptance: Mobile presents the same finished studio with deliberate framing and
 
 Bulk 24.1 verification: portrait `390 × 844` and landscape `740 × 430` A/B captures cover Studio plus collapsed and expanded Games, Web, Projects and Archive states. The approved Desktop presets were not changed. Camera motion routing remains isolated for Bulk 24.3.
 
-Bulk 24.2 verification: Mobile Standard now uses the licensed sofa, plants, keyboard and mouse throughout the studio, matching Desktop's key object set. Mobile Low keeps the procedural replacements and does not eagerly load the hero models. Portrait captures cover Studio, Games and Archive; automated QA asserts both quality tiers.
+Bulk 24.2 verification: Mobile Standard uses the licensed sofa, plants, keyboard and mouse throughout the studio, matching Desktop's key object set. The later parity correction extends the same authored composition, window treatment and skyline to Mobile Low; lower tiers now save GPU work through resolution, effects and geometry budgets rather than visibly different objects. Portrait captures cover Studio, Games and Archive; automated QA asserts both quality tiers.
 
 Bulk 24.3 verification: Mobile cross-room moves longer than seven scene units now use a central pull-back waypoint, while reduced-motion users retain an effectively immediate direct transition. The Archive sheet and physical terminal both open the frontal Cemetery inspection, collapse the sheet automatically and provide a working return to the lounge. Portrait and landscape captures verify the waypoint, endpoint, inspection and return states; Desktop camera behavior is unchanged.
 
@@ -485,7 +485,7 @@ Bulk 24.5 verification: production build, TypeScript validation, complete respon
 - [x] Report a visible percentage and expose accessible progress semantics.
 - [x] Preserve the existing restrained visual language and all fallback paths.
 
-Acceptance: the loader no longer claims that the studio is ready while the photoreal assets are still arriving. Desktop and Mobile Standard wait for their authored asset set; Mobile Low completes after its intentionally lightweight scene is ready.
+Acceptance: the loader no longer claims that the studio is ready while the photoreal assets are still arriving. Desktop and both Mobile tiers wait for their authored visual set; lower tiers retain their reduced render budgets.
 
 Bulk 24.6 verification: production build, complete responsive/interaction QA and GitHub Pages subpath QA pass on 2026-09-24. Plant, keyboard and mouse optimization remains deliberately untouched until separately approved.
 
@@ -501,7 +501,79 @@ Acceptance: the two deployed GLBs drop from 1.53 MB to 1.01 MB and their estimat
 
 Bulk 24.7 verification: input-device GPU texture allocation falls by roughly 86% and plant texture allocation by 75%. The full-scene headless startup metric remains software-GPU-sensitive and is not presented as a stable speed percentage; exact transfer/VRAM reductions, unchanged vertex counts, fixed-camera captures, GLB validation and the complete QA matrix are the acceptance evidence.
 
-### Bulk 25 — Release candidate, deployment and documentation
+### Bulk 24.8 — Mobile camera audit and portrait correction
+
+- [x] Audit all current portrait overview, expanded-sheet and inspect states against the finished room.
+- [x] Centralize Mobile route decisions while preserving Desktop behavior and the verified landscape baseline.
+- [x] Reframe Games, Web and Projects for stronger portrait subject priority.
+- [x] Reduce avoidable wide-angle distortion in Projects, Games inspect and Archive cemetery inspect.
+- [x] Route long and semantically separated portrait moves through the safe studio hub.
+- [x] Capture matching portrait before/after evidence and rerun the complete interaction and deployment-path QA.
+
+Acceptance: portrait uses the same rooms, subjects and interaction hierarchy as Desktop with device-appropriate composition; no Desktop preset, Desktop behavior, landscape endpoint or scene geometry changes.
+
+Bulk 24.8 verification: `390 × 844` captures cover all five collapsed states, every expanded content sheet, Games selector and Archive cemetery inspection. TypeScript, production build, complete responsive interaction QA and GitHub Pages subpath QA pass on 2026-09-27. A subsequent focused correction keeps the complete Games preview readable above the chair in portrait and landscape. Desktop presets remain unchanged.
+
+## Phase G — Interaction polish and discoverability
+
+### Bulk 25.1 — Transition interaction hygiene — COMPLETE
+
+- [x] Clear tooltip, cursor and Project Wall hover state before every camera transition.
+- [x] Ignore 3D clicks while the camera is moving without blocking intentional menu rerouting.
+- [x] Prevent repeated inspect-back actions from skipping two navigation levels.
+- [x] Clear stale interaction feedback before project modals and viewport snaps.
+- [x] Add regression coverage for transition tooltip cleanup.
+
+Acceptance: camera movement never leaves a stale label or active hover behind, scene objects cannot be triggered from an outdated camera position, and explicit menu navigation remains interruptible.
+
+Bulk 25.1 verification: production build and the complete Desktop/Mobile interaction matrix pass on 2026-09-27. Regression coverage verifies that entering Games inspection clears its previous hover tooltip; the interaction lock is scoped to the 3D canvas and inspect-back control so menu rerouting remains available.
+
+### Bulk 25.2 — Continuous camera route model
+
+- [x] Replace pair-specific hub decisions with a small shared set of safe room corridors.
+- [x] Define direct-neighbor, left-arc and right-arc route families for portrait and landscape.
+- [x] Preserve reduced-motion behavior and all approved camera endpoints.
+
+Acceptance: route selection stays understandable and scalable without one handcrafted animation for every view combination.
+
+Bulk 25.2 verification: room topology now selects `direct`, `left-arc` or `right-arc` semantically in portrait and landscape, and exposes the active family for diagnostics. The already verified staged waypoint motion remains visually unchanged until Bulk 25.3. Production build, GitHub Pages subpath QA and the full Desktop/Mobile interaction matrix pass on 2026-09-28, including assertions for every route family.
+
+### Bulk 25.3 — Continuous cross-room choreography
+
+- [x] Replace the stop-and-restart hub sequence with one continuous curved movement.
+- [x] Keep navigation interruptible and avoid furniture, walls and unfinished sightlines.
+- [x] Verify every menu combination in portrait and landscape without changing Desktop endpoints.
+
+Acceptance: long navigation feels like one deliberate camera move rather than a return to the Studio overview followed by a second zoom.
+
+Bulk 25.3 verification: long Mobile routes now use one centripetal curve through the previously verified safe foreground corridor, with one shared ease instead of two stop-and-restart stages. Fast rerouting restarts from the live camera position, direct neighbors remain direct, and reduced-motion bypasses curved choreography. Production build, GitHub Pages subpath QA, local Browser review and the complete Desktop/Mobile interaction matrix pass on 2026-09-28, including normal-motion portrait/landscape corridor coverage and unchanged Desktop endpoints.
+
+### Bulk 25.4 — Studio discoverability and constrained look-around
+
+- [x] Add bounded horizontal press-drag camera panning to the Studio overview for mouse and touch.
+- [x] Distinguish taps from drags so existing work-area hotspots remain reliable.
+- [x] Add restrained, room-integrated Desktop wayfinding markers for Games, Web, Projects and Archive.
+- [x] Keep Mobile markers simplified or hidden when they would obscure the scene.
+
+Acceptance: visitors can inspect the overview without exposing unfinished geometry and can immediately recognize which studio areas are interactive.
+
+Bulk 25.4 checkpoint 1: Studio-only yaw is bounded to ±16° Desktop, ±32° portrait and ±22° landscape; position, lens and every focus/inspect endpoint remain unchanged. An 8 px tap/drag threshold, pointer capture, cancellation on Escape/blur/rotation and Studio-button recenter keep navigation reliable. Production build, Pages subpath QA, the existing responsive matrix and mouse/native-touch-event Studio regression pass on 2026-09-30. Physical-device review remains in Bulk 25.5.
+
+Bulk 25.4 checkpoint 2: four accessible labels follow projected room anchors, with restrained static arrow glow and edge arrows for cropped areas. They open the existing navigation, avoid intro/label overlaps and hide during transitions, detail/modal states and touch-only use. Updates share the existing render scheduler; no added animation loop, asset download or scene-quality reduction. Build, Pages and full responsive QA pass; dedicated discovery tests cover Desktop (1440 × 900 and 900 × 600), portrait, landscape and wide touch, including keyboard activation and hidden-focus states. Captures are in `docs/qa/current/studio-discovery/`. Bulk 25.4 is complete; physical OnePlus review and final interaction acceptance remain in Bulk 25.5.
+
+### Bulk 25.5 — Interaction polish regression and real-device review
+
+Pre-release navigation correction (2026-09-30): Web ↔ Projects now stays direct on the shared right wall regardless of the portrait camera-distance threshold. In Games preview the visible left monitor is raycastable again and returns directly to Game Select instead of falling through to the broad Games hotspot. Narrow portrait phones retain the explicit GAME SELECT return button when the left screen is outside the frame. `qa:navigation` verifies both directions, rapid reversal, two consecutive game selections and the correct project modal on Desktop, portrait, docked portrait, landscape and reduced motion; build, Pages and full responsive QA pass. Physical-device review below is still pending.
+
+Window trim correction (2026-09-30, local visual review): the five narrow Games window profiles now use a dedicated uniformly dark, unlit material to suppress pale side-face highlights. Geometry, skyline placement, glass, lighting and camera presets remain unchanged; material cleanup includes the new shared trim material. A matching 714 × 818 viewport / 780 px capture confirms the side strip is dark and the central mullion continuous. Build, Pages and the five-profile navigation suite pass. Before/after evidence is in `docs/qa/current/window-audit/`; visual acceptance on the user's device remains pending.
+
+- [ ] Run the full Desktop/Mobile matrix, rapid navigation, rotation, reduced-motion and modal tests.
+- [ ] Review portrait and landscape behavior on a physical phone.
+- [ ] Record final captures, performance measurements and remaining device-specific limitations.
+
+Acceptance: the complete interaction system is stable under fast input, orientation changes and both pointer types before release.
+
+### Bulk 26 — Release candidate, deployment and documentation
 
 - [ ] Run the complete Desktop/Mobile/browser regression matrix and dependency audit.
 - [ ] Verify the production bundle under the GitHub Pages `/basement/` subpath.
