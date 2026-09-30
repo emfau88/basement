@@ -398,7 +398,7 @@ export function buildGamesHero(
   // The backplate sits immediately behind the Games glazing and intentionally
   // overfills the clear aperture, so perspective can never expose its edges.
   const backdrop = new THREE.Mesh(new THREE.PlaneGeometry(6.72, 3.48), materials.backdrop)
-  backdrop.name = 'GamesWaterfrontBackdrop'
+  backdrop.name = 'GamesCastleBackdrop'
   backdrop.position.set(0, 2.72, -6.52)
   backdrop.receiveShadow = false
   root.add(backdrop)
