@@ -8,6 +8,7 @@ export function createRenderScheduler(options: {
   render(): void
   updateCamera(now: number): boolean
   updateScreens(now: number): boolean
+  updateEffects?(now: number): boolean
   screenIntervalMs?: number
 }): RenderScheduler {
   let frameId = 0
@@ -16,9 +17,10 @@ export function createRenderScheduler(options: {
   const frame = (now: number) => {
     frameId = 0
     const stillMoving = transitioning && options.updateCamera(now)
+    const effectsMoving = options.updateEffects?.(now) ?? false
     options.render()
     transitioning = stillMoving
-    if (stillMoving) frameId = requestAnimationFrame(frame)
+    if (stillMoving || effectsMoving) frameId = requestAnimationFrame(frame)
   }
   const requestRender = () => { if (!frameId && document.visibilityState !== 'hidden') frameId = requestAnimationFrame(frame) }
   const screenTimer = window.setInterval(() => {

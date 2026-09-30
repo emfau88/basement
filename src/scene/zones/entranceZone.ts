@@ -19,8 +19,9 @@ export function buildEntranceZone(materials: StudioMaterials, tools: SceneTools,
   const { addBox, group, point } = tools
 
   // Side-wall signs make the room legible from the entrance and support the bottom navigation.
-  const leftSign = group('ArchiveWayfinding', [-7.31, 0, -.15], [0, Math.PI / 2, 0])
-  addBox(leftSign, [1.86, .78, .055], [0, 3.68, 0], signMaterial(tools, 'archive', 'ARCHIVE  04', 'LOUNGE · RETIRED BUILDS  ←', '#b17757'), [0, 0, 0], .025)
+  // Share the cemetery's wall-axis center; retain the existing height and wall offset.
+  const leftSign = group('ArchiveWayfinding', [-7.31, 0, -1.08], [0, Math.PI / 2, 0])
+  addBox(leftSign, [1.86, .78, .055], [0, 3.68, 0], signMaterial(tools, 'archive', 'PROJECT ARCHIVE', 'PAST BUILDS · LESSONS LEARNED', '#b17757'), [0, 0, 0], .025)
   addBox(leftSign, [1.98, .9, .05], [0, 3.68, -.04], materials.concreteDark, [0, 0, 0], .035)
 
   // A compact entry beacon adds a human-scale welcome cue near the otherwise empty foreground.

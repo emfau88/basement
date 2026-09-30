@@ -121,10 +121,12 @@ export function createSceneTools(scene: THREE.Scene, materials: StudioMaterials,
       mesh.castShadow = true; mesh.receiveShadow = true; scene.add(mesh); return mesh
     },
     screen: (parent, width, height, position, title, subtitle, accent = '#7d9e84', rotation = [0, 0, 0]) => {
-      addBox(parent, [width + 0.14, height + 0.14, 0.095], position, materials.black, rotation, 0.045)
+      const frame = addBox(parent, [width + 0.14, height + 0.14, 0.095], position, materials.black, rotation, 0.045)
       const texture = screenTexture(title, subtitle, accent)
       const material = new THREE.MeshStandardMaterial({ map: texture, emissiveMap: texture, emissive: 0xffffff, emissiveIntensity: 0.88, roughness: 0.24, metalness: 0.02 })
-      return addBox(parent, [width, height, 0.026], [position[0], position[1], position[2] + 0.064], material, rotation, 0.014)
+      const display = addBox(parent, [width, height, 0.026], [position[0], position[1], position[2] + 0.064], material, rotation, 0.014)
+      display.userData.monitorFrame = frame
+      return display
     },
   }
 }

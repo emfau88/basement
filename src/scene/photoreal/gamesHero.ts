@@ -97,7 +97,7 @@ function addTypographyPoster(root: THREE.Group, materials: GamesHeroMaterials): 
     context.font = '800 78px Arial'
     context.textAlign = 'left'
     context.textBaseline = 'top'
-    for (const [line, y] of [['BETTER', 210], ['GAMES', 310], ['BRIGHTER', 410], ['PEOPLE.', 510]] as const) {
+    for (const [line, y] of [['WORK', 260], ['IN', 360], ['PROGRESS.', 460]] as const) {
       context.fillText(line, 62, y)
     }
     context.fillStyle = '#d9b66f'

@@ -106,7 +106,9 @@ box('leftCove',[.055,.035,3.0],[-5.03,4.90,-1.88],coveMaterial,[0,0,0],false,fal
 box('rightCove',[.055,.035,3.0],[5.03,4.90,-1.88],coveMaterial,[0,0,0],false,false,.01);
 
 /* track lights */
-const track=group('TrackLights',[0,0,0]);
+// Keep the decorative track in front of the Games sign's Studio sightline.
+// Actual area lights below are separate and intentionally stay put.
+const track=group('TrackLights',[0,0,3.3]);
 addBox(track,[9.45,.055,.07],[0,4.82,-2.08],M.black);
 for(let i=0;i<7;i++){
   const x=-4.4+i*1.45;

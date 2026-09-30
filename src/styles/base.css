@@ -231,22 +231,30 @@ body.focus .studio-look-hint,body.camera-moving .studio-look-hint,body.project-o
 .studio-wayfinding{position:fixed;inset:0;z-index:13;pointer-events:none}
 .studio-wayfinding[hidden],body.focus .studio-wayfinding,body.camera-moving .studio-wayfinding,body.project-open .studio-wayfinding{display:none}
 .studio-marker{
-  position:absolute;display:flex;align-items:center;gap:7px;transform:translate(-50%,-50%);
-  min-height:36px;padding:7px 12px 7px 8px;border:1px solid rgba(248,246,240,.35);border-radius:10px;
-  background:rgba(26,31,29,.86);color:#f5f2e9;box-shadow:0 4px 14px rgba(20,24,21,.2);
-  font-size:9px;font-weight:750;letter-spacing:.12em;text-transform:uppercase;white-space:nowrap;
-  cursor:pointer;pointer-events:auto;transition:background .15s ease,box-shadow .15s ease
+  position:absolute;display:flex;align-items:center;gap:9px;transform:translate(-50%,-50%);
+  min-height:40px;padding:8px 15px 8px 9px;border:1px solid rgba(26,31,29,.24);border-radius:999px;
+  background:#eeeae1;color:#252c28;box-shadow:0 4px 14px rgba(20,24,21,.16),inset 0 1px rgba(255,255,255,.65);
+  font-size:10px;font-weight:750;line-height:1;letter-spacing:.1em;text-transform:uppercase;white-space:nowrap;
+  cursor:pointer;pointer-events:auto;transition:background .18s ease,border-color .18s ease,box-shadow .18s ease
 }
 .studio-marker[hidden]{display:none}
 .studio-marker-arrow{
-  display:grid;place-items:center;width:20px;height:20px;border-radius:50%;
-  color:var(--marker-accent);background:rgba(248,246,240,.08);font-size:16px;
-  text-shadow:0 0 7px var(--marker-accent)
+  display:grid;place-items:center;flex:none;width:22px;height:22px;border-radius:50%;
+  color:var(--marker-accent);background:#252c28;transition:background .18s ease
 }
-.studio-marker::after{content:"";position:absolute;left:50%;top:100%;height:12px;border-left:1px solid var(--marker-accent);opacity:.65;pointer-events:none}
+.studio-marker-arrow svg{display:block}
+.studio-marker[data-direction="left"] .studio-marker-arrow svg{transform:rotate(90deg)}
+.studio-marker[data-direction="right"] .studio-marker-arrow svg{transform:rotate(-90deg)}
+.studio-marker::after{content:"";position:absolute;left:50%;top:100%;height:12px;border-left:1px solid rgba(37,44,40,.55);pointer-events:none}
 .studio-marker[data-edge="true"]::after{display:none}
-.studio-marker:hover{background:#1a1f1d;box-shadow:0 0 12px color-mix(in srgb,var(--marker-accent) 30%,transparent)}
-.studio-marker:focus-visible{outline:2px solid var(--marker-accent);outline-offset:4px}
+.studio-marker:hover,.studio-marker:focus-visible,.studio-marker.is-active{
+  background:#f8f5ed;border-color:color-mix(in srgb,var(--marker-accent) 60%,#252c28);
+  box-shadow:0 6px 18px rgba(20,24,21,.2),inset 0 1px rgba(255,255,255,.7)
+}
+.studio-marker:hover .studio-marker-arrow,.studio-marker:focus-visible .studio-marker-arrow,.studio-marker.is-active .studio-marker-arrow{background:#38423b}
+.studio-marker:focus-visible{outline:2px solid #252c28;outline-offset:3px}
+.studio-marker:active{background:#e2ded4}
+@media(prefers-reduced-motion:reduce){.studio-marker,.studio-marker-arrow{transition:none}}
 .sound{
   position:fixed;z-index:25;right:22px;bottom:22px;border:1px solid rgba(26,31,29,.14);
   background:rgba(248,246,240,.74);color:#7b827e;border-radius:10px;padding:8px 10px;
