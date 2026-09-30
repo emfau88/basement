@@ -565,6 +565,8 @@ Bulk 25.4 checkpoint 2: four accessible labels follow projected room anchors, wi
 
 Pre-release navigation correction (2026-09-30): Web ↔ Projects now stays direct on the shared right wall regardless of the portrait camera-distance threshold. In Games preview the visible left monitor is raycastable again and returns directly to Game Select instead of falling through to the broad Games hotspot. Narrow portrait phones retain the explicit GAME SELECT return button when the left screen is outside the frame. `qa:navigation` verifies both directions, rapid reversal, two consecutive game selections and the correct project modal on Desktop, portrait, docked portrait, landscape and reduced motion; build, Pages and full responsive QA pass. Physical-device review below is still pending.
 
+Window trim correction (2026-09-30, local visual review): the five narrow Games window profiles now use a dedicated uniformly dark, unlit material to suppress pale side-face highlights. Geometry, skyline placement, glass, lighting and camera presets remain unchanged; material cleanup includes the new shared trim material. A matching 714 × 818 viewport / 780 px capture confirms the side strip is dark and the central mullion continuous. Build, Pages and the five-profile navigation suite pass. Before/after evidence is in `docs/qa/current/window-audit/`; visual acceptance on the user's device remains pending.
+
 - [ ] Run the full Desktop/Mobile matrix, rapid navigation, rotation, reduced-motion and modal tests.
 - [ ] Review portrait and landscape behavior on a physical phone.
 - [ ] Record final captures, performance measurements and remaining device-specific limitations.

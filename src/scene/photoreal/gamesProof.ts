@@ -31,6 +31,7 @@ interface MaterialSet {
   chairMesh: THREE.MeshStandardMaterial
   mug: THREE.MeshStandardMaterial
   backdrop: THREE.MeshBasicMaterial
+  windowTrim: THREE.MeshBasicMaterial
   sofaWeave: THREE.Texture
   ownedTextures: THREE.Texture[]
 }
@@ -246,7 +247,11 @@ async function loadMaterialSet(assets: AssetManager, anisotropy: number, desktop
   }
 
   const backdrop = new THREE.MeshBasicMaterial({ map: backdropTexture, color: 0xffffff, toneMapped: false, fog: false })
-  return { concrete, walnut, graphite, floor, rug, upholstery, chairMesh, mug, backdrop, sofaWeave, ownedTextures }
+  // Narrow window profiles need a stable dark silhouette. Lit metallic sides
+  // caught the window fill and read as stray pale strips in the preview camera.
+  // Keep their authored geometry, but remove lighting/reflection highlights.
+  const windowTrim = new THREE.MeshBasicMaterial({ color: 0x111413, toneMapped: false })
+  return { concrete, walnut, graphite, floor, rug, upholstery, chairMesh, mug, backdrop, windowTrim, sofaWeave, ownedTextures }
 }
 
 function addRoundedBox(root: THREE.Group, name: string, size: readonly [number, number, number], position: readonly [number, number, number], material: THREE.Material, radius: number, segments: number): THREE.Mesh {
@@ -275,10 +280,10 @@ function buildShell(materials: MaterialSet, budget: SceneDetailBudget): THREE.Gr
   addRoundedBox(root, 'ConcreteSill', [7.35, 0.23, 0.66], [0, 0.94, -6.33], materials.concrete, 0.035, segments)
 
   for (const x of [-3.06, 0, 3.06]) {
-    addRoundedBox(root, 'DeepWindowMullion', [0.075, 3.48, 0.24], [x, 2.72, -5.94], materials.graphite, 0.012, 2)
+    addRoundedBox(root, 'DeepWindowMullion', [0.075, 3.48, 0.24], [x, 2.72, -5.94], materials.windowTrim, 0.012, 2)
   }
-  addRoundedBox(root, 'WindowHeadCasing', [6.2, 0.075, 0.24], [0, 4.43, -5.94], materials.graphite, 0.012, 2)
-  addRoundedBox(root, 'WindowSillCasing', [6.2, 0.075, 0.24], [0, 1.02, -5.94], materials.graphite, 0.012, 2)
+  addRoundedBox(root, 'WindowHeadCasing', [6.2, 0.075, 0.24], [0, 4.43, -5.94], materials.windowTrim, 0.012, 2)
+  addRoundedBox(root, 'WindowSillCasing', [6.2, 0.075, 0.24], [0, 1.02, -5.94], materials.windowTrim, 0.012, 2)
 
   const canopy = addRoundedBox(root, 'GamesCeilingCanopy', [7.1, 0.16, 2.0], [0, 5.0, -4.94], materials.graphite, 0.045, segments)
   canopy.castShadow = false
@@ -435,6 +440,7 @@ export async function createGamesPhotorealProof(options: GamesProofOptions): Pro
       materials.chairMesh.dispose()
       materials.mug.dispose()
       materials.backdrop.dispose()
+      materials.windowTrim.dispose()
       for (const texture of materials.ownedTextures) texture.dispose()
     },
   }
