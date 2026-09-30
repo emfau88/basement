@@ -62,7 +62,10 @@ export function buildGamesZone(materials: StudioMaterials, tools: SceneTools, bu
 
   // Warm layered counter: oak worktop, dark structural frame and a fine light reveal.
   const desk = group('MainDesk', [0, 0, -3.45])
-  addBox(desk, [5.26, .19, 1.55], [0, 1.1, 0], materials.oakDark, [0, 0, 0], .065)
+  const desktop = addBox(desk, [5.26, .19, 1.55], [0, 1.1, 0], materials.oakDark, [0, 0, 0], .065)
+  // The photoreal worktop sits 2.5 cm above this structural top. Keep its
+  // hover rim surface-mounted in both the authored and enhanced scene.
+  desktop.userData.studioHighlight = { view: 'games', face: 'top', radius: .065, surfaceOffset: .031 }
   addBox(desk, [5.04, .08, 1.35], [0, .98, 0], materials.graphite, [0, 0, 0], .035)
   for (const x of [-2.16, 2.16]) {
     addBox(desk, [.14, 1.02, .14], [x, .49, -.5], materials.graphite, [0, 0, x < 0 ? -.045 : .045], .022)
@@ -84,6 +87,9 @@ export function buildGamesZone(materials: StudioMaterials, tools: SceneTools, bu
 
   const rightMonitor = group('RightMonitor', [1.78, -.02, -3.31], [0, -.2, 0])
   const gameRightScreen = screen(rightMonitor, 1.22, .76, [0, 1.91, -.19], 'SHIP', 'release / test', '#bda45c')
+  for (const display of [gameMainScreen, gameLeftScreen, gameRightScreen]) {
+    display.userData.monitorFrame.userData.studioHighlight = { view: 'games', face: 'front', radius: .045 }
+  }
   addBox(rightMonitor, [.065, .55, .065], [0, 1.49, -.23], materials.graphite)
   addBox(rightMonitor, [.56, .045, .26], [0, 1.26, -.2], materials.graphite, [0, 0, 0], .02)
 

@@ -127,6 +127,7 @@ export function buildArchiveZone(materials: StudioMaterials, tools: SceneTools, 
   for (const x of [-.98, .98]) for (const z of [.04, .4]) addCylinder(memorial, .035, .045, .28, [x, .16, z], darkMetal, [0, 0, 0], 16)
   addBox(memorial, [2.44, 2.34, .1], [0, 2.02, -.02], darkMetal, [0, 0, 0], .055)
   const memorialFrame = addBox(memorial, [2.22, 1.34, .075], [0, 2.15, .075], wood, [0, 0, 0], .045)
+  memorialFrame.userData.studioHighlight = { view: 'archive', face: 'front', radius: .045 }
   memorialFrame.userData.surfaceMaterial = 'walnut'
   addBox(memorial, [2.1, 1.22, .04], [0, 2.15, .135], materials.black, [0, 0, 0], .028)
   const archiveScreen = addBox(memorial, [2.02, 1.14, .018], [0, 2.15, .168], materials.black, [0, 0, 0], .02)

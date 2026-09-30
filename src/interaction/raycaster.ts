@@ -7,6 +7,7 @@ import type { StudioStore, StudioView } from '../state/studioState'
 import type { ProjectModal } from '../ui/projectModal'
 import type { Hotspot } from './hotspots'
 import { isMobileViewport } from '../config/responsive'
+import type { WorkArea } from './studioHighlights'
 
 interface Options {
   canvas: HTMLCanvasElement
@@ -25,6 +26,9 @@ interface Options {
   isCameraMoving(): boolean
   panStudio(horizontalFraction: number): void
   requestRender(): void
+  studioTargets: THREE.Mesh[]
+  setStudioHover(view: WorkArea | null): void
+  clearStudioHover(): void
 }
 
 export function createRaycaster(options: Options): { cancelGesture(): void; destroy(): void } {
@@ -41,10 +45,20 @@ export function createRaycaster(options: Options): { cancelGesture(): void; dest
   meshes.archiveScreen.userData = { ...meshes.archiveScreen.userData, section: 'archive', detailLabel: 'Zoom into cemetery', getProjectKey: () => screens.getArchiveProject() }
 
   const clearPointerFeedback = () => {
+    options.setStudioHover(null)
     const changed = projectWall.setHover(null)
     document.body.style.cursor = 'default'
     tooltip.classList.remove('show')
     if (changed) options.requestRender()
+  }
+  // Physical frames/screens complement the legacy generous hotspot volumes.
+  // Hover and activation share this resolver so the highlighted area really opens.
+  const studioAreaHit = (): WorkArea | null => {
+    const hit = raycaster.intersectObjects([...detailMeshes, ...options.studioTargets, ...hotspots], false)[0]
+    if (!hit) return null
+    const data = hit.object.userData
+    const view = data.studioHighlight?.view ?? data.section ?? data.view
+    return ['games', 'web', 'projects', 'archive'].includes(view) ? view as WorkArea : null
   }
 
   const updatePointer = (event: PointerEvent) => {
@@ -78,6 +92,7 @@ export function createRaycaster(options: Options): { cancelGesture(): void; dest
       const vertical = event.clientY - gesture.startY
       if (!gesture.dragged && Math.hypot(horizontal, vertical) >= 8) {
         gesture.dragged = true
+        options.clearStudioHover()
         clearPointerFeedback()
         canvas.classList.add('studio-dragging')
         options.panStudio(horizontal / canvas.getBoundingClientRect().width)
@@ -91,6 +106,13 @@ export function createRaycaster(options: Options): { cancelGesture(): void; dest
     if (event.target !== canvas || store.get().openProjectId) { clearPointerFeedback(); return }
     if (options.isCameraMoving()) { clearPointerFeedback(); return }
     updatePointer(event); raycaster.setFromCamera(pointer, camera)
+    if (store.get().view === 'studio') {
+      const view = studioAreaHit()
+      options.setStudioHover(view)
+      document.body.style.cursor = view ? 'pointer' : 'grab'
+      tooltip.classList.remove('show')
+      return
+    }
     const hit = detailHit()
     if (hit) {
       const mesh = hit.object as THREE.Mesh; const changed = projectWall.setHover(store.get().view === 'projects' && meshes.projectCardMeshes.includes(mesh) ? mesh : null)
@@ -116,6 +138,11 @@ export function createRaycaster(options: Options): { cancelGesture(): void; dest
     }
     if (options.isCameraMoving()) { clearPointerFeedback(); return }
     updatePointer(event); raycaster.setFromCamera(pointer, camera)
+    if (store.get().view === 'studio') {
+      const view = studioAreaHit()
+      if (view) options.navigate(view)
+      return
+    }
     const hit = detailHit()
     if (hit) {
       const mesh = hit.object as THREE.Mesh; const state = store.get()
@@ -171,6 +198,8 @@ export function createRaycaster(options: Options): { cancelGesture(): void; dest
   canvas.addEventListener('pointerdown', onPointerDown)
   canvas.addEventListener('pointerup', onPointerUp)
   canvas.addEventListener('pointercancel', onPointerCancel)
+  const onPointerLeave = () => { if (!gesture) clearPointerFeedback() }
+  canvas.addEventListener('pointerleave', onPointerLeave)
   canvas.addEventListener('lostpointercapture', onPointerCancel)
   window.addEventListener('blur', cancelGesture)
   const onVisibility = () => { if (document.hidden) cancelGesture() }
@@ -186,6 +215,7 @@ export function createRaycaster(options: Options): { cancelGesture(): void; dest
       canvas.removeEventListener('pointerdown', onPointerDown)
       canvas.removeEventListener('pointerup', onPointerUp)
       canvas.removeEventListener('pointercancel', onPointerCancel)
+      canvas.removeEventListener('pointerleave', onPointerLeave)
       canvas.removeEventListener('lostpointercapture', onPointerCancel)
     },
   }

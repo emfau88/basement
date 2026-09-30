@@ -1,16 +1,17 @@
 import * as THREE from 'three'
 import { isMobileViewport } from '../config/responsive'
 import type { StudioStore, StudioView } from '../state/studioState'
+import { studioAccent } from '../interaction/studioHighlights'
 
 type WorkArea = Exclude<StudioView, 'studio'>
 
 // Anchor labels to the authored work areas, not to fixed screen coordinates.
 // An edge arrow also makes the cropped Projects wall discoverable on overview.
-const anchors: { view: WorkArea; position: readonly [number, number, number]; accent: string }[] = [
-  { view: 'games', position: [0, 3.1, -3.65], accent: '#d9c57e' },
-  { view: 'web', position: [6.9, 3.35, -3.88], accent: '#9fc6c8' },
-  { view: 'projects', position: [6.9, 3.1, 2.05], accent: '#d9a18a' },
-  { view: 'archive', position: [-7.15, 2.65, -1.08], accent: '#b6c5a9' },
+const anchors: { view: WorkArea; position: readonly [number, number, number] }[] = [
+  { view: 'games', position: [0, 3.1, -3.65] },
+  { view: 'web', position: [6.9, 3.35, -3.88] },
+  { view: 'projects', position: [6.9, 3.1, 2.05] },
+  { view: 'archive', position: [-7.15, 2.65, -1.08] },
 ]
 
 export function createStudioWayfinding(options: {
@@ -19,20 +20,21 @@ export function createStudioWayfinding(options: {
   store: StudioStore
   navigate(view: StudioView): void
   isCameraMoving(): boolean
-}): { update(): void; destroy(): void } {
+  setHighlight(source: 'pill' | 'focus', view: WorkArea | null): void
+}): { update(): void; setActive(view: WorkArea | null): void; destroy(): void } {
   const root = document.createElement('nav')
   root.className = 'studio-wayfinding'
   root.setAttribute('aria-label', 'Studio work areas')
   root.hidden = true
   const projected = new THREE.Vector3()
   const intro = document.querySelector<HTMLElement>('.intro')
-  const markers = anchors.map(({ view, position, accent }) => {
+  const markers = anchors.map(({ view, position }) => {
     const button = document.createElement('button')
     button.type = 'button'
     button.className = 'studio-marker'
     button.dataset.view = view
     button.setAttribute('aria-label', `Explore ${view.charAt(0).toUpperCase()}${view.slice(1)}`)
-    button.style.setProperty('--marker-accent', accent)
+    button.style.setProperty('--marker-accent', studioAccent[view])
     const arrow = document.createElement('span')
     arrow.className = 'studio-marker-arrow'
     arrow.setAttribute('aria-hidden', 'true')
@@ -57,8 +59,14 @@ export function createStudioWayfinding(options: {
       if (!root.hidden && !options.isCameraMoving() && options.store.get().view === 'studio' && !options.store.get().openProjectId) options.navigate(view)
     }
     button.addEventListener('click', activate)
+    const enter = (event: PointerEvent) => { if (event.pointerType !== 'touch') options.setHighlight('pill', view) }
+    const leave = () => options.setHighlight('pill', null)
+    const focus = () => { if (button.matches(':focus-visible')) options.setHighlight('focus', view) }
+    const blur = () => options.setHighlight('focus', null)
+    button.addEventListener('pointerenter', enter); button.addEventListener('pointerleave', leave)
+    button.addEventListener('focus', focus); button.addEventListener('blur', blur)
     root.append(button)
-    return { button, position: new THREE.Vector3(...position), activate }
+    return { button, position: new THREE.Vector3(...position), activate, enter, leave, focus, blur }
   })
   document.body.append(root)
 
@@ -95,9 +103,14 @@ export function createStudioWayfinding(options: {
   const unsubscribe = options.store.subscribe(update)
   return {
     update,
+    setActive: (view) => markers.forEach(({ button }) => button.classList.toggle('is-active', button.dataset.view === view)),
     destroy: () => {
       unsubscribe()
-      markers.forEach(({ button, activate }) => button.removeEventListener('click', activate))
+      markers.forEach(({ button, activate, enter, leave, focus, blur }) => {
+        button.removeEventListener('click', activate)
+        button.removeEventListener('pointerenter', enter); button.removeEventListener('pointerleave', leave)
+        button.removeEventListener('focus', focus); button.removeEventListener('blur', blur)
+      })
       root.remove()
     },
   }

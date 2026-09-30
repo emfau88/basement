@@ -45,6 +45,8 @@ try {
     const end = [profile.width * .1, profile.height * .52]
     const markers = page.locator('.studio-marker:visible')
     assert(await markers.count() === (profile.touch ? 0 : 4), `${profile.name}: unexpected marker visibility`)
+    assert(await page.locator('canvas').getAttribute('data-studio-highlight-targets') === '7', `${profile.name}: authored highlight targets are missing`)
+    assert(await page.locator('canvas').getAttribute('data-studio-hover') === '', `${profile.name}: highlight started active`)
     if (!profile.touch) {
       const iconStates = await markers.evaluateAll((buttons) => buttons.map((button) => ({
         direction: button.dataset.direction,
@@ -65,16 +67,24 @@ try {
       const gamesMarker = page.locator('.studio-marker[data-view="games"]')
       const restingBounds = await gamesMarker.boundingBox()
       await gamesMarker.hover()
+      assert(await page.locator('canvas').getAttribute('data-studio-hover') === 'games', `${profile.name}: pill hover did not select the Games frame`)
+      assert(await page.locator('.studio-marker.is-active').count() === 1, `${profile.name}: more than one pill was highlighted`)
       await page.screenshot({ path: path.join(outputDirectory, `${profile.name}-marker-hover.png`) })
       const hoveredBounds = await gamesMarker.boundingBox()
       assert(JSON.stringify(restingBounds) === JSON.stringify(hoveredBounds), `${profile.name}: marker moved on hover`)
       assert(await page.locator('body').evaluate((body) => body.classList.contains('view-studio')), `${profile.name}: marker hover navigated the camera`)
+      await page.mouse.move(profile.width * .5, profile.height * .45)
+      assert(await page.locator('canvas').getAttribute('data-studio-hover') === 'games', `${profile.name}: physical Games screen did not share pill hover`)
+      await page.screenshot({ path: path.join(outputDirectory, `${profile.name}-scene-hover.png`) })
       await page.mouse.move(5, profile.height - 5)
+      assert(await page.locator('canvas').getAttribute('data-studio-hover') === '', `${profile.name}: scene hover was not cleared`)
       await gamesMarker.focus()
+      assert(await page.locator('canvas').getAttribute('data-studio-hover') === 'games', `${profile.name}: keyboard focus did not highlight the same area`)
       const focusOutline = await gamesMarker.evaluate((button) => ({ width: getComputedStyle(button).outlineWidth, style: getComputedStyle(button).outlineStyle }))
       assert(focusOutline.width === '2px' && focusOutline.style === 'solid', `${profile.name}: keyboard focus is not visible`)
       await page.screenshot({ path: path.join(outputDirectory, `${profile.name}-marker-focus.png`) })
       await page.keyboard.press('Escape'); await waitForCamera(page)
+      assert(await page.locator('canvas').getAttribute('data-studio-hover') === '', `${profile.name}: Escape retained its highlight`)
       const boxes = await markers.evaluateAll((buttons) => buttons.map((button) => {
         const { left, top, right, bottom } = button.getBoundingClientRect()
         return { left, top, right, bottom }
@@ -85,16 +95,22 @@ try {
       }
       for (const view of ['games', 'web', 'projects', 'archive']) {
         const marker = page.locator(`.studio-marker[data-view="${view}"]`)
+        await marker.hover()
+        assert(await page.locator('canvas').getAttribute('data-studio-hover') === view, `${profile.name}: ${view} pill highlighted the wrong area`)
+        assert(await page.locator('.studio-marker.is-active').count() === 1, `${profile.name}: multiple work areas highlighted`)
+        await page.screenshot({ path: path.join(outputDirectory, `${profile.name}-${view}-highlight.png`) })
         if (view === 'archive') { await marker.focus(); await page.keyboard.press('Enter') }
         else await marker.click()
         await waitForCamera(page)
         assert(await page.locator('body').evaluate((body, view) => body.classList.contains(`view-${view}`), view), `Desktop ${view} marker opened the wrong area`)
         assert(await page.locator('.studio-marker:visible').count() === 0, 'Markers remained visible in focus view')
+        assert(await page.locator('canvas').getAttribute('data-studio-hover') === '', `${profile.name}: highlight survived navigation`)
         await page.locator('.nav button[data-view="studio"]').click(); await waitForCamera(page)
       }
     }
     await page.screenshot({ path: path.join(outputDirectory, `${profile.name}-center.png`) })
     await drag(start, end)
+    assert(await page.locator('canvas').getAttribute('data-studio-hover') === '', `${profile.name}: drag retained a highlight`)
     assert(await page.locator('body').evaluate((body) => body.classList.contains('view-studio')), `${profile.name}: drag accidentally opened a room`)
     assert(Math.abs(await yaw(page) + profile.limit * Math.PI / 180) < .001, `${profile.name}: rightward look was not clamped`)
     assert(!(await page.locator('canvas').evaluate((canvas) => canvas.classList.contains('studio-dragging'))), `${profile.name}: drag state stuck after release`)

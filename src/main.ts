@@ -23,6 +23,7 @@ import { isMobileViewport } from './config/responsive'
 import { createWebGLRecoveryUI } from './ui/webglRecovery'
 import { createStartupLoader } from './ui/startupLoader'
 import { createStudioWayfinding } from './ui/studioWayfinding'
+import { createStudioHighlights } from './interaction/studioHighlights'
 
 const app = requiredElement<HTMLElement>('app')
 const loader = requiredElement<HTMLElement>('loader')
@@ -139,6 +140,7 @@ try {
   const usesGamesProof = (_view: StudioView): boolean => true
 
   const clearInteractionFeedback = () => {
+    studioHighlights.clear()
     projectWall.setHover(null)
     tooltip.classList.remove('show')
     document.body.style.cursor = 'default'
@@ -220,7 +222,9 @@ try {
   }
 
   const navigation = createNavigationUI(store, navigate, enterArchiveInspect)
-  const wayfinding = createStudioWayfinding({ camera: rendering.camera, canvas: rendering.renderer.domElement, store, navigate, isCameraMoving: () => cameraController.isMoving() })
+  const studioHighlights = createStudioHighlights({ scene: rendering.scene, canvas: rendering.renderer.domElement, store, isCameraMoving: () => cameraController.isMoving(), requestRender: () => scheduler?.requestRender() })
+  const wayfinding = createStudioWayfinding({ camera: rendering.camera, canvas: rendering.renderer.domElement, store, navigate, isCameraMoving: () => cameraController.isMoving(), setHighlight: studioHighlights.set })
+  const unsubscribeStudioHighlight = studioHighlights.subscribe(wayfinding.setActive)
   inspectBack.addEventListener('click', backFromInspect)
   createAmbientAudio()
 
@@ -235,6 +239,7 @@ try {
       return moving
     },
     updateScreens: (now) => screens.update(now),
+    updateEffects: (now) => studioHighlights.update(now),
     screenIntervalMs: rendering.quality.screenIntervalMs,
   })
   rendering.renderer.domElement.dataset.quality = rendering.quality.name
@@ -292,6 +297,7 @@ try {
     cameraController.adaptToSheet(state.view, state.mobileSheet); beginCameraTransition()
   })
   const interaction = createRaycaster({ canvas: rendering.renderer.domElement, camera: rendering.camera, meshes, hotspots, screens, projectWall, store, modal, tooltip, navigate, enterGameInspect, enterGamePreview, enterArchiveInspect, isCameraMoving: () => cameraController.isMoving(), requestRender: scheduler.requestRender,
+    studioTargets: studioHighlights.targets, setStudioHover: (view) => studioHighlights.set('scene', view), clearStudioHover: studioHighlights.clear,
     panStudio: (horizontalFraction) => {
       rendering.renderer.domElement.dataset.studioYaw = String(cameraController.panStudio(horizontalFraction))
       clearInteractionFeedback(); scheduler.requestRender()
@@ -301,6 +307,7 @@ try {
   window.addEventListener('keydown', (event) => {
     if (event.key !== 'Escape') return
     interaction.cancelGesture()
+    studioHighlights.clear()
     if (modal.isOpen()) modal.close()
     else if (store.get().inspectMode) backFromInspect()
     else if (store.get().mobileSheet === 'expanded') store.set({ mobileSheet: 'collapsed' })
@@ -314,7 +321,7 @@ try {
     rendering.resize(); syncScreenFidelity(); cameraController.resize(state.view, state.inspectMode, state.mobileSheet); scheduler.requestRender()
   })
   window.addEventListener('pagehide', () => {
-    interaction.destroy(); wayfinding.destroy(); viewport.destroy(); mobileControls.destroy(); navigation.destroy(); unsubscribeCameraLayout(); scheduler.destroy(); gamesProof?.dispose(); assetManager?.dispose()
+    interaction.destroy(); unsubscribeStudioHighlight(); studioHighlights.destroy(); wayfinding.destroy(); viewport.destroy(); mobileControls.destroy(); navigation.destroy(); unsubscribeCameraLayout(); scheduler.destroy(); gamesProof?.dispose(); assetManager?.dispose()
   }, { once: true })
 
   rendering.scene.traverse((object) => {

@@ -72,7 +72,8 @@ export function buildWebZone(materials: StudioMaterials, tools: SceneTools, budg
   // One wall-integrated product console replaces the former cross-room desk.
   // The screens remain separate meshes so preview and selector interactions do not change.
   const web = group('WebInstallation', [7.20, 0, -3.08], [0, -Math.PI / 2, 0])
-  addBox(web, [4.86, 3.82, .18], [0, 2.61, 0], materials.concreteDark, [0, 0, 0], .065)
+  const surround = addBox(web, [4.86, 3.82, .18], [0, 2.61, 0], materials.concreteDark, [0, 0, 0], .065)
+  surround.userData.studioHighlight = { view: 'web', face: 'front', radius: .065 }
   addBox(web, [4.55, 3.47, .07], [0, 2.55, .13], materials.graphite, [0, 0, 0], .045)
   addBox(web, [4.25, 2.16, .055], [0, 2.64, .205], materials.graphite2, [0, 0, 0], .035)
 

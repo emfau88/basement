@@ -564,12 +564,14 @@ Bulk 25.4 checkpoint 2: four accessible labels follow projected room anchors, wi
 ### Wayfinding refinement — approved three-bulk extension
 
 - [x] Bulk 1: matte navigation-matched pills, consistent vector arrows, restrained hover and visible keyboard focus; preserve room anchors, edge directions, activation and Mobile visibility rules.
-- [ ] Bulk 2: shared pill/scene hover and focus state with subtle highlights on authored zone frames, never the invisible hotspot boxes; clear highlights during navigation, dragging and modal use.
+- [x] Bulk 2: shared pill/scene hover and focus state with subtle highlights on authored zone frames, never the invisible hotspot boxes; clear highlights during navigation, dragging and modal use.
 - [ ] Bulk 3: final Desktop framing/interaction/performance comparison and Mobile non-regression review, with before/after captures.
 
-Scope: no camera, asset or scene-quality change in Bulk 1. Each completed bulk receives a separate reversible commit; room highlighting remains unimplemented until Bulk 2 is approved.
+Scope: no camera, asset or scene-quality change in Bulk 1. Each completed bulk receives a separate reversible commit.
 
 Bulk 1 verification (2026-09-30): production build/TypeScript, Pages subpath QA and Studio discovery QA pass. The five-profile matrix covers Desktop 1440 × 900, compact Desktop 900 × 600, portrait, landscape and wide touch. Additional checks verify non-focusable decorative SVGs, preserved edge arrows, matte/no-glow styling, reduced-motion support, stable hover bounds, visible keyboard focus and no navigation on hover. Before captures are in `docs/qa/current/wayfinding-pills/before/`; after, hover and focus captures are in `docs/qa/current/studio-discovery/`. No new assets, animation loop, scene geometry or camera changes; physical-phone acceptance remains pending.
+
+Bulk 2 verification (2026-09-30): the four pills and their authored room frames share one hover/focus state. The Games desk/monitor group, Web surround, Projects board and Archive memorial use thin surface-mounted outlines rather than hotspot boxes or full-screen post-processing. Highlights clear on navigation, Escape, dragging, modal use and touch-only layouts. Production build/TypeScript, Pages subpath QA, Studio discovery QA and the full Mobile interaction QA pass; the user also confirmed the highlighting is visible in the local browser. Captures are in `docs/qa/current/studio-discovery/`. Bulk 3 remains separate.
 
 ### Bulk 25.5 — Interaction polish regression and real-device review
 

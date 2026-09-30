@@ -78,7 +78,8 @@ export function buildProjectsZone(materials: StudioMaterials, tools: SceneTools,
   addBox(bench, [2.9, .022, .032], [0, .86, .49], accent, [0, 0, 0], .008)
 
   const board = group('ProjectBoard', [7.25, 0, zoneZ], [0, -Math.PI / 2, 0])
-  addBox(board, [3.72, 3.38, .09], [0, 2.58, 0], materials.concreteDark, [0, 0, 0], .05)
+  const surround = addBox(board, [3.72, 3.38, .09], [0, 2.58, 0], materials.concreteDark, [0, 0, 0], .05)
+  surround.userData.studioHighlight = { view: 'projects', face: 'front', radius: .05 }
   addBox(board, [3.45, 3.08, .065], [0, 2.48, .08], materials.white, [0, 0, 0], .04)
   addBox(board, [2.72, .4, .045], [0, 4.04, .125], projectWallMaterial(tools), [0, 0, 0], .025)
   // The terracotta rails sit outside the card footprints as an inset gallery detail.
