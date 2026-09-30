@@ -6,9 +6,11 @@ import type { SceneDetailBudget } from '../assets/detailBudget'
 import type { RenderQualityProfile } from '../../performance/deviceProfile'
 import type { StudioMaterials } from '../materials'
 import { buildGamesHero } from './gamesHero'
+import { createWindowClouds } from './windowClouds'
 
 export interface GamesProofController {
   setActive(active: boolean): void
+  updateClouds(now: number, visibleView: boolean): boolean
   dispose(): void
 }
 
@@ -141,7 +143,8 @@ async function loadMaterialSet(assets: AssetManager, anisotropy: number, desktop
     assets.loadTexture(`${concreteRoot}basecolor.webp`, 'baseColor', anisotropy),
     assets.loadTexture(`${concreteRoot}normal-gl.webp`, 'normal', anisotropy),
     assets.loadTexture(`${concreteRoot}arm.webp`, 'roughness', anisotropy),
-    assets.loadTexture(`${ASSET_ROOT}backdrops/waterfront-city.webp`, 'baseColor', anisotropy),
+    assets.loadTexture(`${ASSET_ROOT}backdrops/castle-clear.webp`, 'baseColor', anisotropy)
+      .catch(() => assets.loadTexture(`${ASSET_ROOT}backdrops/waterfront-city.webp`, 'baseColor', anisotropy)),
   ])
   repeat(concreteColor, 1.6, 1.6)
   repeat(concreteNormal, 1.6, 1.6)
@@ -355,18 +358,22 @@ export async function createGamesPhotorealProof(options: GamesProofOptions): Pro
   // lighting, pixel density and geometry budgets rather than replacing the
   // authored hero props with visibly different stand-ins.
   const legacyWindowLayers = collectLegacyWindowLayers(scene)
-  const [materials, leftHeroPlant, rightHeroPlant, keyboardMouse, archiveSofa] = await Promise.all([
+  const [materials, leftHeroPlant, rightHeroPlant, keyboardMouse, archiveSofa, cloudAtlas] = await Promise.all([
     loadMaterialSet(assets, budget.textureAnisotropy, desktop),
     assets.loadModel(`${ASSET_ROOT}models/potted-plant-02.glb`).then((model) => model.root).catch(() => null),
     assets.loadModel(`${ASSET_ROOT}models/potted-plant-02.glb`).then((model) => model.root).catch(() => null),
     assets.loadModel(`${ASSET_ROOT}models/keyboard-mouse.glb`).then((model) => model.root).catch(() => null),
     assets.loadModel(`${SHARED_ASSET_ROOT}models/archive-sofa.glb`).then((model) => model.root).catch(() => null),
+    assets.loadTexture(`${ASSET_ROOT}backdrops/clouds-atlas.webp`, 'baseColor', budget.textureAnisotropy).catch(() => null),
   ])
   refineSofaFabric(archiveSofa, materials.sofaWeave)
   const shell = buildShell(materials, budget)
   scene.add(shell)
   const heroPlants = [leftHeroPlant, rightHeroPlant].filter((plant): plant is THREE.Object3D => plant !== null)
   const hero = buildGamesHero(scene, budget, materials, heroPlants, { keyboardMouse, archiveSofa })
+  const backdrop = scene.getObjectByName('GamesCastleBackdrop')
+  const clouds = backdrop && cloudAtlas ? createWindowClouds(backdrop, cloudAtlas) : null
+  renderer.domElement.dataset.windowClouds = clouds ? 'ready' : 'fallback'
   renderer.domElement.dataset.heroModels = keyboardMouse && archiveSofa && heroPlants.length === 2 ? 'desktop-ready' : 'procedural-fallback'
   const originals = swapStudioMaterials(scene, current, materials, desktop)
 
@@ -419,8 +426,11 @@ export async function createGamesPhotorealProof(options: GamesProofOptions): Pro
   setActive(true)
   return {
     setActive,
+    updateClouds(now, visibleView) { return active && (clouds?.update(now, visibleView) ?? false) },
     dispose() {
       setActive(false)
+      clouds?.dispose()
+      delete renderer.domElement.dataset.windowClouds
       delete renderer.domElement.dataset.heroModels
       shell.removeFromParent()
       hero.dispose()

@@ -238,7 +238,12 @@ try {
       }
       return moving
     },
-    updateScreens: (now) => screens.update(now),
+    updateScreens: (now) => {
+      const screensChanged = screens.update(now)
+      const view = store.get().view
+      const cloudsChanged = gamesProof?.updateClouds(now, view === 'studio' || view === 'games') ?? false
+      return screensChanged || cloudsChanged
+    },
     updateEffects: (now) => studioHighlights.update(now),
     screenIntervalMs: rendering.quality.screenIntervalMs,
   })
