@@ -294,9 +294,9 @@ export function createLiveScreenSystem(store: StudioStore, textureAnisotropy = 4
 
     context.fillStyle = 'rgba(8,10,8,.74)'; context.fillRect(0, 397, 768, 35)
     const archivePrompt = state.inspectMode === 'archiveCemetery'
-      ? 'CLICK / TAP A GRAVE FOR DETAILS'
-      : 'CLICK / TAP SCREEN TO ENTER CEMETERY'
-    context.fillStyle = '#e3c4aa'; context.font = '700 12px monospace'; context.fillText(archivePrompt, 24, 419)
+      ? 'SELECT A GRAVE FOR DETAILS'
+      : isMobileViewport() ? 'TAP TO EXPLORE' : 'CLICK TO EXPLORE'
+    context.fillStyle = '#e3c4aa'; context.font = '700 18px monospace'; context.fillText(archivePrompt, 24, 420)
     const roll = (ms * .02) % 432; context.fillStyle = 'rgba(255,230,205,.035)'; context.fillRect(0, roll, 768, 10)
     for (let y = 0; y < 432; y += 6) { context.fillStyle = 'rgba(12,8,5,.08)'; context.fillRect(0, y, 768, 1) }
     texture.needsUpdate = true

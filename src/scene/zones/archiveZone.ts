@@ -83,7 +83,7 @@ export function buildArchiveZone(materials: StudioMaterials, tools: SceneTools, 
     shelf.userData.surfaceMaterial = 'walnut'
   }
   // Wall-mounted header, separated from the cabinet rather than embedded in it.
-  addBox(shelves, [2.72, .43, .065], [0, 4.24, -.23], plaqueMaterial(tools, 'shelf', 'DEAD BUILDS.', 'LIVE LESSONS  /  ARCHIVE 04'), [0, 0, 0], .025)
+  addBox(shelves, [2.72, .43, .065], [0, 4.24, -.23], plaqueMaterial(tools, 'shelf', 'SHELVED.', 'NOT FORGOTTEN.'), [0, 0, 0], .025)
 
   const boxes = [
     { x: -1.02, y: .69, w: .78, h: .42, d: .44, material: materials.sage, key: 'bugs', title: 'BUGS', note: '2019–2021', color: '#536758' },
@@ -132,7 +132,6 @@ export function buildArchiveZone(materials: StudioMaterials, tools: SceneTools, 
   const archiveScreen = addBox(memorial, [2.02, 1.14, .018], [0, 2.15, .168], materials.black, [0, 0, 0], .02)
   archiveScreen.castShadow = false; archiveScreen.receiveShadow = false
   addBox(memorial, [2.14, .035, .025], [0, 3.14, .08], warmMetal, [0, 0, 0], .008)
-  addBox(memorial, [1.72, .18, .026], [0, .53, .524], plaqueMaterial(tools, 'terminal', 'MEMORIAL 04', 'OPEN SCREEN · CHOOSE A GRAVE'), [0, 0, 0], .014)
   for (const x of [-.91, -.76]) addCylinder(memorial, .045, .045, .034, [x, .92, .54], x < -.85 ? materials.sage : materials.terracotta, [Math.PI / 2, 0, 0], 18)
 
   // The lounge keeps the left side human in scale without competing with the terminal.
@@ -164,7 +163,7 @@ export function buildArchiveZone(materials: StudioMaterials, tools: SceneTools, 
 
   const loungeArt = group('ArchiveLoungeArt', [-7.31, 0, 1.32], [0, Math.PI / 2, 0])
   addBox(loungeArt, [1.46, .83, .055], [0, 2.74, 0], darkMetal, [0, 0, 0], .03)
-  addBox(loungeArt, [1.33, .7, .025], [0, 2.74, .045], plaqueMaterial(tools, 'lounge', 'RIP, SCOPE.', 'YOU GREW TOO LARGE'), [0, 0, 0], .018)
+  addBox(loungeArt, [1.33, .7, .025], [0, 2.74, .045], plaqueMaterial(tools, 'lounge', 'IT WORKED.', 'ON MY MACHINE.'), [0, 0, 0], .018)
 
   if (budget.decorativeLights) {
     point(0xffc987, 1.18, 3.5, [-6.2, 2.0, -1.18])
