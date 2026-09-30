@@ -36,7 +36,20 @@ export function createStudioWayfinding(options: {
     const arrow = document.createElement('span')
     arrow.className = 'studio-marker-arrow'
     arrow.setAttribute('aria-hidden', 'true')
-    arrow.textContent = '↓'
+    const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
+    icon.setAttribute('viewBox', '0 0 16 16')
+    icon.setAttribute('width', '16')
+    icon.setAttribute('height', '16')
+    icon.setAttribute('focusable', 'false')
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path')
+    path.setAttribute('d', 'M8 3v10M3.5 8.5 8 13l4.5-4.5')
+    path.setAttribute('fill', 'none')
+    path.setAttribute('stroke', 'currentColor')
+    path.setAttribute('stroke-width', '1.5')
+    path.setAttribute('stroke-linecap', 'round')
+    path.setAttribute('stroke-linejoin', 'round')
+    icon.append(path)
+    arrow.append(icon)
     const label = document.createElement('span')
     label.textContent = view
     button.append(arrow, label)
@@ -45,7 +58,7 @@ export function createStudioWayfinding(options: {
     }
     button.addEventListener('click', activate)
     root.append(button)
-    return { button, arrow, position: new THREE.Vector3(...position), activate }
+    return { button, position: new THREE.Vector3(...position), activate }
   })
   document.body.append(root)
 
@@ -73,7 +86,7 @@ export function createStudioWayfinding(options: {
       }
       placed.push({ left: x - halfWidth, right: x + halfWidth, top: y - halfHeight, bottom: y + halfHeight })
       const edge = Math.abs(rawX - x) > 1
-      marker.arrow.textContent = edge ? (rawX < x ? '←' : '→') : '↓'
+      marker.button.dataset.direction = edge ? (rawX < x ? 'left' : 'right') : 'down'
       marker.button.dataset.edge = String(edge)
       marker.button.style.left = `${x}px`
       marker.button.style.top = `${y}px`

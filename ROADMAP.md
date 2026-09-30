@@ -561,6 +561,16 @@ Bulk 25.4 checkpoint 1: Studio-only yaw is bounded to ±16° Desktop, ±32° por
 
 Bulk 25.4 checkpoint 2: four accessible labels follow projected room anchors, with restrained static arrow glow and edge arrows for cropped areas. They open the existing navigation, avoid intro/label overlaps and hide during transitions, detail/modal states and touch-only use. Updates share the existing render scheduler; no added animation loop, asset download or scene-quality reduction. Build, Pages and full responsive QA pass; dedicated discovery tests cover Desktop (1440 × 900 and 900 × 600), portrait, landscape and wide touch, including keyboard activation and hidden-focus states. Captures are in `docs/qa/current/studio-discovery/`. Bulk 25.4 is complete; physical OnePlus review and final interaction acceptance remain in Bulk 25.5.
 
+### Wayfinding refinement — approved three-bulk extension
+
+- [x] Bulk 1: matte navigation-matched pills, consistent vector arrows, restrained hover and visible keyboard focus; preserve room anchors, edge directions, activation and Mobile visibility rules.
+- [ ] Bulk 2: shared pill/scene hover and focus state with subtle highlights on authored zone frames, never the invisible hotspot boxes; clear highlights during navigation, dragging and modal use.
+- [ ] Bulk 3: final Desktop framing/interaction/performance comparison and Mobile non-regression review, with before/after captures.
+
+Scope: no camera, asset or scene-quality change in Bulk 1. Each completed bulk receives a separate reversible commit; room highlighting remains unimplemented until Bulk 2 is approved.
+
+Bulk 1 verification (2026-09-30): production build/TypeScript, Pages subpath QA and Studio discovery QA pass. The five-profile matrix covers Desktop 1440 × 900, compact Desktop 900 × 600, portrait, landscape and wide touch. Additional checks verify non-focusable decorative SVGs, preserved edge arrows, matte/no-glow styling, reduced-motion support, stable hover bounds, visible keyboard focus and no navigation on hover. Before captures are in `docs/qa/current/wayfinding-pills/before/`; after, hover and focus captures are in `docs/qa/current/studio-discovery/`. No new assets, animation loop, scene geometry or camera changes; physical-phone acceptance remains pending.
+
 ### Bulk 25.5 — Interaction polish regression and real-device review
 
 Pre-release navigation correction (2026-09-30): Web ↔ Projects now stays direct on the shared right wall regardless of the portrait camera-distance threshold. In Games preview the visible left monitor is raycastable again and returns directly to Game Select instead of falling through to the broad Games hotspot. Narrow portrait phones retain the explicit GAME SELECT return button when the left screen is outside the frame. `qa:navigation` verifies both directions, rapid reversal, two consecutive game selections and the correct project modal on Desktop, portrait, docked portrait, landscape and reduced motion; build, Pages and full responsive QA pass. Physical-device review below is still pending.

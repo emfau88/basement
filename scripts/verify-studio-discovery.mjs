@@ -46,6 +46,35 @@ try {
     const markers = page.locator('.studio-marker:visible')
     assert(await markers.count() === (profile.touch ? 0 : 4), `${profile.name}: unexpected marker visibility`)
     if (!profile.touch) {
+      const iconStates = await markers.evaluateAll((buttons) => buttons.map((button) => ({
+        direction: button.dataset.direction,
+        edge: button.dataset.edge,
+        svgCount: button.querySelectorAll('.studio-marker-arrow svg').length,
+        iconHidden: button.querySelector('.studio-marker-arrow')?.getAttribute('aria-hidden'),
+        iconFocusable: button.querySelector('svg')?.getAttribute('focusable'),
+        background: getComputedStyle(button).backgroundColor,
+        textShadow: getComputedStyle(button.querySelector('.studio-marker-arrow')).textShadow,
+        transition: getComputedStyle(button).transitionDuration,
+      })))
+      for (const icon of iconStates) {
+        assert(icon.svgCount === 1 && icon.iconHidden === 'true' && icon.iconFocusable === 'false', `${profile.name}: marker icon is missing or entered the accessibility tree`)
+        assert(icon.edge === 'true' ? ['left', 'right'].includes(icon.direction) : icon.direction === 'down', `${profile.name}: marker lost its edge direction`)
+        assert(icon.background === 'rgb(238, 234, 225)' && icon.textShadow === 'none', `${profile.name}: matte marker styling regressed`)
+        assert(icon.transition === '0s', `${profile.name}: reduced-motion marker still animates`)
+      }
+      const gamesMarker = page.locator('.studio-marker[data-view="games"]')
+      const restingBounds = await gamesMarker.boundingBox()
+      await gamesMarker.hover()
+      await page.screenshot({ path: path.join(outputDirectory, `${profile.name}-marker-hover.png`) })
+      const hoveredBounds = await gamesMarker.boundingBox()
+      assert(JSON.stringify(restingBounds) === JSON.stringify(hoveredBounds), `${profile.name}: marker moved on hover`)
+      assert(await page.locator('body').evaluate((body) => body.classList.contains('view-studio')), `${profile.name}: marker hover navigated the camera`)
+      await page.mouse.move(5, profile.height - 5)
+      await gamesMarker.focus()
+      const focusOutline = await gamesMarker.evaluate((button) => ({ width: getComputedStyle(button).outlineWidth, style: getComputedStyle(button).outlineStyle }))
+      assert(focusOutline.width === '2px' && focusOutline.style === 'solid', `${profile.name}: keyboard focus is not visible`)
+      await page.screenshot({ path: path.join(outputDirectory, `${profile.name}-marker-focus.png`) })
+      await page.keyboard.press('Escape'); await waitForCamera(page)
       const boxes = await markers.evaluateAll((buttons) => buttons.map((button) => {
         const { left, top, right, bottom } = button.getBoundingClientRect()
         return { left, top, right, bottom }
