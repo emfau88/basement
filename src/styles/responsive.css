@@ -33,6 +33,7 @@
 @media(max-width:760px){
   .top{top:var(--mobile-safe-top);left:var(--mobile-edge);right:var(--mobile-edge)}
   .manifesto,.live,.helper,.sound,.info,.tooltip{display:none}
+  .studio-look-hint{bottom:calc(var(--mobile-safe-bottom) + var(--mobile-nav-height) + 10px);font-size:9px}
   .intro{
     left:var(--mobile-edge);top:calc(var(--mobile-safe-top) + 46px);width:190px;padding:10px 12px 11px;
     border-radius:11px;background:rgba(247,244,236,.84);backdrop-filter:blur(12px)

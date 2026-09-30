@@ -69,6 +69,8 @@ try {
     return assetManagerPromise
   }
   const cameraController = new CameraController(rendering.camera)
+  const studioLookHint = requiredElement<HTMLElement>('studioLookHint')
+  studioLookHint.textContent = matchMedia('(pointer: coarse)').matches ? 'Swipe to look around · Tap an area' : 'Drag to look around · Click an area'
   const materials = createStudioMaterials()
   const tools = createSceneTools(rendering.scene, materials, detailBudget)
   const meshes = buildStudioRoom(rendering.scene, materials, tools, detailBudget)
@@ -142,6 +144,7 @@ try {
   }
   const beginCameraTransition = () => {
     clearInteractionFeedback()
+    rendering.renderer.domElement.dataset.studioYaw = '0'
     rendering.renderer.domElement.dataset.cameraRoute = cameraController.getActiveRouteFamily()
     rendering.renderer.domElement.dataset.cameraMotion = cameraController.getActiveMotion()
     document.body.classList.add('camera-moving')
@@ -162,6 +165,10 @@ try {
   const navigate = (view: StudioView) => {
     const state = store.get()
     if (state.view === view && !state.inspectMode) {
+      if (view === 'studio' && cameraController.recenterStudio()) {
+        rendering.renderer.domElement.dataset.studioYaw = '0'
+        beginCameraTransition()
+      }
       if (state.mobileSheet === 'expanded') store.set({ mobileSheet: 'collapsed' })
       return
     }
@@ -230,6 +237,7 @@ try {
   rendering.renderer.domElement.dataset.quality = rendering.quality.name
   rendering.renderer.domElement.dataset.cameraRoute = cameraController.getActiveRouteFamily()
   rendering.renderer.domElement.dataset.cameraMotion = cameraController.getActiveMotion()
+  rendering.renderer.domElement.dataset.studioYaw = '0'
   rendering.renderer.domElement.dataset.sceneDetail = String(detailBudget.dustParticles)
   syncScreenFidelity()
   rendering.renderer.domElement.addEventListener('webglcontextlost', (event) => { event.preventDefault(); webglRecovery.show() })
@@ -280,10 +288,16 @@ try {
     if (!isMobileViewport() || state.inspectMode) return
     cameraController.adaptToSheet(state.view, state.mobileSheet); beginCameraTransition()
   })
-  createRaycaster({ canvas: rendering.renderer.domElement, camera: rendering.camera, meshes, hotspots, screens, projectWall, store, modal, tooltip, navigate, enterGameInspect, enterGamePreview, enterArchiveInspect, isCameraMoving: () => cameraController.isMoving(), requestRender: scheduler.requestRender })
+  const interaction = createRaycaster({ canvas: rendering.renderer.domElement, camera: rendering.camera, meshes, hotspots, screens, projectWall, store, modal, tooltip, navigate, enterGameInspect, enterGamePreview, enterArchiveInspect, isCameraMoving: () => cameraController.isMoving(), requestRender: scheduler.requestRender,
+    panStudio: (horizontalFraction) => {
+      rendering.renderer.domElement.dataset.studioYaw = String(cameraController.panStudio(horizontalFraction))
+      clearInteractionFeedback(); scheduler.requestRender()
+    },
+  })
 
   window.addEventListener('keydown', (event) => {
     if (event.key !== 'Escape') return
+    interaction.cancelGesture()
     if (modal.isOpen()) modal.close()
     else if (store.get().inspectMode) backFromInspect()
     else if (store.get().mobileSheet === 'expanded') store.set({ mobileSheet: 'collapsed' })
@@ -291,11 +305,13 @@ try {
   })
   const viewport = createViewportController(() => {
     const state = store.get()
+    interaction.cancelGesture()
+    rendering.renderer.domElement.dataset.studioYaw = '0'
     clearInteractionFeedback(); document.body.classList.remove('camera-moving'); inspectBack.disabled = false
     rendering.resize(); syncScreenFidelity(); cameraController.resize(state.view, state.inspectMode, state.mobileSheet); scheduler.requestRender()
   })
   window.addEventListener('pagehide', () => {
-    viewport.destroy(); mobileControls.destroy(); navigation.destroy(); unsubscribeCameraLayout(); scheduler.destroy(); gamesProof?.dispose(); assetManager?.dispose()
+    interaction.destroy(); viewport.destroy(); mobileControls.destroy(); navigation.destroy(); unsubscribeCameraLayout(); scheduler.destroy(); gamesProof?.dispose(); assetManager?.dispose()
   }, { once: true })
 
   rendering.scene.traverse((object) => {

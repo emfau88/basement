@@ -2,7 +2,7 @@ import * as THREE from 'three'
 import { getInspectPreset, getMobileTransitionWaypoint, getViewPreset, type CameraPreset } from './presets'
 import { getMobileRoutePlan, type MobileRouteFamily } from './mobileRoutes'
 import type { InspectMode, MobileSheetState, StudioView } from '../state/studioState'
-import { isMobileViewport } from '../config/responsive'
+import { isLandscapeViewport, isMobileViewport } from '../config/responsive'
 
 const cubicEaseInOut = (value: number) => value < 0.5
   ? 4 * value * value * value
@@ -26,6 +26,9 @@ export class CameraController {
   private currentView: StudioView = 'studio'
   private activeRouteFamily: MobileRouteFamily = 'direct'
   private activeMotion: 'direct' | 'curve' = 'direct'
+  private studioYaw = 0
+  private readonly studioDirection = new THREE.Vector3()
+  private readonly verticalAxis = new THREE.Vector3(0, 1, 0)
 
   constructor(private readonly camera: THREE.PerspectiveCamera) {
     const preset = getViewPreset('studio')
@@ -103,6 +106,23 @@ export class CameraController {
     return this.activeMotion
   }
 
+  panStudio(horizontalFraction: number): number {
+    if (this.currentView !== 'studio' || this.moving) return this.studioYaw
+    const limit = THREE.MathUtils.degToRad(isMobileViewport() ? (isLandscapeViewport() ? 22 : 32) : 16)
+    this.studioYaw = THREE.MathUtils.clamp(this.studioYaw + horizontalFraction * 1.2, -limit, limit)
+    const preset = getViewPreset('studio')
+    this.studioDirection.fromArray(preset.target).sub(this.camera.position).applyAxisAngle(this.verticalAxis, this.studioYaw)
+    this.lookTarget.copy(this.camera.position).add(this.studioDirection)
+    this.camera.lookAt(this.lookTarget)
+    return this.studioYaw
+  }
+
+  recenterStudio(): boolean {
+    if (this.currentView !== 'studio' || this.moving || this.studioYaw === 0) return false
+    this.moveTo(getViewPreset('studio'), 460)
+    return true
+  }
+
   private moveTo(preset: CameraPreset, duration: number): void {
     this.activeMotion = 'direct'
     this.startMove(preset, duration, performance.now())
@@ -135,6 +155,7 @@ export class CameraController {
   }
 
   private startMove(preset: CameraPreset, duration: number, startedAt: number): void {
+    this.studioYaw = 0
     this.positionCurve = null
     this.targetCurve = null
     this.fovCurve = null
@@ -150,6 +171,7 @@ export class CameraController {
   }
 
   private snapTo(preset: CameraPreset): void {
+    this.studioYaw = 0
     this.camera.position.fromArray(preset.position)
     this.lookTarget.fromArray(preset.target)
     this.camera.fov = preset.fov
